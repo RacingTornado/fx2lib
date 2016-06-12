@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 Ubixum, Inc. 
+ * Copyright (C) 2009 Ubixum, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,12 +27,12 @@
  * a baud rate generator.  (Don't use timer 2)
  **/
 void sio0_init( DWORD baud_rate ) __critical { // baud_rate max should be 57600 since int=2 bytes
-	
-    WORD hl; // hl value for reload	
+
+    WORD hl; // hl value for reload
 	BYTE mult; // multiplier for clock speed
     DWORD tmp; // scratch for mult/divide
 
-    // 0 = 12mhz, 1=24mhz, 2=48mhz    
+    // 0 = 12mhz, 1=24mhz, 2=48mhz
 	mult = CPUFREQ == CLK_12M ? 1 :
            CPUFREQ == CLK_24M ? 2 : 4; // since only 3 clock speeds, fast switch instead of doing 2^clock speed pow(2,clkspd)
 
@@ -46,7 +46,7 @@ void sio0_init( DWORD baud_rate ) __critical { // baud_rate max should be 57600 
     // tmp * 2 // double
     // tmp / rate // do the divide
     // tmp + 1 // add one (which is like adding 1/2)
-    // tmp / 2 // back to original rounded 
+    // tmp / 2 // back to original rounded
     tmp = mult * 375000L * 2 ;
     tmp /= baud_rate;
     tmp += 1;
@@ -55,13 +55,13 @@ void sio0_init( DWORD baud_rate ) __critical { // baud_rate max should be 57600 
     hl = 0xFFFF - (WORD)tmp;
 
 	RCAP2H= MSB(hl);
-	// seems that the 24/48mhz calculations are always one less than suggested values    
+	// seems that the 24/48mhz calculations are always one less than suggested values
     // trm table 14-16
 	RCAP2L= LSB(hl) + (mult>0?1:0);
 	TR2=1; // start the timer
-	
-	// set up the serial port	
-	SM0 = 0; SM1=1;// serial mode 1 (asyncronous)	
+
+	// set up the serial port
+	SM0 = 0; SM1=1;// serial mode 1 (asyncronous)
 	SM2 = 0 ; // has to do with receiving
 	REN = 1 ; // to enable receiving
     PCON |= 0x80; // SET SMOD0, baud rate doubler
@@ -72,21 +72,21 @@ void sio0_init( DWORD baud_rate ) __critical { // baud_rate max should be 57600 
 char getchar() {
   char c;
   while (!RI)
-    ;  
+    ;
   c=SBUF0;
   RI=0;
   return c;
 }
 
 void _transchar(char c) {
- while ( !TI ); // wait for TI=1 
+ while ( !TI ); // wait for TI=1
  TI=0;
  SBUF0=c;
 }
 
-void putchar (char c) {
+void putchar1 (char c) {
   if (c=='\n') _transchar('\r'); // transmit \r\n
-  _transchar(c);  
+  _transchar(c);
   if (c == '\r' ) _transchar('\n'); // transmit \r\n
 }
 
