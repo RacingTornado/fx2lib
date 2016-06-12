@@ -73,7 +73,6 @@ extern void spi_data_logic (unsigned char mosi_data_a,
 extern void spi_mosi_data_logic ();
 extern void spi_miso_data_logic ();
 extern void fast_uart(unsigned char a);
-extern void set_resp(unsigned char a);
 extern void temp_call ();
 extern char xxy (char a, char b);
 extern BOOL handle_mpsse ();
@@ -132,7 +131,6 @@ main ()
    ENABLE_HISPEED ();
    ENABLE_USBRESET ();
    EA = 1;			// global interrupt enable
-   set_resp(0x02);
    //5us interval
    interval = 5;
    timerlib_init(CLK_48M);

@@ -17,7 +17,7 @@ unsigned char k;
 
 BOOL handle_mpsse()
 {
-   softuart_putchar('h');
+
    EP0BCH = 0;
    EP0BCL = 3;
 

@@ -30,7 +30,7 @@ unsigned int latency_us = 40000;
 //smaller. In this case, the endpoint needs to be configured by setting the EPIOUTCFG, and EP1INCFG
 //registers . For endpoint configuration, refer Table 8.2
 
-extern void softuart_putchar(char a);
+
 
 void ProcessXmitData(void)
 {
@@ -325,12 +325,10 @@ void ProcessRecvData(void)
       if (*src >= 'a' && *src <= 'z')
       {
          putchar_a(*src - 'a' + 'A');
-         softuart_putchar(*src);
       }
       else
       {
          putchar_a(*src);
-         softuart_putchar(*src);
       }
    }
 

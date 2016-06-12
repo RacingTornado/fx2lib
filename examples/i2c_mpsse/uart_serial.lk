@@ -1,0 +1,32 @@
+-muwx
+-i uart_serial.hex
+-M
+-Y
+-X 0x0800
+-C 0x3000
+-b HOME = 0x0000
+-b XSEG = 0x3200
+-b PSEG = 0x3200
+-b ISEG = 0x0000
+-b BSEG = 0x0000
+-b INT2JT=0x3100
+-k /usr/local/bin/../share/sdcc/lib/small
+-k /usr/local/share/sdcc/lib/small
+-l ../../lib/fx2.lib
+-l mcs51
+-l libsdcc
+-l libint
+-l liblong
+-l libfloat
+bulkloop.rel
+uart_config.rel
+descriptors.rel
+timer_conf.rel
+soft_uart.rel
+toggle.rel
+i2c_rw.rel
+spi_rw.rel
+mpsse_vendor.rel
+timer_lib.rel
+
+-e

@@ -79,10 +79,9 @@ void timer_init()
 
 void softuart_init( void )
 {
-   set_tx_pin_high(); /* mt: set to high to avoid garbage on init */
+  
    io_init();
    timer_init();
-   softuart_turn_rx_on();
    QueueInitRX();
    QueueInitTX();
    tx_busy = 0;
