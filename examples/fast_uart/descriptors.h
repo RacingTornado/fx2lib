@@ -22,12 +22,12 @@ struct usb_descriptors {
 	struct usb_descriptors_stringtable stringtable;
 };
 
-__xdata __at(0x3e00) struct usb_descriptors descriptors;
+__xdata __at(DSCR_AREA) struct usb_descriptors descriptors;
 
-__code __at(0x3e00+offsetof(struct usb_descriptors, device))		WORD dev_dscr;
-__code __at(0x3e00+offsetof(struct usb_descriptors, qualifier))	WORD dev_qual_dscr;
-__code __at(0x3e00+offsetof(struct usb_descriptors, highspeed))	WORD highspd_dscr;
-__code __at(0x3e00+offsetof(struct usb_descriptors, fullspeed))	WORD fullspd_dscr;
-__code __at(0x3e00+offsetof(struct usb_descriptors, stringtable))	WORD dev_strings;
+__code __at(DSCR_AREA+offsetof(struct usb_descriptors, device))		WORD dev_dscr;
+__code __at(DSCR_AREA+offsetof(struct usb_descriptors, qualifier))	WORD dev_qual_dscr;
+__code __at(DSCR_AREA+offsetof(struct usb_descriptors, highspeed))	WORD highspd_dscr;
+__code __at(DSCR_AREA+offsetof(struct usb_descriptors, fullspeed))	WORD fullspd_dscr;
+__code __at(DSCR_AREA+offsetof(struct usb_descriptors, stringtable))	WORD dev_strings;
 
 #endif // DESCRIPTORS_H_
