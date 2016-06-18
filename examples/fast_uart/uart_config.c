@@ -78,18 +78,18 @@ void putchar_a(char c)
 
 /*
  * USB setup packet descriptors
- *                           ____________________________________________________________
- *                          | Byte  | Field            | Meaning                          |
- *                          |_______|__________________|__________________________________|
- *                          | 0     | RequestType      |   Direction, and Recepient       |
- *                          | 1     | Request          |   The actaul request             |
- *                          | 2     | wValueL          |   16 bit value                   |
- *                          | 3     | wValueH          |   16 bit value                   |
- *                          | 4     | wIndexL          |   16 bit value                   |
- *                          | 5     | wIndexH          |   16 bit value                   |
- *                          | 6     | wLengthL         |   Bytes to transfer              |
- *                          | 7     | wLengthH         |   Bytes to transfer              |
- *                          |_______|__________________|__________________________________|
+ *  ____________________________________________________________
+ *| Byte  | Field            | Meaning                          |
+ *|_______|__________________|__________________________________|
+ *| 0     | RequestType      |   Direction, and Recepient       |
+ *| 1     | Request          |   The actaul request             |
+ *| 2     | wValueL          |   16 bit value                   |
+ *| 3     | wValueH          |   16 bit value                   |
+ *| 4     | wIndexL          |   16 bit value                   |
+ *| 5     | wIndexH          |   16 bit value                   |
+ *| 6     | wLengthL         |   Bytes to transfer              |
+ *| 7     | wLengthH         |   Bytes to transfer              |
+ *|_______|__________________|__________________________________|
  *
  *
  */
