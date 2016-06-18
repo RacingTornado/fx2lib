@@ -12,4 +12,6 @@ By default a fast_uart(0x30) is inserted in the main while loop. You need to ope
 sudo minicom -H -w fastuart
 
 You should have the parameters of fastuart set to 115200. You should see the values on the terminal.
+
+The PA2 pin must be connected to the rx pin on the serial adaptor.
 	
