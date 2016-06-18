@@ -144,8 +144,6 @@ main ()
    while (TRUE)
    {
       service_timer();
-      uart_rx_service();
-      uart_tx_service();
       fast_uart(0x30);
 
       if (anotherone > 0 )
