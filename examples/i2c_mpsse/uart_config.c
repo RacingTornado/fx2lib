@@ -28,7 +28,10 @@ unsigned int bytes_waiting_for_xmit = 0;
 unsigned int latency_us = 40000;
 //There are different endpoints on the FX2. However the CPU can access the endpoint 0 or endpoint 1 which is
 //smaller. In this case, the endpoint needs to be configured by setting the EPIOUTCFG, and EP1INCFG
-//registers . For endpoint configuration, refer Table 8.2
+//registers . For endpoint configuration, refer Table 8.2. Although other endpoints are also accesible
+//by the CPU, typically it is only EP0(control) and EP1 which is used to move small amounts of data back and forth
+//For MPSSE it is ideal since we cannot use hardware FIFO modes since we need to examine each and every command
+//Hence we reserve other endpoints for higher speeds and retain this for MPSSE I2C and SPI mode.
 
 
 
