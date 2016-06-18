@@ -60,7 +60,7 @@ void i2c_service()
 
     if(tx_rx == state_wait)
     {
-        fast_uart(0x20);
+        //fast_uart(0x20);
         bit_count = 0x08;
         tx_rx = state_tx;
         tx_i2c_buffer = 0x30;

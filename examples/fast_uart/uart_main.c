@@ -109,9 +109,9 @@ I2C declarations
 ***************************************************/
 enum isr_state
         {
-        state_tx, //0
-        state_rx,  //1
-        state_wait
+        state_tx=0, //0
+        state_rx=1 ,  //1
+        state_wait=2
         };
 enum isr_state tx_rx;
 unsigned char tx_i2c_buffer;
@@ -347,7 +347,7 @@ __interrupt HISPEED_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
-
+    fast_uart(tx_i2c_buffer);
 
     __asm
     mov a,_tx_rx
@@ -365,8 +365,8 @@ __interrupt TF1_ISR
     tx:
     orl _OEA,#0x80
     mov a, _tx_i2c_buffer;
+    rlc a;
     mov _PA7, c;
-    rlc a
     mov _tx_i2c_buffer,a;
     sjmp finish//Jump back
     rx:
