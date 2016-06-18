@@ -16,7 +16,6 @@ Most of the logic here is implemented from this http://www.simplyembedded.org/tu
 #include <eputils.h>
 #include <fx2ints.h>
 #include "softuart.h"
-#include "mpsse.h"
 #include "timer_lib.h"
 
 #define SYNCDELAY SYNCDELAY4

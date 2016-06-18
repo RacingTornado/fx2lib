@@ -26,7 +26,6 @@
 #include <setupdat.h>
 #include <eputils.h>
 #include <fx2ints.h>
-#include "mpsse.h"
 #include "timer_lib.h"
 #include "softuart.h"
 #define SU_TRUE    1
@@ -192,7 +191,7 @@ handle_vendorcommand (BYTE cmd)
       break;
 
       default:
-         handle_mpsse ();
+         //handle_mpsse ();
          printf ("Need to implement vendor command: %02x\n", cmd);
    }
 
