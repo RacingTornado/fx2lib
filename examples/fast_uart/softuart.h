@@ -6,50 +6,9 @@
 #include "fx2regs.h"
 #include "fx2types.h"
 
-#define SOFTUART_BAUD_RATE      2400
 
-#define SOFTUART_RXPIN   IOA
-#define SOFTUART_RXDDR   OEA
-#define SOFTUART_RXBIT   PA1
-#define SOFTUART_RXBITNO 2
 
-#define SOFTUART_TXPORT  IOA
-#define SOFTUART_TXDDR   OEA
-#define SOFTUART_TXBIT   PA0
-#define SOFTUART_TXBITNO  1
 
-#define SOFTUART_T_COMP_LABEL      TIM0_COMPA_vect
-#define SOFTUART_T_COMP_REG        OCR0A
-#define SOFTUART_T_CONTR_REGA      TCCR0A
-#define SOFTUART_T_CONTR_REGB      TCCR0B
-#define SOFTUART_T_CNT_REG         TCNT0
-#define SOFTUART_T_INTCTL_REG      TIMSK
-
-#define SOFTUART_CMPINT_EN_MASK    (1 << OCIE0A)
-
-#define SOFTUART_CTC_MASKA         (1 << WGM01)
-#define SOFTUART_CTC_MASKB         (0)
-
-/* "A timer interrupt must be set to interrupt at three times
-   the required baud rate." */
-#define SOFTUART_PRESCALE (8)
-// #define SOFTUART_PRESCALE (1)
-
-#if (SOFTUART_PRESCALE == 8)
-    #define SOFTUART_PRESC_MASKA         (0)
-    #define SOFTUART_PRESC_MASKB         (1 << CS01)
-#elif (SOFTUART_PRESCALE==1)
-    #define SOFTUART_PRESC_MASKA         (0)
-    #define SOFTUART_PRESC_MASKB         (1 << CS00)
-#else
-    #error "prescale unsupported"
-#endif
-
-#define SOFTUART_TIMERTOP ( F_CPU/SOFTUART_PRESCALE/SOFTUART_BAUD_RATE/3 - 1)
-
-#if (SOFTUART_TIMERTOP > 0xff)
-#warning "Check SOFTUART_TIMERTOP: increase prescaler, lower F_CPU or use a 16 bit timer"
-#endif
 
 #define BUFFER_SIZE     4
 

@@ -56,13 +56,7 @@ __xdata unsigned char QueueInRX, QueueOutRX;
 
 
 
-static void io_init(void)
-{
-   // TX-Pin as output
-   SOFTUART_TXDDR |=  ( 1 << SOFTUART_TXBITNO );
-   // RX-Pin as input
-   SOFTUART_RXDDR &= ~( 1 << SOFTUART_RXBITNO );
-}
+
 
 void timer_init()
 {
@@ -80,7 +74,7 @@ void timer_init()
 void softuart_init( void )
 {
 
-   io_init();
+   //io_init();
    timer_init();
    tx_busy = 0;
    rx_busy - 0;
@@ -93,45 +87,7 @@ void fast_uart(unsigned char a)
 {
    OEA |= 0x04;
    //Multiple versions of fast UART, both of these programs are tested.
-   // I should probably remove them from this commit, but I thought it would be good to have only this
-   // In case we may need to use the fast_uart using the rr operations.
-   //    __asm
-   //    anl IE, #0x7f;
-   //    mov a ,dpl
-   //    clr c
-   //    mov r0, #0x08;
-   //    clr _PA2;
-   //    0005$:
-   //    mov r1, #0x17;
-   //    0006$:
-   //    djnz r1,0006$;
-   //    nop;
-   //    nop;
-   //    0001$:
-   //    rrc a;
-   //    jc 0002$;
-   //    clr _PA2;
-   //    mov r1,#0x1e;
-   //    0008$:
-   //    djnz r1, 0008$
-   //    nop;
-   //
-   //
-   //
-   //    ajmp 0007$;
-   //    0002$:
-   //    setb _PA2;
-   //    0003$:
-   //    mov r1, #0x1f;
-   //    0004$:
-   //    djnz r1, 0004$;
-   //    nop;
-   //    0007$:
-   //    djnz r0, 0001$;
-   //    setb _PA2;
-   //    orl IE, #0x80;
-   //
-   //    __endasm;
+   //Check last commit for older version
    __asm
    anl _IE, #0x7f;
    mov a , dpl

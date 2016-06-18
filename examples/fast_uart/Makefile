@@ -11,5 +11,4 @@ INT2JT =-Wl"-b INT2JT=0x3100"
 include $(FX2LIBDIR)lib/fx2.mk
 include $(FX2LIBDIR)lib/fx2-cdesc.mk
 
-test: test.cpp
-	g++ -o test test.cpp -lusb-1.0
+
