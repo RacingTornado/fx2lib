@@ -104,6 +104,22 @@ extern __xdata unsigned char receive_rx[BUFFER_SIZE];
 extern  __xdata  volatile unsigned short fx2_tick ;
 extern  void (*callback)();
 
+/**************************************************
+I2C declarations
+***************************************************/
+enum isr_state
+        {
+        state_tx, //0
+        state_rx,  //1
+        state_wait
+        };
+enum isr_state tx_rx;
+unsigned char tx_i2c_buffer;
+unsigned char rx_i2c_buffer;
+unsigned char bit_count;
+extern void i2c_init();
+extern void i2c_service();
+
 
 
 
@@ -140,11 +156,15 @@ main ()
    ENABLE_TIMER1 ();
    TR0 = 1 ;
 
+   /******************
+   I2C Block
+   *******************/
+   i2c_init();
+
    while (TRUE)
    {
       service_timer();
-      fast_uart(0x30);
-
+      i2c_service();
       if (anotherone > 0 )
       {
          handle_setupdata ();
@@ -329,6 +349,37 @@ __interrupt TF1_ISR
 {
 
 
+    __asm
+    mov a,_tx_rx
+    CJNE A, #0x02, state //If in halt state, do nothing
+    ajmp finish
+    state:
+    djnz _bit_count,cont;
+    mov _tx_rx,#0x02
+    ajmp finish
+    cont:
+    orl _OEA,#0x40
+    clr _PA6
+    mov a,_tx_rx
+    CJNE A, #0x00, rx
+    tx:
+    orl _OEA,#0x80
+    mov a, _tx_i2c_buffer;
+    mov _PA7, c;
+    rlc a
+    mov _tx_i2c_buffer,a;
+    sjmp finish//Jump back
+    rx:
+    anl _OEA,#0x7f
+    mov a, _rx_i2c_buffer;
+    mov c,_PA5;
+    rlc a;
+    mov _rx_i2c_buffer,a;
+    setb _PA6
+    finish:
+    nop
+    __endasm;
+
 }
 
 
@@ -337,6 +388,8 @@ void timer0_isr () __interrupt TF0_ISR
 {
 
    fx2_tick++;
+
+
 
 
 }
