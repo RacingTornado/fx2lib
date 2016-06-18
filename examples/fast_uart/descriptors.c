@@ -1,6 +1,6 @@
 #include "descriptors.h"
 
-__code __at(0x3e40) struct usb_descriptors code_descriptors =
+__code __at(DSCR_AREA) struct usb_descriptors code_descriptors =
 {
    .device = {
       .bLength		= USB_DT_DEVICE_SIZE,
