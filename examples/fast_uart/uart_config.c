@@ -316,15 +316,7 @@ void uart_config()
 
 
 
-void toggle_pins()
-{
-   //OEA=0x01;
-   SYNCDELAY;
-   __asm
-   //CPL 0x80;
-   __endasm;
-   SYNCDELAY;
-}
+
 
 
 

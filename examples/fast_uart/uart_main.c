@@ -54,7 +54,6 @@ __bit on;
 extern void uart_config ();
 extern void ProcessXmitData ();
 extern void ProcessRecvData ();
-extern void toggle_pins ();
 extern void configure_timer ();
 extern void start_timer ();
 extern void timer_init ();
@@ -302,8 +301,7 @@ sudav_isr ()
 __interrupt SUDAV_ISR
 {
 
-   toggle_pins ();
-   toggle_pins ();
+
    got_sud = TRUE;
    anotherone++;
    CLEAR_SUDAV ();
