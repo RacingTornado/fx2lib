@@ -18,14 +18,11 @@
 -l libint
 -l liblong
 -l libfloat
-bulkloop.rel
+uart_main.rel
 uart_config.rel
 descriptors.rel
 timer_conf.rel
 soft_uart.rel
-toggle.rel
-i2c_rw.rel
-spi_rw.rel
 mpsse_vendor.rel
 timer_lib.rel
 

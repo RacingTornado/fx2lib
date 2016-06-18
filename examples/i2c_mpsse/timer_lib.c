@@ -104,7 +104,7 @@ void create_timer()
    /* Make sure a valid timer is found */
    if (i < MAX_TIMERS)
    {
-      DISABLE_INTERRUPT();
+      EA = 0;
 
       /* Set up the timer */
       //The periodic holds the number of ticks after which the timer should fire.
@@ -120,7 +120,7 @@ void create_timer()
       fx2_timer[i].callback = callback;
       //From the point it is called, we load the value of expiry
       fx2_timer[i].expiry = fx2_tick + fx2_timer[i].periodic;
-      ENABLE_INTERRUPT();
+      EA = 1;
    }
 }
 
@@ -129,10 +129,10 @@ void delete_timer(__xdata unsigned char handle)
 {
    if (handle < MAX_TIMERS)
    {
-      DISABLE_INTERRUPT();
+      EA = 0;
       /* Clear the callback to delete the timer */
       fx2_timer[handle].callback = NULL;
-      ENABLE_INTERRUPT();
+      EA = 1;
    }
 }
 
@@ -166,9 +166,9 @@ void service_timer()
          //fast_uart(0x47);
          /* Timer is periodic, calculate next expiration */
          //fast_uart(fx2_timer[i].expiry);
-         DISABLE_INTERRUPT();
+         EA = 0;
          fx2_timer[i].expiry = fx2_timer[i].periodic + fx2_tick;
-         ENABLE_INTERRUPT();
+         EA = 1;
          //fast_uart(fx2_timer[i].expiry);
       }
    }

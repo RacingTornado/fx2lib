@@ -78,14 +78,14 @@ void putchar_a(char c)
  *                           ____________________________________________________________
  *                          | Byte  | Field            | Meaning                          |
  *                          |_______|__________________|__________________________________|
-                            | 0     | RequestType      |   Direction, and Recepient       |
+ *                          | 0     | RequestType      |   Direction, and Recepient       |
  *                          | 1     | Request          |   The actaul request             |
  *                          | 2     | wValueL          |   16 bit value                   |
  *                          | 3     | wValueH          |   16 bit value                   |
-                            | 4     | wIndexL          |   16 bit value                   |
-                            | 5     | wIndexH          |   16 bit value                   |
-                            | 6     | wLengthL         |   Bytes to transfer              |
-                            | 7     | wLengthH         |   Bytes to transfer              |
+ *                          | 4     | wIndexL          |   16 bit value                   |
+ *                          | 5     | wIndexH          |   16 bit value                   |
+ *                          | 6     | wLengthL         |   Bytes to transfer              |
+ *                          | 7     | wLengthH         |   Bytes to transfer              |
  *                          |_______|__________________|__________________________________|
  *
  *
@@ -310,31 +310,7 @@ void uart_config()
    TCON &= ~0x30;
 }
 
-void ProcessRecvData(void)
-{
-   __xdata const unsigned char * src = EP1OUTBUF;
-   unsigned int len = EP1OUTBC;
-   unsigned int i;
-   // Skip the first byte in the received data (it's a port
-   // identifier and length).
-   src++;
-   len--;
 
-   for (i = 0; i < len; i++, src++)
-   {
-      if (*src >= 'a' && *src <= 'z')
-      {
-         putchar_a(*src - 'a' + 'A');
-      }
-      else
-      {
-         putchar_a(*src);
-      }
-   }
-
-   EP1OUTBC = 0xff; // re-arm endpoint 1 for OUT (host->device) transfers
-   SYNCDELAY;
-}
 
 
 void toggle_pins()

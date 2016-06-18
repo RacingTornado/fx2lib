@@ -122,7 +122,6 @@ main ()
    RENUMERATE_UNCOND ();
    //Call our custom function to do our UART init
    uart_config ();
-   configure_drive (0xb0, 0);
    sio0_init (57600);
    //Enable USB auto vectored interrupts
    USE_USB_INTS ();

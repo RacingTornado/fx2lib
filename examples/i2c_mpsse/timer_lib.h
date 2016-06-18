@@ -9,7 +9,6 @@
 #define CKCON_T2 0x20
 #define T0_MODE_REL 0x02
 
-#define ENABLE_INTERRUPT()  EA = 1
-#define DISABLE_INTERRUPT() EA = 0
+
 
 #endif
