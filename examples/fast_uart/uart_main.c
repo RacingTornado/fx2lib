@@ -46,6 +46,48 @@ extern void fast_uart(unsigned char a, unsigned char b);
 
 
 
+
+
+/**************************************************
+I2C declarations
+***************************************************/
+enum isr_state
+        {
+        state_tx=0, //0
+        state_rx=1 ,  //1
+        state_wait=2
+        };
+enum isr_state tx_rx;
+unsigned char tx_i2c_buffer;
+unsigned char rx_i2c_buffer;
+unsigned char bit_count;
+
+// New variables my_i2c_states
+//i2c_start
+//tx_i2c_bits
+//data_rw_bit
+// tx_i2c_buffer_load
+//tx_i2c_buffer
+//ack_bit
+//data_pending_bit
+//i2c_stop maybe also needed.
+ enum i2c_states
+        {
+idle,
+start,
+address,
+address_ack,
+data_write,
+data_write_ack,
+data_read,
+data_read_ack,
+stop
+        };
+
+
+
+
+
 void main() {
 
   //Setup data available and other init
@@ -84,7 +126,7 @@ void main() {
    while (TRUE)
    {
       //fast_uart(0x14,0x04);
-
+      i2c_service();
       if (anotherone > 0 )
       {
          handle_setupdata ();
@@ -266,10 +308,40 @@ __interrupt HISPEED_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
-   __asm
-   orl _OEA, #0x40
-   cpl _PA6
-   __endasm;
+    fast_uart(0x23,0x04);
+    __asm
+    mov a,_tx_rx
+    CJNE A, #0x02, state //If in halt state, do nothing
+    ajmp finish
+    state:
+    djnz _bit_count,cont;
+    mov _tx_rx,#0x02
+    ajmp finish
+    cont:
+    clr _PA6
+    orl _OEA,#0x40
+    mov a,_tx_rx
+    CJNE A, #0x00, rx
+    tx:
+    orl _OEA,#0x80
+    mov a, _tx_i2c_buffer;
+    rlc a;
+    mov _PA7, c;
+    mov _tx_i2c_buffer,a;
+    clr _PA7;
+    sjmp sclh//Jump back
+    rx:
+    anl _OEA,#0x7f
+    mov a, _rx_i2c_buffer;
+    mov c,_PA7;
+    rlc a;
+    mov _rx_i2c_buffer,a;
+    sclh:
+    setb _PA6
+    finish:
+    nop
+    __endasm;
+
 
 }
 
@@ -302,5 +374,29 @@ void configure_start_timer()
 
 }
 
+
+
+void i2c_service()
+{
+    if(tx_rx == state_wait)
+    {
+        //fast_uart(0x20);
+        tx_i2c_buffer = 0xA0;
+        bit_count = 0x08;
+        tx_rx = state_tx;
+    }
+    else
+    {
+        //fast_uart(0x30);
+        //tx_rx = state_tx;
+    }
+}
+
+
+
+void i2c_control()
+{
+
+}
 
 

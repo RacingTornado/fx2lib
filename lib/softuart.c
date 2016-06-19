@@ -52,7 +52,7 @@ void fast_uart(unsigned char a, unsigned char mask) {
    //97 cycles
    djnz r0, 0001$;
    setb _PA2;
-   mov r1, #0x20;
+   mov r1, #0x80;
    0005$:
    djnz r1, 0005$;
    nop
