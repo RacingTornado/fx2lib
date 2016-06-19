@@ -83,7 +83,16 @@ data_read,
 data_read_ack,
 stop
         };
-
+extern unsigned char addr;
+extern unsigned char data[5];
+unsigned char  load_data[5];
+unsigned char load_addr;
+/***********************
+I2C Function
+************************/
+extern void I2CInit(void);
+extern __bit I2CPutTX(unsigned char addr, unsigned char * data);
+extern __bit I2CGetTX();
 
 
 
@@ -126,6 +135,17 @@ void main() {
    while (TRUE)
    {
       //fast_uart(0x14,0x04);
+      load_data[0]=0x44;
+      load_data[1]=0x45;
+      load_data[2]=0x23;
+      load_data[3]=0x87;
+      load_data[4]=0x65;
+      load_addr = 0x34;
+
+      I2CPutTX(load_addr,&load_data[0]);
+      I2CGetTX();
+      fast_uart(addr,0x04);
+      fast_uart(data[2],0x04);
       i2c_service();
       if (anotherone > 0 )
       {
@@ -308,7 +328,6 @@ __interrupt HISPEED_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
-    fast_uart(0x23,0x04);
     __asm
     mov a,_tx_rx
     CJNE A, #0x02, state //If in halt state, do nothing
