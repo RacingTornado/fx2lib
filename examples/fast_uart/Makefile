@@ -1,6 +1,6 @@
 FX2LIBDIR=../../
 BASENAME = uart_main
-SOURCES=uart_main.c uart_config.c  timer_conf.c soft_uart.c timer_lib.c
+SOURCES=uart_main.c uart_config.c
 PID=0x1004
 CODE_SIZE = --code-size 0x3000
 XRAM_LOC = --xram-loc 0x3200 

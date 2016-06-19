@@ -26,8 +26,6 @@
 #include <setupdat.h>
 #include <eputils.h>
 #include <fx2ints.h>
-#include "timer_lib.h"
-#include "softuart.h"
 #define SU_TRUE    1
 #define SU_FALSE   0
 
@@ -50,69 +48,16 @@ __bit on;
 
 
 
-extern void uart_config ();
-extern void ProcessXmitData ();
-extern void ProcessRecvData ();
-extern void configure_timer ();
-extern void start_timer ();
-extern void timer_init ();
-extern void set_tx_pin_high ();
-extern void set_tx_pin_low ();
-extern unsigned char get_rx_pin_status ();
-extern void configure_drive (unsigned char a, unsigned char b);
-extern void toggle_port_value (unsigned char a, unsigned char b);
-extern void uart_rx_fill ();
-extern void putchar_a (char a);
-extern void i2c_addr_logic ();
-extern char i2c_data_logic (unsigned char dummyportenselect);
-extern void i2c_stop_logic ();
-extern void spi_data_logic (unsigned char mosi_data_a,
-                            unsigned char master_pin_a);
-extern void spi_mosi_data_logic ();
-extern void spi_miso_data_logic ();
-extern void fast_uart(unsigned char a);
-extern void temp_call ();
-extern char xxy (char a, char b);
-extern BOOL handle_mpsse ();
-extern void timerlib_init(CLK_SPD clk);
-extern void create_timer();
-void call_me();
-extern void service_timer();
-extern void timer_start();
-extern void uart_tx_service();
-extern void uart_rx_service();
-extern __xdata unsigned char interval;
-extern __xdata unsigned short periodic;
-extern unsigned char volatile tx_buffer;
-extern unsigned char volatile rx_buffer;
-extern unsigned char volatile tx_count;
-extern unsigned char volatile rx_count;
-extern unsigned char volatile tx_bits_sent;
-extern unsigned char volatile rx_bits_rcvd;
-extern unsigned char volatile tx_busy;
-extern unsigned char volatile rx_busy;
-extern void QueueInitTX(void);
-extern __bit QueuePutTX(unsigned char data);
-extern __bit QueueGetTX(unsigned char * old);
-extern __bit QueueCheckTX();
-extern void QueueInitRX(void);
-extern __bit QueuePutRX(unsigned char data);
-extern __bit QueueGetRX(unsigned char * old);
-extern __bit QueueCheckRX();
-extern __xdata unsigned char send_tx[BUFFER_SIZE];
-extern __xdata unsigned char receive_rx[BUFFER_SIZE];
-extern  __xdata  volatile unsigned short fx2_tick ;
-extern  void (*callback)();
+
+unsigned char fx2_tick;
+unsigned long c;
+extern void fast_uart(unsigned char a, unsigned char b);
 
 
 
+void main() {
 
-
-
-void
-main ()
-{
-   //Setup data available and other init
+  //Setup data available and other init
    got_sud = FALSE;
    gotbuf = FALSE;
    bytes = 0;
@@ -128,32 +73,25 @@ main ()
    ENABLE_HISPEED ();
    ENABLE_USBRESET ();
    EA = 1;			// global interrupt enable
-   //5us interval
-   interval = 5;
-   timerlib_init(CLK_48M);
-   timer_start();
-   periodic = 20;
-   callback = call_me;
-   create_timer();
-   softuart_init ();
-   start_timer ();
-   ENABLE_TIMER1 ();
-   TR0 = 1 ;
+
+
+
+
+
 
    while (TRUE)
    {
-      service_timer();
-      fast_uart(0x30);
+            fast_uart(0x14,0x04);
 
+      //service_timer();
       if (anotherone > 0 )
       {
          handle_setupdata ();
          anotherone --;
       }
    }
-}
 
-// copied routines from setupdat.h
+}
 
 
 
