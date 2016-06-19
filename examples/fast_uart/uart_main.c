@@ -57,15 +57,34 @@ void main() {
    sio0_init (57600);
    CPUCS = 0x10;
    //Enable USB auto vectored interrupts
+
+
+
+
+
+
+
+
+
+
+
    USE_USB_INTS ();
    ENABLE_SUDAV ();
    ENABLE_SOF ();
    ENABLE_HISPEED ();
    ENABLE_USBRESET ();
    EA = 1;			// global interrupt enable
+   /********************************
+   I2C BLOCK BITBANG
+   *********************************/
+
+
+   configure_start_timer();
+   ENABLE_TIMER1();
    while (TRUE)
    {
-      fast_uart(0x14,0x04);
+      //fast_uart(0x14,0x04);
+
       if (anotherone > 0 )
       {
          handle_setupdata ();
@@ -247,7 +266,10 @@ __interrupt HISPEED_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
-
+   __asm
+   orl _OEA, #0x40
+   cpl _PA6
+   __endasm;
 
 }
 
@@ -258,6 +280,25 @@ void timer0_isr () __interrupt TF0_ISR
 
    fx2_tick++;
 
+
+}
+
+
+
+void configure_start_timer()
+{
+
+
+   TMOD = 0x20;
+   SYNCDELAY;
+   TR1 = 0;
+   SYNCDELAY;
+   TH1 = 0xc3;
+   SYNCDELAY;
+   TL1 = 0x23;
+   SYNCDELAY;
+   TR1 = 1;
+   SYNCDELAY;
 
 }
 
