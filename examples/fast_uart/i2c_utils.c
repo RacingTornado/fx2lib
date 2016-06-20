@@ -319,11 +319,14 @@ void i2c_control()
         tx_i2c_buffer = addr[i];
         bit_count = 0x09;
         tx_rx = state_tx;
+        if(i == 0)
+        {
         __asm
         mov a, _addr
         rrc a
         mov _rw_bit,c
         __endasm;
+        }
         my_i2c_states = read_addr_ack;
         //fast_uart(0x66,0x04);
     }
