@@ -230,6 +230,8 @@ void i2c_init(unsigned char retry)
     SCL = 1;
     rw = 0;
     retries = retry;
+    //Keep track of variable number
+    i = 0;
 }
 
 
@@ -314,7 +316,7 @@ void i2c_control()
     else if ((my_i2c_states == address) && (tx_rx == state_wait))
     {
         //Send the address and check the R/W bit
-        tx_i2c_buffer = addr[0];
+        tx_i2c_buffer = addr[i];
         bit_count = 0x09;
         tx_rx = state_tx;
         __asm
@@ -345,6 +347,9 @@ void i2c_control()
         {
 
 
+            if(i >= addr_length)
+            {
+                i = 0;
                 if(rw_bit == 1)
                 {
 
@@ -355,6 +360,12 @@ void i2c_control()
                     my_i2c_states = data_write;
                     //fast_uart(0x88,0x04);
                 }
+            }
+            else
+            {
+                my_i2c_states = address;
+                i++;
+            }
 
         }
        else if((tx_i2c_buffer & 0x01) == 0x01)
