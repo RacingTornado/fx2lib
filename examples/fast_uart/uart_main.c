@@ -84,10 +84,10 @@ void main() {
 
    while (TRUE)
     {
-        write_addr[0] = 0x20;
+        write_addr[0] = 0xa0;
         write_addr[1] = 0x00;
         write_addr[2] = 0x00;
-        write_data[0] = 0xab;
+        write_data[0] = 0x24;
         //Address, data, address length and data length
         I2CPutTX(&write_addr[0],&write_data[0],0x02,0x01);
         i2c_control();
