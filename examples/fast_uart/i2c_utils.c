@@ -275,7 +275,7 @@ void i2c_control()
              if(rw == 0 )
               {
                 I2CGetTX();
-                fast_uart(data[1],0x04);
+                fast_uart(data[0],0x04);
               }
               else
               {
