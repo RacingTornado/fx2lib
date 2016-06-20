@@ -25,10 +25,9 @@
 #include <setupdat.h>
 #include <eputils.h>
 #include <fx2ints.h>
-#include <i2c_utils.h>
+#include "i2c_utils.h"
 #define SU_TRUE    1
 #define SU_FALSE   0
-#define SYNCDELAY SYNCDELAY4
 #define REARMVAL 0x80
 #define REARM() EP2BCL=REARMVAL
 
@@ -43,64 +42,16 @@ volatile unsigned char anotherone;
 DWORD lcount;
 __bit on;
 unsigned char fx2_tick;
-extern void fast_uart(unsigned char a, unsigned char b);
 
 
 
-void i2c_control();
-void i2c_init();
-void configure_start_timer();
 /**************************************************
 I2C declarations
 ***************************************************/
-enum isr_state
-        {
-        state_tx=0, //0
-        state_rx=1 ,  //1
-        state_wait=2
-        };
-enum isr_state tx_rx;
-unsigned char tx_i2c_buffer;
-unsigned char rx_i2c_buffer;
-unsigned char bit_count;
-enum i2c_states
-        {
-idle = 0,
-start = 1,
-address = 2,
-addr_ack = 3,
-data_write = 4,
-data_write_ack = 5,
-data_read = 6,
-data_read_ack = 7,
-stop = 8,
-read_addr_ack = 9,
-read_data_ack = 10,
-        };
-//These variables hold data for the current
-//transaction. Once the transaction is complete
-//they are inserted back into the queue or the
-//queue is cleared , depending on whether it is
-//a read or write operation.
-unsigned char retries;
-unsigned char addr[I2C_ADDR];
-unsigned char data[I2C_DATA];
-unsigned char addr_length;
-unsigned char data_length;
-//I2C state variable
-enum i2c_state my_i2c_states;
-//Temporary counters for EEPROM access
-unsigned char i ;
-unsigned char j;
-//Loaded automatically from the
-//address value(first byte)
-__bit rw_bit;
-unsigned char read_write;
-unsigned long delay1;
 //Buffer to load up the data and insert into
 //the i2c_client queue
-__xdata unsigned char write_addr[I2C_ADDR];
-__xdata unsigned char write_data[I2C_DATA];
+unsigned char write_addr[I2C_ADDR];
+unsigned char write_data[I2C_DATA];
 
 
 void main() {
@@ -123,7 +74,8 @@ void main() {
    /********************************
    I2C BLOCK BITBANG
    *********************************/
-   i2c_init();
+   //Called with number of retries
+   i2c_init(3);
    configure_start_timer();
    ENABLE_TIMER1();
 
@@ -136,6 +88,8 @@ void main() {
         write_addr[1] = 0x00;
         write_addr[2] = 0x00;
         write_data[0] = 0xab;
+        //Address, data, address length and data length
+        I2CPutTX(&write_addr[0],&write_data[0],0x02,0x01);
         i2c_control();
         if (anotherone > 0 )
         {
@@ -367,22 +321,6 @@ void timer0_isr () __interrupt TF0_ISR
 
 
 
-void configure_start_timer()
-{
-
-
-   TMOD = 0x20;
-   SYNCDELAY;
-   TR1 = 0;
-   SYNCDELAY;
-   TH1 = 0xc3;
-   SYNCDELAY;
-   TL1 = 0x23;
-   SYNCDELAY;
-   TR1 = 1;
-   SYNCDELAY;
-
-}
 
 
 

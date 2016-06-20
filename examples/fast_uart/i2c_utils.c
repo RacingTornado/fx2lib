@@ -2,12 +2,49 @@
 I2C Queue for reading and writing data;;
 */
 #include "i2c_utils.h"
+#include <delay.h>
 
-//An I2C client which is contains 5 address location
-//and 5 data bytes.
+
+//An I2C client structure. 5 data bytes, 5 address bytes
 __xdata struct i2c_client i2c_queue[I2C_SIZE];
-__xdata unsigned char I2CIn, I2COut;
+__xdata unsigned char I2CTXIn, I2CTXOut;
 
+//Variables used by the I2C controller
+//These variables hold data for the current
+//transaction. Once the transaction is complete
+//they are inserted back into the queue or the
+//queue is cleared , depending on whether it is
+//a read or write operation.
+unsigned char addr[I2C_ADDR];
+unsigned char data[I2C_DATA];
+unsigned char data_length;
+unsigned char addr_length;
+unsigned char retries;
+unsigned char tx_i2c_buffer;
+unsigned char bit_count;
+//Read write bit for I2C
+__bit rw;
+__bit rw_bit;
+
+
+
+
+
+/************************************************************
+I2C Controller
+************************************************************/
+
+
+enum isr_state tx_rx;
+//I2C state variable
+enum i2c_state my_i2c_states;
+unsigned char tx_i2c_buffer;
+unsigned char rx_i2c_buffer;
+unsigned char bit_count;
+//Temporary counters for EEPROM access
+unsigned char i ;
+unsigned char j;
+unsigned long delay1;
 
 
 
@@ -28,158 +65,78 @@ __xdata unsigned char I2CIn, I2COut;
 void I2CQueueInit(void)
 {
     I2CTXIn = I2CTXOut = 0;
-    I2CRXIn = I2CRXOut = 0;
+    //I2CRXIn = I2CRXOut = 0;
 
 
 }
 
+
+
+ /*******************************************************************************************
+    I2C TX Queue - Insert data and address, along with the length. The controller
+    uses this data to put the data out on the SDA and SCL lines
+ *******************************************************************************************/
 
 //Set up queue structure to write data from
 __bit I2CPutTX(unsigned char * addr, unsigned char * data, unsigned char addr_length, unsigned char data_length)
 {
     unsigned char i;
-    if(I2CIn == (( I2COut - 1 + I2C_SIZE) % I2C_SIZE))
+    if(I2CTXIn == (( I2CTXOut - 1 + I2C_SIZE) % I2C_SIZE))
     {
         return 1; /* Queue Full*/
     }
     for(i=0; i<addr_length; ++i)
     {
-	i2c_queue[I2CIn].addr[i]= addr[i];
+	i2c_queue[I2CTXIn].addr[i]= addr[i];
     }
-    i2c_queue[I2CIn].addr_length = i;
+    i2c_queue[I2CTXIn].addr_length = addr_length;
     i=0;
     for(i=0; i<data_length; ++i)
     {
-	i2c_queue[I2CIn].data[i]= data[i];
+	i2c_queue[I2CTXIn].data[i]= data[i];
     }
     //Address length
-    i2c_queue[I2CIn].data_length = i;
-    I2CIn = (I2CIn + 1) % I2C_SIZE;
+    i2c_queue[I2CTXIn].data_length = data_length;
+    I2CTXIn = (I2CTXIn + 1) % I2C_SIZE;
 
     return 0; // No errors
 }
-
-
-
-
-
-
-//Set up queue structure to read the data from
-__bit I2CPutRX(unsigned char * addr, unsigned char addr_length, unsigned char data_length)
-{
-    unsigned char i;
-    if(I2CIn == (( I2COut - 1 + I2C_SIZE) % I2C_SIZE))
-    {
-        return 1; /* Queue Full*/
-    }
-    for(i=0; i<addr_length; ++i)
-    {
-	i2c_queue[I2CIn].addr[i]= addr[i];
-    }
-    i2c_queue[I2CIn].addr_length = i;
-    //Address length
-    i2c_queue[I2CIn].data_length = length;
-    I2CIn = (I2CIn + 1) % I2C_SIZE;
-
-    return 0; // No errors
-}
-
-
-__bit I2CPutRX_Data(unsigned char * data, unsigned char que_no)
-{
-
-    for(i=0; i<addr_length; ++i)
-    {
-	i2c_queue[I2CIn].addr[i]= addr[i];
-    }
-    i2c_queue[I2CIn].addr_length = i;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
 
 //This function loads the value of address and 5 data bytes and returns
 //This value is then used by the main program
 __bit I2CGetTX()
 {
     unsigned char i;
-    if((I2CIn == I2COut))
+    if((I2CTXIn == I2CTXOut))
     {
         return 1; /* Queue Empty - nothing to get*/
     }
     //Load address
-    for(i=0; i < i2c_queue[I2COut].addr_length ; ++i)
+    for(i=0; i < i2c_queue[I2CTXOut].addr_length ; ++i)
     {
-        addr[i] = i2c_queue[I2CIn].addr[i];
+        addr[i] = i2c_queue[I2CTXOut].addr[i];
     }
-    for(i=0; i < i2c_queue[I2COut].length ; ++i)
+    for(i=0; i < i2c_queue[I2CTXOut].data_length ; ++i)
     {
-        data[i] = i2c_queue[I2CIn].data[i];
+        data[i] = i2c_queue[I2CTXOut].data[i];
     }
-    data_length = i2c_queue[I2CIn].data_length;
-    addr_length = i2c_queue[I2CIn].addr_length;
-    I2COut = (I2COut + 1) % I2C_SIZE;
+    data_length = i2c_queue[I2CTXOut].data_length;
+    addr_length = i2c_queue[I2CTXOut].addr_length;
+    I2CTXOut = (I2CTXOut + 1) % I2C_SIZE;
     return 0; // No errors
 }
-
-
-
-
-
-
-//This function returns the data read from I2C into a pointer.
-//The caller of this function must provide a pointer to the memory
-//location into which the data needs to be read.
-__bit I2CGetRX()
-{
-    unsigned char i;
-    if((I2CIn == I2COut))
-    {
-        return 1; /* Queue Empty - nothing to get*/
-    }
-    //Load address
-    for(i=0; i < i2c_queue[I2COut].addr_length ; ++i)
-    {
-        addr[i] = i2c_queue[I2CIn].addr[i];
-    }
-    for(i=0; i < i2c_queue[I2COut].length ; ++i)
-    {
-        data[i] = i2c_queue[I2CIn].data[i];
-    }
-    data_length = i2c_queue[I2CIn].data_length;
-    addr_length = i2c_queue[I2CIn].addr_length;
-    I2COut = (I2COut + 1) % I2C_SIZE;
-    return 0; // No errors
-}
-
-
-
-
-
-
 
 
 __bit I2CCheckTX()
 {
 
-    return 0;
-//    if((I2CIn == I2COut))
-//    {
-//        return 1; /* Queue Empty - nothing to get*/
-//    }
-//
-//    return 0; // No errors
+
+    if((I2CTXIn == I2CTXOut))
+    {
+        return 1; /* Queue Empty - nothing to get*/
+    }
+
+    return 0; // No errors
 }
 
 
@@ -187,18 +144,110 @@ __bit I2CCheckTX()
 
 
 
+////Set up queue structure to read the data from
+//__bit I2CPutRX(unsigned char * addr, unsigned char addr_length, unsigned char data_length)
+//{
+//    unsigned char i;
+//    if(I2CIn == (( I2COut - 1 + I2C_SIZE) % I2C_SIZE))
+//    {
+//        return 1; /* Queue Full*/
+//    }
+//    for(i=0; i<addr_length; ++i)
+//    {
+//	i2c_queue[I2CIn].addr[i]= addr[i];
+//    }
+//    i2c_queue[I2CIn].addr_length = i;
+//    //Address length
+//    i2c_queue[I2CIn].data_length = length;
+//    I2CIn = (I2CIn + 1) % I2C_SIZE;
+//
+//    return 0; // No errors
+//}
+//
+//
+////This function returns the data read from I2C into a pointer.
+////The caller of this function must provide a pointer to the memory
+////location into which the data needs to be read.
+//__bit I2CGetRX()
+//{
+//    unsigned char i;
+//    if((I2CIn == I2COut))
+//    {
+//        return 1; /* Queue Empty - nothing to get*/
+//    }
+//    //Load address
+//    for(i=0; i < i2c_queue[I2COut].addr_length ; ++i)
+//    {
+//        addr[i] = i2c_queue[I2CIn].addr[i];
+//    }
+//    for(i=0; i < i2c_queue[I2COut].length ; ++i)
+//    {
+//        data[i] = i2c_queue[I2CIn].data[i];
+//    }
+//    data_length = i2c_queue[I2CIn].data_length;
+//    addr_length = i2c_queue[I2CIn].addr_length;
+//    I2COut = (I2COut + 1) % I2C_SIZE;
+//    return 0; // No errors
+//}
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//__bit I2CCheckRX()
+//{
+//
+//    return 0;
+////    if((I2CIn == I2COut))
+////    {
+////        return 1; /* Queue Empty - nothing to get*/
+////    }
+////
+////    return 0; // No errors
+//}
 
-void i2c_init()
+
+
+
+
+
+void i2c_init(unsigned char retry)
 {
     tx_rx = state_wait;
+    //Set current state to idle
     my_i2c_states = idle;
+    //Initialize queue
     I2CQueueInit();
-    i = 0;
-    j = 0;
+    //Set OEA register
     OEA |= 0xc0;
-    PA6 = 1;
-    PA7 = 1;
+    //Initial value for I2C
+    SDA = 1;
+    SCL = 1;
     rw = 0;
+    retries = retry;
+}
+
+
+void configure_start_timer()
+{
+
+
+   TMOD = 0x20;
+   SYNCDELAY;
+   TR1 = 0;
+   SYNCDELAY;
+   TH1 = 0xc3;
+   SYNCDELAY;
+   TL1 = 0x23;
+   SYNCDELAY;
+   TR1 = 1;
+   SYNCDELAY;
+
 }
 
 
@@ -225,21 +274,8 @@ void i2c_control()
 
              if(rw == 0 )
               {
-                addr = 0xA0;
-                data[0]= 0x00;
-                data[1]= read_write;
-                data[2]= 0xAB;
-                length = 2;
-                rw = 1;
-                if(read_write == 0x00)
-                {
-                read_write = 0x03;
-                }
-                else
-                {
-                read_write -- ;
-                }
-
+                I2CGetTX();
+                fast_uart(data[1],0x04);
               }
               else
               {
@@ -252,12 +288,6 @@ void i2c_control()
                 djnz r0,003$
                 __endasm;
                 }
-                addr = 0xA1;
-                data[0]= 0x00;
-                data[1]= 0x00;
-                data[2]= 0xAB;
-                length = 0;
-                rw = 0;
               }
             my_i2c_states = start;
         }
@@ -284,7 +314,7 @@ void i2c_control()
     else if ((my_i2c_states == address) && (tx_rx == state_wait))
     {
         //Send the address and check the R/W bit
-        tx_i2c_buffer = addr;
+        tx_i2c_buffer = addr[0];
         bit_count = 0x09;
         tx_rx = state_tx;
         __asm
@@ -355,7 +385,7 @@ void i2c_control()
         PA6 = 0 ;
         PA7 = 0 ;
         PA6 = 1 ;
-        if(i >= length)
+        if(i >= data_length)
         {
             my_i2c_states = stop;
             i = 0;
@@ -389,7 +419,7 @@ void i2c_control()
         //Read the ACK bit for the written data
         if((tx_i2c_buffer & 0x01) == 0x00)
         {
-            if(i >= length)
+            if(i >= data_length)
             {
                 my_i2c_states = stop;
                 i = 0;
