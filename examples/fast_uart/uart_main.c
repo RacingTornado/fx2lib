@@ -46,8 +46,9 @@ extern void fast_uart(unsigned char a, unsigned char b);
 
 
 
-
-
+void i2c_control();
+void i2c_init();
+void configure_start_timer();
 /**************************************************
 I2C declarations
 ***************************************************/
@@ -73,26 +74,35 @@ unsigned char bit_count;
 //i2c_stop maybe also needed.
  enum i2c_states
         {
-idle,
-start,
-address,
-address_ack,
-data_write,
-data_write_ack,
-data_read,
-data_read_ack,
-stop
+idle = 0,
+start = 1,
+address = 2,
+addr_ack = 3,
+data_write = 4,
+data_write_ack = 5,
+data_read = 6,
+data_read_ack = 7,
+stop = 8,
+read_addr_ack = 9,
+read_data_ack = 10,
         };
+extern unsigned char retries;
 extern unsigned char addr;
 extern unsigned char data[5];
+extern unsigned char length;
 unsigned char  load_data[5];
 unsigned char load_addr;
+enum i2c_state my_i2c_states;
+unsigned char i ;
+unsigned char j;
+__bit rw_bit;
 /***********************
 I2C Function
 ************************/
 extern void I2CInit(void);
 extern __bit I2CPutTX(unsigned char addr, unsigned char * data);
 extern __bit I2CGetTX();
+extern __bit I2CCheckTX();
 
 
 
@@ -132,21 +142,28 @@ void main() {
 
    configure_start_timer();
    ENABLE_TIMER1();
+   i2c_init();
    while (TRUE)
    {
       //fast_uart(0x14,0x04);
-      load_data[0]=0x44;
-      load_data[1]=0x45;
-      load_data[2]=0x23;
-      load_data[3]=0x87;
-      load_data[4]=0x65;
-      load_addr = 0x34;
-
-      I2CPutTX(load_addr,&load_data[0]);
-      I2CGetTX();
-      fast_uart(addr,0x04);
-      fast_uart(data[2],0x04);
-      i2c_service();
+//      load_data[0]=0x44;
+//      load_data[1]=0x45;
+//      load_data[2]=0x23;
+//      load_data[3]=0x87;
+//      load_data[4]=0x65;
+//      load_addr = 0x34;
+//
+//      I2CPutTX(load_addr,&load_data[0]);
+//      I2CGetTX();
+//      fast_uart(addr,0x04);
+//      fast_uart(data[2],0x04);
+      addr = 0x20;
+      data[0]= 0x76;
+      data[1]= 0x43;
+      length = 1;
+      retries = 3;
+      //i2c_service();
+      i2c_control();
       if (anotherone > 0 )
       {
          handle_setupdata ();
@@ -337,8 +354,8 @@ __interrupt TF1_ISR
     mov _tx_rx,#0x02
     ajmp finish
     cont:
-    clr _PA6
     orl _OEA,#0x40
+    clr _PA6
     mov a,_tx_rx
     CJNE A, #0x00, rx
     tx:
@@ -347,14 +364,15 @@ __interrupt TF1_ISR
     rlc a;
     mov _PA7, c;
     mov _tx_i2c_buffer,a;
-    clr _PA7;
     sjmp sclh//Jump back
     rx:
+    setb _PA7
     anl _OEA,#0x7f
-    mov a, _rx_i2c_buffer;
+    mov a, _tx_i2c_buffer;
     mov c,_PA7;
     rlc a;
-    mov _rx_i2c_buffer,a;
+    mov _tx_i2c_buffer,a;
+    nop;
     sclh:
     setb _PA6
     finish:
@@ -400,8 +418,8 @@ void i2c_service()
     if(tx_rx == state_wait)
     {
         //fast_uart(0x20);
-        tx_i2c_buffer = 0xA0;
-        bit_count = 0x08;
+        tx_i2c_buffer = 0xA1;
+        bit_count = 0x09;
         tx_rx = state_tx;
     }
     else
@@ -413,8 +431,200 @@ void i2c_service()
 
 
 
+void i2c_init()
+{
+    my_i2c_states = idle;
+    I2CInit();
+    i = 0;
+    OEA |= 0xc0;
+    PA6 = 1;
+    PA7 = 1;
+}
+
+
+
 void i2c_control()
 {
+    if ((my_i2c_states == idle) && (tx_rx == state_wait))
+    {
+        // Look for non empty queue and pull the SDA low keeping SCL high.
+        if (I2CCheckTX() == 0)
+        {
+            my_i2c_states = start;
+        }
+        else
+        {
+        }
+    }
+    else if ((my_i2c_states == start) && (tx_rx == state_wait))
+    {
+        //Send the start bit
+        OEA |= 0xC0;
+        PA7 = 0 ;
+        //Initial delay between the SDA and SCL lines for start bit
+        __asm
+        mov r0, #0x03
+        001$:djnz r0,001$
+        __endasm;
+        PA6 = 0;
+        my_i2c_states = address;
+        //fast_uart(0x55,0x04);
+
+        //I2CGetTX();
+    }
+    else if ((my_i2c_states == address) && (tx_rx == state_wait))
+    {
+        //Send the address and check the R/W bit
+        tx_i2c_buffer = addr;
+        bit_count = 0x09;
+        tx_rx = state_tx;
+        __asm
+        mov a, _addr
+        rrc a
+        mov _rw_bit,c
+        __endasm;
+        my_i2c_states = read_addr_ack;
+        //fast_uart(0x66,0x04);
+    }
+    else if ((my_i2c_states == read_addr_ack) && (tx_rx == state_wait))
+    {
+        //Read the ACK bit.
+        OEA &= 0x7f;
+        OEA |= 0x08;
+        //PA6 = 0;
+        PA3 = 1;
+        //PA6 = 1;
+        bit_count = 0x02;
+        tx_rx = state_rx;
+        my_i2c_states = addr_ack;
+        //fast_uart(0x77,0x04);
+    }
+    else if ((my_i2c_states == addr_ack) && (tx_rx == state_wait))
+    {
+        //Find the number of data bytes to transfer and keep track
+        //anl _OEA,#0xf7
+        //fast_uart(tx_i2c_buffer,0x04);
+        if((tx_i2c_buffer & 0x01) == 0x00)
+        {
+            if(rw_bit == 1)
+            {
+
+                my_i2c_states = data_read;
+            }
+            else
+            {
+                my_i2c_states = data_write;
+                //fast_uart(0x88,0x04);
+           }
+        }
+       else if((tx_i2c_buffer & 0x01) == 0x01)
+        {
+            if(j >= retries)
+            {
+                my_i2c_states = stop;
+                j = 0;
+            }
+            else
+            {
+                my_i2c_states = address;
+                j++;
+            }
+        }
+//        else
+//        {
+//            my_i2c_states = address;
+//            fast_uart(0x99,0x04);
+//       }
+
+    }
+    else if ((my_i2c_states == data_read) && (tx_rx == state_wait))
+    {
+        //Read the data 8 bit.
+        bit_count = 0x08;
+        tx_rx = state_rx;
+        my_i2c_states = data_read_ack;
+    }
+    else if ((my_i2c_states == data_read_ack) && (tx_rx == state_wait))
+    {
+        //Acknowledge the read data always.
+        OEA |= 0xC0;
+        PA6 = 0 ;
+        PA7 = 0 ;
+        PA6 = 1 ;
+        if(i >= length)
+        {
+            my_i2c_states = stop;
+            i = 0;
+        }
+        else
+        {
+            my_i2c_states = data_read;
+            i++;
+        }
+    }
+    else if ((my_i2c_states == data_write) && (tx_rx == state_wait))
+    {
+        //Send the 8 bits of data
+        OEA &= 0xf7;
+        OEA |= 0x80;
+
+        tx_i2c_buffer = data[i];
+        bit_count = 0x09;
+        tx_rx = state_tx;
+        my_i2c_states = read_data_ack;
+    }
+    else if ((my_i2c_states == read_data_ack) && (tx_rx == state_wait))
+    {
+        //Prepare for reading the data ACK bit.
+        bit_count = 0x02;
+        tx_rx = state_rx;
+        my_i2c_states = data_write_ack;
+    }
+    else if ((my_i2c_states == data_write_ack) && (tx_rx == state_wait))
+    {
+        //Read the ACK bit for the written data
+        if((tx_i2c_buffer & 0x01) == 0x01)
+        {
+            if(i >= length)
+            {
+                my_i2c_states = stop;
+                i = 0;
+            }
+            else
+            {
+                my_i2c_states = data_write;
+                i++;
+            }
+        }
+        else if((tx_i2c_buffer & 0x01) == 0x00)
+        {
+            if(j >= retries)
+            {
+                my_i2c_states = stop;
+                j = 0;
+            }
+            else
+            {
+                my_i2c_states = data_write;
+                j++;
+            }
+        }
+
+    }
+    else if ((my_i2c_states == stop) && (tx_rx == state_wait))
+    {
+        //Send the stop bit
+        OEA |= 0xC0;
+        PA6 = 0 ;
+        PA7 = 0 ;
+        PA6 = 1 ;
+        __asm
+        mov r0, #0x03
+        002$:djnz r0,002$
+        __endasm;
+        PA7 = 1 ;
+        my_i2c_states = idle;
+    }
 
 }
 

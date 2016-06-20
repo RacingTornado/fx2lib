@@ -20,6 +20,8 @@ __xdata struct i2c_client i2c_queue[I2C_SIZE];
 __xdata unsigned char I2CIn, I2COut;
 unsigned char addr;
 unsigned char data[I2C_DATA];
+unsigned char length;
+unsigned char retries;
 /* Very simple queue
  * These are FIFO queues which discard the new data when full.
  * Snippet taken from StackOverflow
@@ -74,6 +76,8 @@ __bit I2CGetTX()
     {
         data[i] = i2c_queue[I2CIn].data[i];
     }
+    length = i2c_queue[I2CIn].length;
+    retries = 3;
     I2COut = (I2COut + 1) % I2C_SIZE;
     return 0; // No errors
 }
@@ -81,10 +85,12 @@ __bit I2CGetTX()
 
 __bit I2CCheckTX()
 {
-    if((I2CIn == I2COut))
-    {
-        return 1; /* Queue Empty - nothing to get*/
-    }
 
-    return 0; // No errors
+    return 0;
+//    if((I2CIn == I2COut))
+//    {
+//        return 1; /* Queue Empty - nothing to get*/
+//    }
+//
+//    return 0; // No errors
 }
