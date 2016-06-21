@@ -25,9 +25,9 @@
 #include <setupdat.h>
 #include <eputils.h>
 #include <fx2ints.h>
-#include "i2c_utils.h"
 #define SU_TRUE    1
 #define SU_FALSE   0
+#define SYNCDELAY SYNCDELAY4
 #define REARMVAL 0x80
 #define REARM() EP2BCL=REARMVAL
 
@@ -42,19 +42,8 @@ volatile unsigned char anotherone;
 DWORD lcount;
 __bit on;
 unsigned char fx2_tick;
+extern void fast_uart(unsigned char a, unsigned char b);
 
-
-
-/**************************************************
-I2C declarations
-***************************************************/
-//Buffer to load up the data and insert into
-//the i2c_client queue
-__xdata unsigned char write_addr[I2C_ADDR];
-__xdata unsigned char write_data[I2C_DATA];
-__xdata unsigned char rx_addr_length;
-__xdata unsigned char rx_data_length;
-__xdata unsigned char wr_addr;
 
 
 void main() {
@@ -74,52 +63,15 @@ void main() {
    ENABLE_HISPEED ();
    ENABLE_USBRESET ();
    EA = 1;			// global interrupt enable
-   /********************************
-   I2C BLOCK BITBANG
-   *********************************/
-   //Called with number of retries
-   i2c_init(3);
-   configure_start_timer();
-   ENABLE_TIMER1();
-   wr_addr = 0x03;
-
-
-
-
    while (TRUE)
-    {
-
-        write_addr[0] = 0xa0;
-        write_addr[1] = 0x00;
-        write_addr[2] = wr_addr;
-        write_data[0] = 0x24;
-        //Address, data, address length and data length
-        I2CPutTX(&write_addr[0],&write_data[0],0x03,0x01);
-        //i2c_control();
-        write_addr[0] = 0xa1;
-        write_data[0] = 0x34;
-        I2CPutRXRead(&write_addr[0],0x01,0x01);
-
-        I2CGetRXData();
-        fast_uart(data[0],0x04);
-
-        i2c_control();
-        if (anotherone > 0 )
-        {
-            handle_setupdata ();
-            anotherone --;
-        }
-        if(wr_addr == 0x00)
-        {
-
-            wr_addr = 0x03;
-        }
-        else
-        {
-            wr_addr--;
-        }
-
-    }
+   {
+      fast_uart(0x14,0x04);
+      if (anotherone > 0 )
+      {
+         handle_setupdata ();
+         anotherone --;
+      }
+   }
 
 }
 
@@ -295,38 +247,6 @@ __interrupt HISPEED_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
-    __asm
-    mov a,_tx_rx
-    CJNE A, #0x02, state //If in halt state, do nothing
-    ajmp finish
-    state:
-    djnz _bit_count,cont;
-    mov _tx_rx,#0x02
-    ajmp finish
-    cont:
-    orl _OEA,#0x40
-    clr _PA6
-    mov a,_tx_rx
-    CJNE A, #0x00, rx
-    tx:
-    orl _OEA,#0x80
-    mov a, _tx_i2c_buffer;
-    rlc a;
-    mov _PA7, c;
-    mov _tx_i2c_buffer,a;
-    sjmp sclh//Jump back
-    rx:
-    anl _OEA,#0x7f
-    mov a, _tx_i2c_buffer;
-    mov c,_PA7;
-    rlc a;
-    mov _tx_i2c_buffer,a;
-    nop;
-    sclh:
-    setb _PA6
-    finish:
-    nop
-    __endasm;
 
 
 }
@@ -340,17 +260,3 @@ void timer0_isr () __interrupt TF0_ISR
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
