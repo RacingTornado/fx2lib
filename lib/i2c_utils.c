@@ -404,13 +404,13 @@ void i2c_control()
    {
       //Send the start bit
       OEA |= 0xC0;
-      PA7 = 0 ;
+      SDA = 0 ;
       //Initial delay between the SDA and SCL lines for start bit
       __asm
       mov r0, #0x03
       003$:djnz r0, 003$
       __endasm;
-      PA6 = 0;
+      SCL = 0;
       my_i2c_states = address;
    }
    else if ((my_i2c_states == address) && (tx_rx == state_wait))
@@ -482,17 +482,17 @@ void i2c_control()
       //Acknowledge the read data always.
       EA = 0;
       OEA |= 0xC0;
-      PA6 = 0 ;
+      SCL = 0 ;
       __asm
       mov r0, #0x03
       004$:djnz r0, 004$
       __endasm;
-      PA7 = 1 ;
+      SDA = 1 ;
       __asm
       mov r0, #0x03
       005$:djnz r0, 005$
       __endasm;
-      PA6 = 1 ;
+      SCL = 1 ;
       EA = 1;
       data[i]= tx_i2c_buffer;
       i++;
@@ -556,22 +556,22 @@ void i2c_control()
    {
       //Send the stop bit
       OEA |= 0xC0;
-      PA6 = 0 ;
+      SCL = 0 ;
       __asm
       mov r0, #0xFF
       006$:djnz r0, 006$
       __endasm;
-      PA7 = 0 ;
+      SDA = 0 ;
       __asm
       mov r0, #0xFF
       007$:djnz r0, 007$
       __endasm;
-      PA6 = 1 ;
+      SCL = 1 ;
       __asm
       mov r0, #0xFF
       008$:djnz r0, 008$
       __endasm;
-      PA7 = 1 ;
+      SDA = 1 ;
       my_i2c_states = idle;
 
       if (rw == 1)

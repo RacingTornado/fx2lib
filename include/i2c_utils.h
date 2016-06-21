@@ -8,8 +8,8 @@
 #define I2C_DATA 5
 #define I2C_ADDR 5
 #define I2C_SIZE (I2C_ELEMENTS + 1)
-#define SDA PA6
-#define SCL PA7
+#define SCL PA6
+#define SDA PA7
 #define SYNCDELAY SYNCDELAY4
 
 //Structure for writing the I2C data onto SDA and SCL
