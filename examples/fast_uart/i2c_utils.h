@@ -12,12 +12,22 @@
 #define SCL PA7
 #define SYNCDELAY SYNCDELAY4
 
-
+//Structure for writing the I2C data onto SDA and SCL
 struct i2c_client {
 //Address
-unsigned short addr[3];
+unsigned short addr[I2C_ADDR];
 //Upto 5 data bytes can be written
-unsigned char data[5];
+unsigned char data[I2C_DATA];
+//The length of data to write to I2C lines
+//Does not include the address byte
+unsigned char data_length;
+unsigned char addr_length;
+ };
+
+//Structure for reading data from I2C device.
+struct i2c_client_read {
+//Address
+unsigned short addr[I2C_ADDR];
 //The length of data to write to I2C lines
 //Does not include the address byte
 unsigned char data_length;
@@ -28,7 +38,15 @@ unsigned char addr_length;
 
 
 __bit I2CPutTX(unsigned char * addr, unsigned char * data, unsigned char addr_length, unsigned char data_length);
-__bit I2CPutRX(unsigned char addr, unsigned char addr_length ,unsigned char data_length);
+__bit I2CPutRXRead(unsigned char * addr, unsigned char addr_length, unsigned char data_length);
+__bit I2CGetRXRead();
+__bit I2CCheckRXRead();
+__bit I2CPutRXData(unsigned char * addr, unsigned char * data, unsigned char addr_length, unsigned char data_length);
+__bit I2CGetRXData();
+__bit I2CCheckRXData();
+
+
+
 __bit I2CGetTX();
 __bit I2CCheckTX();
 void i2c_init(unsigned char retry);
@@ -63,15 +81,24 @@ read_addr_ack = 9,
 read_data_ack = 10,
         };
 extern enum isr_state tx_rx;
-extern unsigned char tx_i2c_buffer;
-extern unsigned char rx_i2c_buffer;
 extern unsigned char bit_count;
 extern unsigned char tx_i2c_buffer;
-extern unsigned char bit_count;
 //Variable declarations for address and data
-extern unsigned char addr[I2C_ADDR];
-extern unsigned char data[I2C_DATA];
-extern unsigned char length;
-extern unsigned char retries;
+extern __xdata unsigned char addr[I2C_ADDR];
+extern __xdata unsigned char data[I2C_DATA];
+extern __xdata unsigned char length;
+extern __xdata unsigned char retries;
+/****************************************
+Cant pass so many arguments in a function
+*****************************************/
+extern __xdata unsigned char write_addr[I2C_ADDR];
+extern __xdata unsigned char write_data[I2C_DATA];
+extern __xdata unsigned char rx_addr_length;
+extern __xdata unsigned char rx_data_length;
+extern __xdata unsigned char wr_addr;
+
+
+
+
 
 #endif

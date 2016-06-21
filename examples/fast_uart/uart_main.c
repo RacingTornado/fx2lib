@@ -50,8 +50,11 @@ I2C declarations
 ***************************************************/
 //Buffer to load up the data and insert into
 //the i2c_client queue
-unsigned char write_addr[I2C_ADDR];
-unsigned char write_data[I2C_DATA];
+__xdata unsigned char write_addr[I2C_ADDR];
+__xdata unsigned char write_data[I2C_DATA];
+__xdata unsigned char rx_addr_length;
+__xdata unsigned char rx_data_length;
+__xdata unsigned char wr_addr;
 
 
 void main() {
@@ -78,23 +81,40 @@ void main() {
    i2c_init(3);
    configure_start_timer();
    ENABLE_TIMER1();
+   wr_addr = 0x03;
 
 
 
 
    while (TRUE)
     {
+
         write_addr[0] = 0xa0;
         write_addr[1] = 0x00;
-        write_addr[2] = 0x00;
+        write_addr[2] = wr_addr;
         write_data[0] = 0x24;
         //Address, data, address length and data length
-        I2CPutTX(&write_addr[0],&write_data[0],0x02,0x01);
+        //I2CPutTX(&write_addr[0],&write_data[0],0x02,0x01);
+        write_addr[0] = 0xa1;
+        write_data[0] = 0x24;
+        I2CPutRXRead(&write_addr[0],0x01,0x01);
+
+        //I2CGetRXData();
+
         i2c_control();
         if (anotherone > 0 )
         {
             handle_setupdata ();
             anotherone --;
+        }
+        if(wr_addr == 0x00)
+        {
+
+            wr_addr = 0x03;
+        }
+        else
+        {
+            wr_addr--;
         }
 
     }
