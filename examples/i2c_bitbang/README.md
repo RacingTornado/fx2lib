@@ -45,4 +45,5 @@ I2C Read Data:
 - __bit I2CGetRXData()
 - A call to that function loads up the variables so that the data and address from the queue is copied into the write_addr and write_data 
 variables.
+- A call to i2c_init(3) with number of retries is also needed before using this library.
 	
