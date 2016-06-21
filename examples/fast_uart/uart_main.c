@@ -100,7 +100,8 @@ void main() {
         write_data[0] = 0x34;
         I2CPutRXRead(&write_addr[0],0x01,0x01);
 
-        //I2CGetRXData();
+        I2CGetRXData();
+        fast_uart(data[0],0x04);
 
         i2c_control();
         if (anotherone > 0 )

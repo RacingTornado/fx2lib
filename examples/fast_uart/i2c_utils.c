@@ -483,6 +483,7 @@ void i2c_control()
         __endasm;
         PA6 = 1 ;
         EA = 1;
+        data[i]= tx_i2c_buffer;
         i++;
         if(i >= data_length)
         {
@@ -564,7 +565,7 @@ void i2c_control()
         my_i2c_states = idle;
         if(rw == 1)
         {
-            //I2CPutRXData(&addr[0],&data[0],addr_length,data_length);
+            I2CPutRXData(&addr[0],&data[0],addr_length,data_length);
         }
         //fast_uart(0xAA, 0x04);
         i = 0;
