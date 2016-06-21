@@ -1,12 +1,12 @@
 
-git clone https://github.com/RacingTornado/fx2lib
-cd fx2lib
-make
-For fast_uart , git checkout fast_uart
-make
-cd examples/fast_uart
-make
-./download.sh build/uart_main.ihx
+- git clone https://github.com/RacingTornado/fx2lib
+- cd fx2lib
+- make
+- For fast_uart , git checkout fast_uart
+- make
+- cd examples/fast_uart
+- make
+- ./download.sh build/uart_main.ihx
 
 By default a fast_uart(0x30) is inserted in the main while loop. You need to open up a console, I use
 
