@@ -94,9 +94,10 @@ void main() {
         write_addr[2] = wr_addr;
         write_data[0] = 0x24;
         //Address, data, address length and data length
-        //I2CPutTX(&write_addr[0],&write_data[0],0x02,0x01);
+        I2CPutTX(&write_addr[0],&write_data[0],0x03,0x01);
+        //i2c_control();
         write_addr[0] = 0xa1;
-        write_data[0] = 0x24;
+        write_data[0] = 0x34;
         I2CPutRXRead(&write_addr[0],0x01,0x01);
 
         //I2CGetRXData();
