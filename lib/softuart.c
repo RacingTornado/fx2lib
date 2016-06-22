@@ -22,8 +22,6 @@ unsigned char volatile tx_buffer;
 unsigned char volatile rx_buffer;
 unsigned char volatile tx_count;
 unsigned char volatile rx_count;
-
-
 unsigned volatile char tx_bits_sent;
 unsigned volatile char rx_bits_rcvd;
 unsigned char volatile tx_busy;
@@ -44,7 +42,12 @@ __xdata unsigned char QueueInRX, QueueOutRX;
 
 
 
+void uart0_init()
+{
 
+    timer_init();
+    softuart_init();
+}
 
 void timer_init()
 {
@@ -57,6 +60,8 @@ void timer_init()
    TL1 = 0x97;
    SYNCDELAY;
    ENABLE_TIMER1();
+   EA = 1;
+   TR1 = 1;
 }
 
 void softuart_init( void )
@@ -65,32 +70,38 @@ void softuart_init( void )
    timer_init();
    QueueInitRX();
    QueueInitTX();
+   CPUCS = 0x10;
    tx_busy = 0;
    rx_busy - 0;
 }
 
-//This function is called periodically from main
+/**
+ * \brief Called periodically from main. If the queue is non-empty
+ * then it returns immediately(non blocking). If there is data, it sets
+ * up the ISR to transmit this data and then returns.
+**/
 void uart_tx_service()
 {
    //Data has been loaded by the calling function in a buffer
-   //We need to move the data and set the flag
    //Check if operation is ongoing
    if ( QueueCheckTX() != 1)
    {
       if ( tx_busy == 0 )
       {
-         //fast_uart(tx_count);
          //Load value
          QueueGetTX(&tx_buffer);
          //Busy. Operation is ongoing
-         //Clear bit 7  indicates that operation has completed.
          tx_busy = 1;
       }
    }
 }
 
 
-//Called periodically from main
+/**
+ * \brief Called periodically from main. If the data reception is
+ * complete, then the rx_buffer is automatically put into
+ * queue , if the queue is non empty.
+**/
 void uart_rx_service()
 {
    //Will be replaced with enum in next version
@@ -240,3 +251,102 @@ __bit QueueCheckRX()
 
    return 0; // No errors
 }
+
+
+
+
+void uart0_transmit(char c)
+{
+    //Put the data into the buffer.
+    QueuePutTX(c);
+}
+
+
+void process_isr()
+{
+          __asm
+   mov _OEA, #0x08
+   cpl _PA3
+   __endasm;
+   tx_count = tx_count + 1;
+   if ( (tx_count % 4)  == 0)
+   {
+      if (tx_busy == 0x01)
+      {
+         OEA |= 0x10;
+         tx_bits_sent ++;
+
+         //Writing bits out via UART
+         if (tx_bits_sent == 1)
+         {
+            PA4 = 0 ;
+         }
+         else if (tx_bits_sent > 1 && tx_bits_sent <= 10)
+         {
+            __asm
+            mov a, _tx_buffer;
+            rrc a;
+            mov _PA4, c;
+            mov _tx_buffer, a;
+            __endasm;
+         }
+         else
+         {
+            PA4 = 1;
+            tx_bits_sent = 0;
+            tx_busy = 0;
+         }
+      }
+
+      tx_count = 0x00;
+   }
+
+   rx_count = rx_count + 1;
+
+   if (rx_busy == 0x00)
+   {
+      __asm
+      anl _OEA, #0xdf;
+      mov c, _PA5;
+      jc 0001$;
+      mov _rx_count, #0x00
+      mov _rx_bits_rcvd, #0x00
+      mov _rx_busy , #0x02
+      0001$:
+      __endasm;
+   }
+
+
+   if ( (rx_count % 4)  == 0)
+   {
+      if ((rx_busy == 0x02) || (rx_busy == 0x03))
+      {
+         rx_busy = 0x03;
+         OEA &= 0xdf;
+         rx_bits_rcvd ++;
+
+         //Writing bits out via UART
+         if (rx_bits_rcvd < 10)
+         {
+            __asm
+            mov a, _rx_buffer;
+            mov c, _PA5;
+            rrc a;
+            mov _rx_buffer, a;
+            __endasm;
+         }
+         else
+         {
+            __asm
+            mov c, _PA5;
+            __endasm;
+            rx_bits_rcvd = 0;
+            rx_busy = 1;
+         }
+      }
+
+      rx_count = 0x00;
+   }
+
+}
+

@@ -19,11 +19,15 @@
 #include <delay.h>
 #include <stdio.h>
 #include <softuart.h>
+#include <fx2ints.h>
+
 void main(void)
 {
     uart0_init();
     while (TRUE)
    {
+      uart_rx_service();
+      uart_tx_service();
       printf("Hello");
    }
 }
@@ -31,4 +35,20 @@ void main(void)
 void putchar(char c)
 {
     uart0_transmit(c);
+}
+
+
+/**
+ * \brief This function is actually an ISR
+ * It is called periodically to check if data is ready to be transmitted
+ * The receive logic looks at the rx pin, sampling it continously. The moment
+ * a start bit is detected, it begins shifting the data in
+ * and finally sets a flag stating the receive is complete. This flag is reset
+ * in the uart_rx_service. This helps achieve non blocking behaviour.
+ **/
+void timer1_isr ()
+__interrupt TF1_ISR
+{
+ process_isr();
+
 }
