@@ -3,6 +3,7 @@
 #include "fx2regs.h"
 #include "fx2types.h"
 
+enum uart_tx_state{IDLE, BUSY};
 /**
  * uart0_init() sets the CPU clock frequency to
  * 48Mhz.
@@ -29,7 +30,6 @@ extern unsigned char volatile tx_count;
 extern unsigned char volatile rx_count;
 extern unsigned char volatile tx_bits_sent;
 extern unsigned char volatile rx_bits_rcvd;
-extern unsigned char volatile tx_busy;
 extern unsigned char volatile rx_busy;
 #endif
 
