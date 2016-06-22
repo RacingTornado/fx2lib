@@ -262,13 +262,7 @@ __bit QueueCheckRX()
 void uart0_transmit(char c)
 {
     //Put the data into the buffer.
-    QueuePutTX(0x34);
-        QueuePutTX(0x35);
-
-    QueuePutTX(0x36);
-
-    QueuePutTX(0x37);
-
+    QueuePutTX(c);
 }
 
 

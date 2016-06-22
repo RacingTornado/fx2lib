@@ -25,39 +25,11 @@ unsigned long delay1;
 void main(void)
 {
     uart0_init();
+    printf("Hello");
     while (TRUE)
    {
       //uart_rx_service();
       uart_tx_service();
-      //printf("H");
-      uart0_transmit(0x24);
-      for(delay1=0;delay1<2000;delay1++)
-      {
-          __asm
-          nop
-          __endasm;
-      }
-      uart_tx_service();
-      for(delay1=0;delay1<2000;delay1++)
-      {
-          __asm
-          nop
-          __endasm;
-      }
-      uart_tx_service();
-      for(delay1=0;delay1<2000;delay1++)
-      {
-          __asm
-          nop
-          __endasm;
-      }
-      uart_tx_service();
-      for(delay1=0;delay1<2000;delay1++)
-      {
-          __asm
-          nop
-          __endasm;
-      }
 
    }
 }
