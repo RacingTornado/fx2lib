@@ -22,6 +22,7 @@ __bit QueueGetRX(unsigned char * old);
 __bit QueueCheckRX();
 void uart0_transmit(char c);
 void process_isr();
+void fast_uart(unsigned char a);
 extern unsigned char volatile tx_buffer;
 extern unsigned char volatile rx_buffer;
 extern unsigned char volatile tx_count;

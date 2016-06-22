@@ -21,14 +21,44 @@
 #include <softuart.h>
 #include <fx2ints.h>
 
+unsigned long delay1;
 void main(void)
 {
     uart0_init();
     while (TRUE)
    {
-      uart_rx_service();
+      //uart_rx_service();
       uart_tx_service();
-      printf("Hello");
+      //printf("H");
+      uart0_transmit(0x24);
+      for(delay1=0;delay1<2000;delay1++)
+      {
+          __asm
+          nop
+          __endasm;
+      }
+      uart_tx_service();
+      for(delay1=0;delay1<2000;delay1++)
+      {
+          __asm
+          nop
+          __endasm;
+      }
+      uart_tx_service();
+      for(delay1=0;delay1<2000;delay1++)
+      {
+          __asm
+          nop
+          __endasm;
+      }
+      uart_tx_service();
+      for(delay1=0;delay1<2000;delay1++)
+      {
+          __asm
+          nop
+          __endasm;
+      }
+
    }
 }
 
