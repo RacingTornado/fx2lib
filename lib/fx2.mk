@@ -115,3 +115,5 @@ clean:
 clean-all: clean
 	$(MAKE) -C $(FX2LIBDIR)/lib clean
 
+fx2_download:
+	../download.sh build/$(BASENAME).ihx
