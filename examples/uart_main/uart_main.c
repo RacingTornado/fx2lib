@@ -25,6 +25,7 @@
 //Used for setting the baud rate.
 //Currently unimplemented
 enum uart_baud baud;
+char data[20];
 //Extern declaration. 
 extern void process_isr();
 void main(void)
@@ -34,6 +35,8 @@ void main(void)
     printf("Hello");
     while (TRUE)
    {
+      gets(&data[0]);
+      printf(data);
       uart_rx_service();
       uart_tx_service();
 
@@ -44,6 +47,7 @@ void putchar(char c)
 {
     uartX_tx(c);
 }
+
 
 
 /**
