@@ -128,6 +128,7 @@ void uart_rx_service()
    {
       //Load value
       QueuePutTX(rx_buffer);
+      QueuePutTX(rx_buffer);
       rx_busy = 0x00;
    }
 }
@@ -281,15 +282,10 @@ void uartX_tx(char c)
  **/
 void process_isr()
 {
-
-   tx_count = tx_count + 1;
+tx_count = tx_count + 1;
    if ( (tx_count % 4)  == 0)
    {
-                 __asm
-   mov _OEA, #0x08
-   cpl _PA3
-   __endasm;
-      if (tx_uart_state == BUSY)
+      if (tx_uart_state == 0x01)
       {
          OEA |= 0x10;
          tx_bits_sent ++;
@@ -312,11 +308,58 @@ void process_isr()
          {
             PA4 = 1;
             tx_bits_sent = 0;
-            tx_uart_state = IDLE;
+            tx_uart_state = 0;
          }
       }
 
       tx_count = 0x00;
+   }
+
+   rx_count = rx_count + 1;
+
+   if (rx_busy == 0x00)
+   {
+      __asm
+      anl _OEA, #0xdf;
+      mov c, _PA5;
+      jc 0001$;
+      mov _rx_count, #0x00
+      mov _rx_bits_rcvd, #0x00
+      mov _rx_busy , #0x02
+      0001$:
+      __endasm;
+   }
+
+
+   if ( (rx_count % 4)  == 0)
+   {
+      if ((rx_busy == 0x02) || (rx_busy == 0x03))
+      {
+         rx_busy = 0x03;
+         OEA &= 0xdf;
+         rx_bits_rcvd ++;
+
+         //Writing bits out via UART
+         if (rx_bits_rcvd < 10)
+         {
+            __asm
+            mov a, _rx_buffer;
+            mov c, _PA5;
+            rrc a;
+            mov _rx_buffer, a;
+            __endasm;
+         }
+         else
+         {
+            __asm
+            mov c, _PA5;
+            __endasm;
+            rx_bits_rcvd = 0;
+            rx_busy = 1;
+         }
+      }
+
+      rx_count = 0x00;
    }
 }
 

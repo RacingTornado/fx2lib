@@ -34,7 +34,7 @@ void main(void)
     printf("Hello");
     while (TRUE)
    {
-      //uart_rx_service();
+      uart_rx_service();
       uart_tx_service();
 
    }
