@@ -128,7 +128,6 @@ void uart_rx_service()
    {
       //Load value
       QueuePutTX(rx_buffer);
-      QueuePutTX(rx_buffer);
       rx_busy = 0x00;
    }
 }
@@ -185,7 +184,6 @@ __bit QueueGetTX(unsigned char  *old)
    {
       return 1; /* Queue Empty - nothing to get*/
    }
-
    *old = QueueTX[QueueOutTX];
    QueueOutTX = (QueueOutTX + 1) % QUEUE_SIZE;
    return 0; // No errors
@@ -227,7 +225,6 @@ __bit QueuePutRX(unsigned char data)
    {
       return 1; /* Queue Full*/
    }
-
    QueueRX[QueueInRX] = data;
    QueueInRX = (QueueInRX + 1) % QUEUE_SIZE;
    return 0; // No errors
@@ -245,7 +242,6 @@ __bit QueueGetRX(unsigned char * old)
    {
       return 1; /* Queue Empty - nothing to get*/
    }
-
    *old = QueueRX[QueueOutRX];
    QueueOutRX = (QueueOutRX + 1) % QUEUE_SIZE;
    return 0; // No errors
@@ -311,12 +307,9 @@ tx_count = tx_count + 1;
             tx_uart_state = 0;
          }
       }
-
       tx_count = 0x00;
    }
-
    rx_count = rx_count + 1;
-
    if (rx_busy == 0x00)
    {
       __asm
@@ -329,8 +322,6 @@ tx_count = tx_count + 1;
       0001$:
       __endasm;
    }
-
-
    if ( (rx_count % 4)  == 0)
    {
       if ((rx_busy == 0x02) || (rx_busy == 0x03))
@@ -338,7 +329,6 @@ tx_count = tx_count + 1;
          rx_busy = 0x03;
          OEA &= 0xdf;
          rx_bits_rcvd ++;
-
          //Writing bits out via UART
          if (rx_bits_rcvd < 10)
          {
@@ -358,7 +348,6 @@ tx_count = tx_count + 1;
             rx_busy = 1;
          }
       }
-
       rx_count = 0x00;
    }
 }
@@ -386,7 +375,7 @@ char uartX_rx()
 
 BOOL uartX_check_rx_blocking()
 {
- //Doesnt really matter what we send here
+ //The timer based UART does not block
  return FALSE;
 }
 
