@@ -50,8 +50,8 @@ void uartX_tx(char c);
 
 /**
  * \brief Returns if the transmit is blocking or not
- * 0 - Non Blocking
- * 1 - Blocking
+ * TRUE - Blocking
+ * FALSE -Non Blocking
 **/
 
 BOOL uartX_tx_willblock();
