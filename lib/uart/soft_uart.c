@@ -30,7 +30,6 @@ unsigned char volatile tx_count;
 unsigned char volatile rx_count;
 unsigned volatile char tx_bits_sent;
 unsigned volatile char rx_bits_rcvd;
-unsigned char volatile rx_busy;
 /* Queue structure */
 #define QUEUE_ELEMENTS 50
 #define QUEUE_SIZE (QUEUE_ELEMENTS + 1)
@@ -43,8 +42,10 @@ __xdata unsigned char QueueRX[QUEUE_SIZE];
 /* variables to access the receive queue*/
 __xdata unsigned char QueueInRX, QueueOutRX;
 
-/* Enum creation */
+/* Enum creation for transmitter*/
 enum uart_tx_state tx_uart_state;
+
+enum uart_rx_state rx_uart_state;
 
 
 BOOL uartX_init(enum uart_baud rate, ...)
@@ -85,7 +86,7 @@ void softuart_init( void )
    QueueInitTX();
    SETCPUFREQ(CLK_48M);
    tx_uart_state = IDLE;
-   rx_busy = 0;
+   rx_uart_state = IDLE_RX;
 }
 
 /**
@@ -119,16 +120,11 @@ void uart_tx_service()
 **/
 void uart_rx_service()
 {
-   //Will be replaced with enum in next version
-   // 0x00 - IDLE
-   // 0x01 - Data Reception complete
-   // 0x02 - Start bit detect
-   // 0x03 - Data currently being read
-   if (rx_busy == 0x01 )
+   if (rx_uart_state == DATA_COMPLETE )
    {
       //Load value
       QueuePutTX(rx_buffer);
-      rx_busy = 0x00;
+      rx_uart_state = IDLE_RX;
    }
 }
 
@@ -310,7 +306,7 @@ tx_count = tx_count + 1;
       tx_count = 0x00;
    }
    rx_count = rx_count + 1;
-   if (rx_busy == 0x00)
+   if (rx_uart_state == IDLE_RX)
    {
       __asm
       anl _OEA, #0xdf;
@@ -318,15 +314,15 @@ tx_count = tx_count + 1;
       jc 0001$;
       mov _rx_count, #0x00
       mov _rx_bits_rcvd, #0x00
-      mov _rx_busy , #0x02
+      mov _rx_uart_state , #0x02
       0001$:
       __endasm;
    }
    if ( (rx_count % 4)  == 0)
    {
-      if ((rx_busy == 0x02) || (rx_busy == 0x03))
+      if ((rx_uart_state == START_DETECT) || (rx_uart_state == BUSY_RX))
       {
-         rx_busy = 0x03;
+         rx_uart_state = BUSY_RX;
          OEA &= 0xdf;
          rx_bits_rcvd ++;
          //Writing bits out via UART
@@ -345,7 +341,7 @@ tx_count = tx_count + 1;
             mov c, _PA5;
             __endasm;
             rx_bits_rcvd = 0;
-            rx_busy = 1;
+            rx_uart_state = DATA_COMPLETE;
          }
       }
       rx_count = 0x00;

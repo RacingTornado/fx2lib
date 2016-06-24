@@ -10,6 +10,16 @@
 **/
 enum uart_tx_state{IDLE, BUSY};
 
+/**
+ * Enum for controlling receiver state
+ * Only 4 states in the enum
+ * 0x00 - IDLE
+ * 0x01 - Data Reception complete
+ * 0x02 - Start bit detect
+ * 0x03 - Data currently being read
+**/
+enum uart_rx_state{IDLE_RX,DATA_COMPLETE,START_DETECT,BUSY_RX};
+
 void timer_init();
 void softuart_init( void );
 void uart_tx_service();
