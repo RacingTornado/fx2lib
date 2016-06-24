@@ -324,10 +324,10 @@ __sfr __at 0x98 SCON0;
          __sbit __at 0x98+7 SM0;
 __sfr __at 0x99 SBUF0;
 
-__sfr __at 0x9A AUTOPTRH1; 
-__sfr __at 0x9B AUTOPTRL1; 
-__sfr __at 0x9D AUTOPTRH2;
-__sfr __at 0x9E AUTOPTRL2; 
+__sfr __at 0x9A AUTOPTR1H; 
+__sfr __at 0x9B AUTOPTR1L; 
+__sfr __at 0x9D AUTOPTR2H;
+__sfr __at 0x9E AUTOPTR2L; 
 
 __sfr __at 0xA0 IOC;
          /*  IOC  */
@@ -640,5 +640,10 @@ __sfr __at 0xF8 EIP; // EIP Bit Values differ from Reg320
 #define bmIE4           bmBIT6
 #define bmI2CINT        bmBIT5
 #define bmUSBNT         bmBIT4
+
+/* AUTOPTRSETUP - Setup autopointer flags */
+#define bmAPTREN        bmBIT0
+#define bmAPTR1INC      bmBIT1
+#define bmAPTR2INC      bmBIT2
 
 #endif   /* FX2REGS_H */
