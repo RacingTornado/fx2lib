@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 Ubixum, Inc. 
+ * Copyright (C) 2009 Ubixum, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -91,7 +91,7 @@ void handle_setupdata() {
             if (!handle_get_descriptor())
               _handle_get_descriptor();
             break;
-        case GET_CONFIGURATION:            
+        case GET_CONFIGURATION:
             EP0BUF[0] = handle_get_configuration();
             EP0BCH=0;
             EP0BCL=1;
@@ -126,7 +126,7 @@ void handle_setupdata() {
                 STALLEP0();
             }
     }
-    
+
     // do the handshake
     EP0CS |= bmHSNAK;
 }
@@ -156,11 +156,11 @@ volatile BOOL self_powered=FALSE;
 volatile BOOL remote_wakeup_allowed=FALSE;
 
 BOOL handle_get_status() {
-    
+
     switch ( SETUPDAT[0] ) {
 //        case 0: // sometimes we get a 0 status too
 
-        case GS_INTERFACE: 
+        case GS_INTERFACE:
             EP0BUF[0] = 0;
             EP0BUF[1] = 0;
             EP0BCH=0;
@@ -256,7 +256,7 @@ BOOL handle_set_feature() {
                 if (!pep) {
                     return FALSE;
                 }
-        
+
                 *pep |= bmEPSTALL;
                 // should now reset data toggles
                 // write ep+dir to TOGCTL
@@ -333,7 +333,7 @@ void _handle_get_descriptor() {
             printf("Config\n");
             SUDPTRH = MSB(pDevConfig);
             SUDPTRL = LSB(pDevConfig);
-            break;        
+            break;
         case DSCR_STRING_TYPE:
             printf("String idx: %d\n", SETUPDAT[2]);
             {
@@ -349,7 +349,7 @@ void _handle_get_descriptor() {
                     //printf("%04x\n", pStr);
                     if (pStr->dsc_type != DSCR_STRING_TYPE) pStr=NULL;
                 } while ( pStr && cur<=idx);
-                
+
                 if (pStr) {
                     //BYTE i;
                     //printf("found str: '");
@@ -362,9 +362,9 @@ void _handle_get_descriptor() {
                     //SUDPTRH = MSB((WORD)&dev_strings);
                     //SUDPTRL = LSB((WORD)&dev_strings);
                 } else {STALLEP0();}
-                
+
             }
-            
+
             break;
         case DSCR_DEVQUAL_TYPE:
             printf("Device Qualifier\n");
