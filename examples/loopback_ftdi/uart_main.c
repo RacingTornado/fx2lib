@@ -60,8 +60,7 @@ __bit on;
 
 void main() {
 
-    //Commented out, dont know if light exists on Numato board
-    //d2off();
+
     //Setup data available and other init
     got_sud=FALSE;
     gotbuf=FALSE;
@@ -74,9 +73,6 @@ void main() {
     //d();
 
     SETCPUFREQ(CLK_48M);
-    //SETIF48MHZ();
-    //sio0_init(57600);
-
     //Enable USB auto vectored interrupts
     USE_USB_INTS();
     ENABLE_SUDAV();
@@ -85,13 +81,11 @@ void main() {
     ENABLE_USBRESET();
     EA=1; // global interrupt enable
     while(TRUE) {
-
         //Handles device descriptor requests
         if ( got_sud ) {
         handle_setupdata();
         got_sud=FALSE;
         }
-
         // Input data on EP1
         if(!(EP1OUTCS & bmEPBUSY))
         {
@@ -99,15 +93,11 @@ void main() {
            //toggle_pins();
 
         }
-
         // Timer expiration; send buffered data
         if((TCON & 0x20))
         {
            ProcessXmitData();
         }
-
-
-
  }
 
 }
@@ -128,8 +118,6 @@ static void Initialize(void)
 	// 40000 for the default 40 ms latency); the counter is only
 	// sixteen bits.
 
-	IFCONFIG=0xc0;  // Internal IFCLK, 48MHz; A,B as normal ports.
-	SYNCDELAY;
 
 	REVCTL=0x03;  // See TRM...
 	SYNCDELAY;
@@ -147,21 +135,6 @@ static void Initialize(void)
 	SYNCDELAY;
 	EP1OUTBC=0xff; // Arm endpoint 1 for OUT (host->device) transfers
 
-	// Setup Data Pointer - AUTO mode
-	//
-	// In this mode, there are two ways to send data on EP0.  You
-	// can either copy the data into EP0BUF and write the packet
-	// length into EP0BCH/L to start the transfer, or you can
-	// write the (word-aligned) address of a USB descriptor into
-	// SUDPTRH/L; the length is computed automatically.
-	SUDPTRCTL = 1;
-
-	// Enable USB interrupt
-	IE = 0x80;
-	EIE = 0x01;
-
-	// Enable SUDAV (setup data available) interrupt
-	USBIE = 0x01;
 }
 
 // These defines came from the Linux source code:
@@ -365,31 +338,11 @@ handle_set_interface (BYTE ifc, BYTE alt_ifc)
 
 
 
-__bit on5;
-__xdata WORD sofct = 0;
+
 void
 sof_isr ()
 __interrupt SOF_ISR __using 1
 {
-   ++sofct;
-
-   if (sofct == 8000)
-   {
-      // about 8000 sof interrupts per second at high speed
-      on5 = !on5;
-
-      if (on5)
-      {
-         d5on ();
-      }
-      else
-      {
-         d5off ();
-      }
-
-      sofct = 0;
-   }
-
    CLEAR_SOF ();
 }
 
