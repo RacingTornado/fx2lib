@@ -110,28 +110,19 @@ void main() {
 
 
 
-static void Initialize(void)
+void Initialize(void)
 {
-	// Note that increasing the clock speed to 24 or 48 MHz would
-	// affect our timer calculations below.  I use 12 MHz because
-	// this lets me use the smallest numbers for our counter (i.e,
-	// 40000 for the default 40 ms latency); the counter is only
-	// sixteen bits.
-
 
 	REVCTL=0x03;  // See TRM...
 	SYNCDELAY;
-
 	// Endpoint configuration - everything disabled except
 	// bidirectional transfers on EP1.
-
 	EP1OUTCFG=0xa0;
 	EP1INCFG=0xa0;
 	EP2CFG=0;
 	EP4CFG=0;
 	EP6CFG=0;
 	EP8CFG=0;
-
 	SYNCDELAY;
 	EP1OUTBC=0xff; // Arm endpoint 1 for OUT (host->device) transfers
 
@@ -166,22 +157,16 @@ static void Initialize(void)
 // about 65 ms.
 
 unsigned int bytes_waiting_for_xmit = 0;
-unsigned int latency_us = 40000;
 
 static void ProcessXmitData(void)
 {
-	// reset Timer 0
-	TCON &= ~0x30;
-
 	// Lead in two bytes in the returned data (modem status and
 	// line status).
 	EP1INBUF[0] = FTDI_RS0_CTS | FTDI_RS0_DSR | 1;
 	EP1INBUF[1] = FTDI_RS_DR;
-
 	// Send the packet.
 	SYNCDELAY;
 	EP1INBC = bytes_waiting_for_xmit + 2;
-
 	bytes_waiting_for_xmit = 0;
 }
 
@@ -189,20 +174,10 @@ static void ProcessXmitData(void)
 static void putchar(char c)
 {
    __xdata unsigned char *dest=EP1INBUF + bytes_waiting_for_xmit + 2;
-
    // Wait (if needed) for EP1INBUF ready to accept data
    while (EP1INCS & 0x02);
-
    *dest = c;
-
-   if (++bytes_waiting_for_xmit >= 62) ProcessXmitData();
-
-   // Set Timer 0 if it isn't set and we've got data ready to go
-   if (bytes_waiting_for_xmit && !(TCON & 0x10)) {
-      TH0 = MSB(0xffff - latency_us);
-      TL0 = LSB(0xffff - latency_us);
-      TCON |= 0x10;
-   }
+   if (++bytes_waiting_for_xmit >= 1) ProcessXmitData();
 }
 
 static void ProcessRecvData(void)
@@ -210,11 +185,9 @@ static void ProcessRecvData(void)
 	__xdata const unsigned char *src=EP1OUTBUF;
 	unsigned int len = EP1OUTBC;
 	unsigned int i;
-
 	// Skip the first byte in the received data (it's a port
 	// identifier and length).
 	src++; len--;
-
 	for(i=0; i<len; i++,src++)
 	   {
 	      if(*src>='a' && *src<='z')
@@ -222,7 +195,6 @@ static void ProcessRecvData(void)
 	      else
 		 {  putchar(*src);  }
 	   }
-
 	EP1OUTBC=0xff; // re-arm endpoint 1 for OUT (host->device) transfers
 	SYNCDELAY;
 }
@@ -235,12 +207,6 @@ void main1(void)
 	Initialize();
 	USBCS |= 0x02;
 	USBCS &= ~(0x08);
-
-	// Configure Timer 0 (but leave it unset)
-	// mode 1 (16-bit); ungated; divide system clock by 12
-	CKCON &= ~(0x08);
-	TMOD = 0x01;
-	TCON &= ~0x30;
 }
 
 
