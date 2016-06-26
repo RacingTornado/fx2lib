@@ -1,3 +1,11 @@
+/*
+The descriptors below setup an FTDI device with a VID 
+of 0x0403, and PID of 0x6010.In this particular case
+endpoint 1 is used to transfer data in and out of the device
+since it can be easily accessed by the CPU and is not used
+for other purposes(Typically used for transferring small aamount
+of data which is what we need)
+*/
 #include "descriptors.h"
 
 __code __at(0x3e00) struct usb_descriptors code_descriptors =

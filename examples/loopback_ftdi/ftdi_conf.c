@@ -63,9 +63,6 @@ void configure_endpoints(void)
 // by 12 so that our counters increment almost exactly once every us.
 // The counter is sixteen bits, so we can specify latencies up to
 // about 65 ms.
-
-
-
 void ProcessXmitData(void)
 {
 	// Lead in two bytes in the returned data (modem status and
@@ -77,7 +74,6 @@ void ProcessXmitData(void)
 	EP1INBC = bytes_waiting_for_xmit + 2;
 	bytes_waiting_for_xmit = 0;
 }
-
 
 void putchar_usb(char c)
 {
