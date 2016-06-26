@@ -65,13 +65,9 @@ void main() {
     got_sud=FALSE;
     gotbuf=FALSE;
     bytes=0;
-
-    // renumerate
-    //RENUMERATE_UNCOND();
     //Call our custom function to do our UART init
-    main1();
-    //d();
-
+    configure_endpoints();
+    RENUMERATE();
     SETCPUFREQ(CLK_48M);
     //Enable USB auto vectored interrupts
     USE_USB_INTS();
@@ -90,27 +86,12 @@ void main() {
         if(!(EP1OUTCS & bmEPBUSY))
         {
            ProcessRecvData();
-           //toggle_pins();
-
-        }
-        // Timer expiration; send buffered data
-        if((TCON & 0x20))
-        {
-           ProcessXmitData();
         }
  }
 
 }
 
-
-
-
-
-
-
-
-
-void Initialize(void)
+void configure_endpoints(void)
 {
 
 	REVCTL=0x03;  // See TRM...
@@ -204,7 +185,7 @@ void main1(void)
 {
 	// Disconnect the USB interface, initialize, renumerate, reconnect
 	USBCS |= 0x08;
-	Initialize();
+	//Initialize();
 	USBCS |= 0x02;
 	USBCS &= ~(0x08);
 }
