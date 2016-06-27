@@ -32,7 +32,8 @@
 //For handling SUDAV ISR
 volatile __bit got_sud;
 
-void main() {
+void main()
+{
     //Setup data available and other init
     got_sud=FALSE;
     //Call our custom function to do our UART init
@@ -46,93 +47,94 @@ void main() {
     ENABLE_HISPEED();
     ENABLE_USBRESET();
     EA=1; // global interrupt enable
-    while(TRUE) {
+    while(TRUE)
+    {
         //Handles device descriptor requests
-        if ( got_sud ) {
-        handle_setupdata();
-        got_sud=FALSE;
+        if ( got_sud )
+        {
+            handle_setupdata();
+            got_sud=FALSE;
         }
         // Input data on EP1
         if(!(EP1OUTCS & bmEPBUSY))
         {
-           ProcessRecvData();
+            process_recv_data();
         }
- }
-
+    }
 }
 
 BOOL
 handle_get_descriptor ()
 {
-   return FALSE;
+    return FALSE;
 }
 
 BOOL
 handle_vendorcommand (BYTE cmd)
 {
-   printf ("Need to implement vendor command: %02x\n", cmd);
-   return FALSE;
+    printf ("Need to implement vendor command: %02x\n", cmd);
+    return FALSE;
 }
 
 // this firmware only supports 0,0
 BOOL
 handle_get_interface (BYTE ifc, BYTE * alt_ifc)
 {
-   printf ("Get Interface\n");
+    printf ("Get Interface\n");
 
-   if (ifc == 0)
-   {
-      *alt_ifc = 0;
-      return TRUE;
-   }
-   else
-   {
-      return FALSE;
-   }
+    if (ifc == 0)
+    {
+        *alt_ifc = 0;
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
 }
 
 BOOL
 handle_set_interface (BYTE ifc, BYTE alt_ifc)
 {
-   printf ("Set interface %d to alt: %d\n", ifc, alt_ifc);
+    printf ("Set interface %d to alt: %d\n", ifc, alt_ifc);
 
-   if (ifc == 0 && alt_ifc == 0)
-   {
-      // SEE TRM 2.3.7
-      // reset toggles
-      RESETTOGGLE (0x02);
-      RESETTOGGLE (0x86);
-      // restore endpoints to default condition
-      RESETFIFO (0x02);
-      EP2BCL = 0x80;
-      SYNCDELAY;
-      EP2BCL = 0X80;
-      SYNCDELAY;
-      RESETFIFO (0x86);
-      return TRUE;
-   }
-   else
-      return FALSE;
+    if (ifc == 0 && alt_ifc == 0)
+    {
+        // SEE TRM 2.3.7
+        // reset toggles
+        RESETTOGGLE (0x02);
+        RESETTOGGLE (0x86);
+        // restore endpoints to default condition
+        RESETFIFO (0x02);
+        EP2BCL = 0x80;
+        SYNCDELAY;
+        EP2BCL = 0X80;
+        SYNCDELAY;
+        RESETFIFO (0x86);
+        return TRUE;
+    }
+    else
+        return FALSE;
 }
 
 void
 sof_isr ()
 __interrupt SOF_ISR __using 1
 {
-   CLEAR_SOF ();
+    CLEAR_SOF ();
 }
 
 // get/set configuration
 BYTE
 handle_get_configuration ()
 {
-   return 1;
+    return 1;
 }
 
 BOOL
 handle_set_configuration (BYTE cfg)
 {
-   return cfg == 1 ? TRUE : FALSE;	// we only handle cfg 1
+    return cfg == 1 ? TRUE : FALSE;	// we only handle cfg 1
 }
 
 // copied usb jt routines from usbjt.h
@@ -141,20 +143,20 @@ sudav_isr ()
 __interrupt SUDAV_ISR
 {
 
-   got_sud = TRUE;
-   CLEAR_SUDAV ();
+    got_sud = TRUE;
+    CLEAR_SUDAV ();
 }
 
 void usbreset_isr ()
 __interrupt USBRESET_ISR
 {
-   handle_hispeed (FALSE);
-   CLEAR_USBRESET ();
+    handle_hispeed (FALSE);
+    CLEAR_USBRESET ();
 }
 
 void hispeed_isr ()
 __interrupt HISPEED_ISR
 {
-   handle_hispeed (TRUE);
-   CLEAR_HISPEED ();
+    handle_hispeed (TRUE);
+    CLEAR_HISPEED ();
 }

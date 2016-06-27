@@ -32,7 +32,7 @@ void configure_endpoints(void);
 /**
  * \brief Send data present in EP1INBUF out 
 **/
-void ProcessXmitData(void);
+void process_xmit_data(void);
 /**
  * \brief Inserts data into endpoint buffer 
 **/
@@ -40,5 +40,5 @@ void putchar_usb(char c);
 /**
  * \brief Receives data from endpoint 1, and calls putchar_usb
 **/
-void ProcessRecvData(void);
+void process_recv_data(void);
 #endif

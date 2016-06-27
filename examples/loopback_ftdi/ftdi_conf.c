@@ -2,7 +2,7 @@
 /* -*- mode: C; c-basic-offset: 3; -*-
  *
  * convert_serial -- FX2 USB serial port converter
- * 
+ *
  * by Brent Baccala <cosine@freesoft.org>   July 2009
  * adapted by Roarin
  *
@@ -55,15 +55,13 @@ void configure_endpoints(void)
 	EP1OUTBC=0xff; // Arm endpoint 1 for OUT (host->device) transfers
 }
 
-
-
 // We want to buffer any outgoing data for a short time (40 ms) to see
 // if any other data becomes available and it can all be sent
 // together.  At 12 MHz we consume 83.3 ns/cycle and divide this rate
 // by 12 so that our counters increment almost exactly once every us.
 // The counter is sixteen bits, so we can specify latencies up to
 // about 65 ms.
-void ProcessXmitData(void)
+void process_xmit_data(void)
 {
 	// Lead in two bytes in the returned data (modem status and
 	// line status).
@@ -81,10 +79,10 @@ void putchar_usb(char c)
    // Wait (if needed) for EP1INBUF ready to accept data
    while (EP1INCS & 0x02);
    *dest = c;
-   if (++bytes_waiting_for_xmit >= 1) ProcessXmitData();
+   if (++bytes_waiting_for_xmit >= 1) process_xmit_data();
 }
 
-void ProcessRecvData(void)
+void process_recv_data(void)
 {
 	__xdata const unsigned char *src=EP1OUTBUF;
 	unsigned int len = EP1OUTBC;
