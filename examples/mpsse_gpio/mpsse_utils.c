@@ -2,56 +2,46 @@
 #include <fx2macros.h>
 #include "ftdi_conf.h"
 #include "stdio.h"
+#include "mpsse_utils.h"
 
-__xdata __at(0xE6B8) volatile struct mpsse_control_request mpsse_control;
+__xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 
 
 void uart_tx(char c);
 
-#define MPSSE_BITBANG 0x00
-#define VENDOR_COMMAND 0x40
-#define MPSSE_TWO 0x03
-#define MPSSE_THREE 0x09
-#define MPSSE_FOUR 0x0b
-#define MPSSE_FIVE 0x0c
-#define MPSSE_SIX 0x06
-
- void mpsse_parse_control()
+void mpsse_parse_control()
 {
-
-
-
-
    switch (SETUPDAT[1])
    {
-      case MPSSE_BITBANG:
+      case SIO_RESET_REQUEST:
       {
+         printf("Resetting %02x\r\n",SETUPDAT[1]);
          EP0CS |= 0x80;
       }
       break;
 
-      case MPSSE_TWO:
+      case SIO_SET_BAUD_RATE:
       {
          EP0CS |= 0x80;
 
       }
       break;
-      case MPSSE_THREE:
+      case SIO_SET_LATENCY_TIMER_REQUEST:
       {
          EP0CS |= 0x80;
       }
       break;
-      case MPSSE_FOUR:
+      case SIO_SET_BITMODE_REQUEST:
       {
          EP0CS |= 0x80;
       }
       break;
-      case MPSSE_FIVE:
+      case SIO_READ_PINS_REQUEST:
       {
          EP0CS |= 0x80;
       }
       break;
-      case MPSSE_SIX:
+      case SIO_SET_EVENT_CHAR_REQUEST:
       {
          EP0CS |= 0x80;
       }
@@ -83,4 +73,9 @@ void configure_endpoints()
     /*Arm the endpoint*/
     EP2BCL = 0xff;
 
+}
+
+void putchar(char c)
+{
+    uart_tx(c);
 }

@@ -155,9 +155,28 @@ struct mpsse_context {
  /*Unused variable */
  BYTE baud_rate;
  /*Set to 1 if bitbang is enabled*/
- __bit bitbang_enabled;
+ BYTE bitbang_enabled;
  /*This pointer is set by the function, before filling the IN buffer*/
  unsigned char *readbuffer;
+};
+
+/**
+ * MPSSE read/write commands.See section 3.6 for more information. 
+ * This structures controls the operation of the MPSSE engine.
+ * Modelled after ftdi_context.
+**/
+struct mpsse_read_write {
+ /*Mode of operations 
+  * 0x80 - Set Data bits low.
+  * 0x82 - Set Data bits high.
+  * 0x81 - Read Data bits low.
+  * 0x83 - Read Data bits high.
+ */
+ BYTE command;
+ /*The value to write*/ 
+ BYTE value;
+ /*The direction to set(OEA pins)*/ 
+ BYTE direction;
 };
 
 /**
@@ -249,6 +268,7 @@ void configure_endpoints();
 /**
  * Allow the struct to be accessed from anyfile that includes this header file.
 **/
-extern struct mpsse_control_request mpsse_control;
+extern __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
+extern struct mpsse_read_write read_write;
 
 #endif // MPSSE_UTILS_H

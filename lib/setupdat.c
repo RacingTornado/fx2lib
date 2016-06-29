@@ -77,7 +77,6 @@ void handle_setupdata()
     printf("Handle setupdat: 0x%02x\n", SETUPDAT[1]);
     if(SETUPDAT[0] == 0x40)
     {
-        uart_tx(SETUPDAT[0]);
         handle_vendorcommand(SETUPDAT[1]);
     }
     else
