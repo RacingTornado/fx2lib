@@ -50,8 +50,8 @@ unsigned char bytes_waiting_for_xmit = 0;
 //	EP2CFG=0;
 //	EP4CFG=0;
 //	EP6CFG=0;
-//	EP8CFG=0;
 //	SYNCDELAY;
+//	EP8CFG=0;
 //	EP1OUTBC=0xff; // Arm endpoint 1 for OUT (host->device) transfers
 //}
 

@@ -20,11 +20,8 @@ void uart_tx(char c);
 {
 
 
-   EP0BCH = 0;
-   EP0BCL = 3;
-   //SUDPTRCTL = 0x01;
-   uart_tx(EP2BCL);
-   EP2BCL = 0xff;
+
+
    switch (SETUPDAT[1])
    {
       case MPSSE_BITBANG:
