@@ -73,7 +73,7 @@ void process_send_data(void)
 	bytes_waiting_for_xmit = 0;
 }
 
-void putchar_usb(char c)
+void putchar(char c)
 {
    __xdata unsigned char *dest=EP1INBUF + bytes_waiting_for_xmit + 2;
    // Wait (if needed) for EP1INBUF ready to accept data
@@ -93,9 +93,9 @@ void process_recv_data(void)
 	for(i=0; i<len; i++,src++)
 	   {
 	      if(*src>='a' && *src<='z')
-		 {  putchar_usb(*src-'a'+'A');  }
+		 {  putchar(*src-'a'+'A');  }
 	      else
-		 {  putchar_usb(*src);  }
+		 {  putchar(*src);  }
 	   }
 	EP1OUTBC=0xff; // re-arm endpoint 1 for OUT (host->device) transfers
 	SYNCDELAY;

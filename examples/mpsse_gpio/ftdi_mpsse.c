@@ -22,6 +22,7 @@
 #include <eputils.h>
 #include <delay.h>
 #include "ftdi_conf.h"
+#define DEBUG_MAIN
 #ifdef DEBUG_MAIN
 #include <stdio.h> // NOTE this needs deleted
 #else
@@ -47,6 +48,7 @@ void main()
     ENABLE_HISPEED();
     ENABLE_USBRESET();
     EA=1; // global interrupt enable
+
     while(TRUE)
     {
         //Handles device descriptor requests
@@ -59,7 +61,10 @@ void main()
         if(!(EP1OUTCS & bmEPBUSY))
         {
             process_recv_data();
+	    putchar(0x23);
+	    printf("Hello");
         }
+
     }
 }
 
@@ -72,7 +77,7 @@ handle_get_descriptor ()
 BOOL
 handle_vendorcommand (BYTE cmd)
 {
-    printf ("Need to implement vendor command: %02x\n", cmd);
+    //printf ("Need to implement vendor command: %02x\n", cmd);
     return FALSE;
 }
 
@@ -80,7 +85,7 @@ handle_vendorcommand (BYTE cmd)
 BOOL
 handle_get_interface (BYTE ifc, BYTE * alt_ifc)
 {
-    printf ("Get Interface\n");
+    //printf ("Get Interface\n");
 
     if (ifc == 0)
     {
@@ -96,7 +101,7 @@ handle_get_interface (BYTE ifc, BYTE * alt_ifc)
 BOOL
 handle_set_interface (BYTE ifc, BYTE alt_ifc)
 {
-    printf ("Set interface %d to alt: %d\n", ifc, alt_ifc);
+    //printf ("Set interface %d to alt: %d\n", ifc, alt_ifc);
 
     if (ifc == 0 && alt_ifc == 0)
     {
