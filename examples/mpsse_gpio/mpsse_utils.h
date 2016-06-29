@@ -106,7 +106,13 @@ BOOL handle_get_interface(BYTE ifc, BYTE* alt_ifc);
 BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc);
 BOOL handle_get_descriptor();
 
-
+/* Prints out the control endpoint request*/ 
+#define PRINT_REQUEST(str) \
+	printf( \
+		str " bControl:%d bRequest:%s bLength: %d\n", \
+		uvc_ctrl_request.wValue.bControl, \
+		uvc_control_request_str(uvc_ctrl_request.bRequest), \
+		uvc_ctrl_request.wLength);
 /**
  * MPSSE control packet. All control packets are sent on endpoint 0.
  * This structures handles data from endpoint 0.(Control_Endpoint)
@@ -234,5 +240,10 @@ void purge_rx_buffer();
  * \brief Clear the TX buffer
 **/
 void purge_tx_buffer();
+
+/**
+ * Allow the struct to be accessed from anyfile that includes this header file.
+**/
+extern struct mpsse_control_request mpsse_control;
 
 #endif // MPSSE_UTILS_H

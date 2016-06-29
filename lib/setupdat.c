@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009 Ubixum, Inc. 
+ * Copyright (C) 2009 Ubixum, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -61,6 +61,7 @@ void _handle_get_descriptor();
 //  GET_INTERFACE, // handled by callback
 //  SET_INTERFACE, // handled by callback
 //  SYNC_FRAME // not yet implemented
+unsigned char load_delay;
 
 /*
  TRM 2.2
@@ -69,66 +70,86 @@ void _handle_get_descriptor();
  handshake
 */
 
-void handle_setupdata() {
-    printf("Handle setupdat: 0x%02x\n", SETUPDAT[1]);
+void uart_tx(char c);
 
-    switch ( SETUPDAT[1] ) {
+void handle_setupdata()
+{
+    printf("Handle setupdat: 0x%02x\n", SETUPDAT[1]);
+    if(SETUPDAT[0] == 0x40)
+    {
+        uart_tx(SETUPDAT[0]);
+        handle_vendorcommand(SETUPDAT[1]);
+    }
+    else
+    {
+
+        switch ( SETUPDAT[1] )
+        {
         case GET_STATUS:
             if (!handle_get_status())
                 STALLEP0();
             break;
         case CLEAR_FEATURE:
-            if (!handle_clear_feature()) {
+            if (!handle_clear_feature())
+            {
                 STALLEP0();
             }
             break;
         case SET_FEATURE:
-            if (!handle_set_feature()) {
+            if (!handle_set_feature())
+            {
                 STALLEP0();
             }
             break;
         case GET_DESCRIPTOR:
             if (!handle_get_descriptor())
-              _handle_get_descriptor();
+                _handle_get_descriptor();
             break;
-        case GET_CONFIGURATION:            
+        case GET_CONFIGURATION:
             EP0BUF[0] = handle_get_configuration();
             EP0BCH=0;
             EP0BCL=1;
             break;
         case SET_CONFIGURATION:
             // user callback
-            if(!handle_set_configuration(SETUPDAT[2])) {
+            if(!handle_set_configuration(SETUPDAT[2]))
+            {
                 STALLEP0();
             }
             break;
         case GET_INTERFACE:
+        {
+            BYTE alt_ifc;
+            if (!handle_get_interface(SETUPDAT[4],&alt_ifc))
             {
-                BYTE alt_ifc;
-                if (!handle_get_interface(SETUPDAT[4],&alt_ifc)) {
-                    STALLEP0();
-                } else {
-                    EP0BUF[0] = alt_ifc;
-                    EP0BCH=0;
-                    EP0BCL=1;
-                }
+                STALLEP0();
             }
-            break;
+            else
+            {
+                EP0BUF[0] = alt_ifc;
+                EP0BCH=0;
+                EP0BCL=1;
+            }
+        }
+        break;
         case SET_INTERFACE:
             // user callback
-            if (!handle_set_interface(SETUPDAT[4],SETUPDAT[2])) {
+            if (!handle_set_interface(SETUPDAT[4],SETUPDAT[2]))
+            {
                 STALLEP0();
             }
             break;
         default:
-            if (!handle_vendorcommand(SETUPDAT[1])) {
-                printf("Unhandled Vendor Command: 0x%02x\n" , SETUPDAT[1]);
-                STALLEP0();
-            }
+            handle_vendorcommand(SETUPDAT[1]);
+            //if (!handle_vendorcommand(SETUPDAT[1])) {
+            // printf("Unhandled Vendor Command: 0x%02x\n" , SETUPDAT[1]);
+            //STALLEP0();
+            // }
+        }
+
+        // do the handshake
+        EP0CS |= bmHSNAK;
     }
-    
-    // do the handshake
-    EP0CS |= bmHSNAK;
 }
 
 __xdata BYTE* ep_addr(BYTE ep) {
@@ -156,11 +177,11 @@ volatile BOOL self_powered=FALSE;
 volatile BOOL remote_wakeup_allowed=FALSE;
 
 BOOL handle_get_status() {
-    
+
     switch ( SETUPDAT[0] ) {
 //        case 0: // sometimes we get a 0 status too
 
-        case GS_INTERFACE: 
+        case GS_INTERFACE:
             EP0BUF[0] = 0;
             EP0BUF[1] = 0;
             EP0BCH=0;
@@ -256,7 +277,7 @@ BOOL handle_set_feature() {
                 if (!pep) {
                     return FALSE;
                 }
-        
+
                 *pep |= bmEPSTALL;
                 // should now reset data toggles
                 // write ep+dir to TOGCTL
@@ -333,7 +354,7 @@ void _handle_get_descriptor() {
             printf("Config\n");
             SUDPTRH = MSB(pDevConfig);
             SUDPTRL = LSB(pDevConfig);
-            break;        
+            break;
         case DSCR_STRING_TYPE:
             printf("String idx: %d\n", SETUPDAT[2]);
             {
@@ -349,7 +370,7 @@ void _handle_get_descriptor() {
                     //printf("%04x\n", pStr);
                     if (pStr->dsc_type != DSCR_STRING_TYPE) pStr=NULL;
                 } while ( pStr && cur<=idx);
-                
+
                 if (pStr) {
                     //BYTE i;
                     //printf("found str: '");
@@ -362,9 +383,9 @@ void _handle_get_descriptor() {
                     //SUDPTRH = MSB((WORD)&dev_strings);
                     //SUDPTRL = LSB((WORD)&dev_strings);
                 } else {STALLEP0();}
-                
+
             }
-            
+
             break;
         case DSCR_DEVQUAL_TYPE:
             printf("Device Qualifier\n");
@@ -382,3 +403,75 @@ void _handle_get_descriptor() {
             STALLEP0();
     }
 }
+
+
+void uart_tx(char c)
+{
+
+    load_delay = 0x20;
+    //Done in ASM to improve performance. It takes only 6
+    //cycles to move the data out, however a delay has been
+    //introduced in order to get a baud rate of 115200
+    //The mask which is to be written into the pin
+    OEA |= 0x04;
+    //An efficient UART bitbang routine in assembly
+    __asm
+    //Like #define in C. Can easily be used to change the pin
+    .equ _TX_PIN, _PA2
+    //Disable interrupts
+    //This is used because timing is critical
+    //If the FX2 jumps into the ISR temporarily , it may cause transmit
+    //errors. By clearing EA, we can disable interrupts
+    clr _EA             //(2 cycles)
+    //Move the data to be sent into the ACC
+    //The data which is to be shifted out is held in the dpl register
+    //We move the data into A for easy access to subsequent instructions
+    mov a , dpl         //(2 cyles)
+    clr c               //(1 cycle )
+    //We need to send out 8 bits of data
+    //Load r0 with value 8
+    mov r0, #0x08       //(2 cycles)
+    //Create the start bit
+    clr _TX_PIN         //(2 cycles)
+    //Precalculated delay since 1 cycle takes 88ns
+    //At 12Mhz, it should be about 83.33ns
+    //But it appears to be about 88ns
+    //These numbers have been verified using an analyzer
+    mov r1, _load_delay //(2 cycles)
+    0006$:
+    //1 bit is about 8.6us
+    djnz r1, 0006$      //(3 cycles)
+    //DJNZ on Rn takes 3 cycles
+    //NOP takes about 1 cycle
+    //Add 2 more cycles of delay
+    //97 cycles
+    nop                 //(1 cycle )
+    nop                 //(1 cycle )
+    0001$:
+    rrc a               //(2 cycles)
+    //The above rotates the accumulator right through the carry
+    //Move the carry into the port
+    mov _TX_PIN, c      //(2 cycles)
+    //Now we need to add delay for the next
+    mov r1, _load_delay //(2 cycles)
+    //31*3 , 93 cycles of delay
+    0004$:
+    djnz r1, 0004$      //(3 cycles)
+    nop                 //(1 cycle )
+    //3 more cycles of delay
+    //97 cycles
+    djnz r0, 0001$      //(3 cycles)
+    setb _TX_PIN        //(2 cycles)
+    //This is for stop bit
+    //We need to delay the stop bit,  otherwise we may get errors.
+    mov r1, _load_delay //(2 cycles)
+    0005$:
+    djnz r1, 0005$      //(3 cycles)
+    //for DJNZ , Jump for 32*3 , 96 cycles
+    nop                 //(1 cycle )
+    //97 cycles of delay
+    setb _EA            //(2 cycles)
+    //Enable back the interrupts
+    __endasm;
+}
+
