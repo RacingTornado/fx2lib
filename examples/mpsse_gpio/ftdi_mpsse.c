@@ -48,6 +48,7 @@ void main()
     ENABLE_HISPEED();
     ENABLE_USBRESET();
     ENABLE_EP2();
+    EP2BCL = 0xff;
     EA=1; // global interrupt enable
 
     while(TRUE)
@@ -167,7 +168,11 @@ __interrupt HISPEED_ISR
 void ep2_isr()
 __interrupt EP2_ISR
 {
+    uart_tx(0x44);
     uart_tx(EP2BCL);
+    uart_tx(0x60);
+    uart_tx(EP2FIFOBUF[0]);
+    EP2BCL = 0xff;
     CLEAR_EP2();
 }
 
