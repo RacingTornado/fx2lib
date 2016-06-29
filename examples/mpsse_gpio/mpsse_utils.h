@@ -217,7 +217,7 @@ enum ftdi_interface
  * \brief Called whenever a SETUP packet is received and the bmRequest is 
  * 0x40 or 0xc0(vendor commands).
 **/
- void mpsse_parse_control();
+ void mpsse_handle_control();
 
 /**
  * \brief Called whenever a SETUP packet is received and the bmRequest is 
@@ -238,7 +238,7 @@ enum ftdi_interface
 /**
  * \brief Setting the pins occurs via URB bulk request.
 **/
- void parse_bulk_control();
+ void mpsse_handle_bulk();
 
 /**
  * \brief Setting the pins occurs via URB bulk request.
@@ -269,6 +269,10 @@ void configure_endpoints();
  * Allow the struct to be accessed from anyfile that includes this header file.
 **/
 extern __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
-extern struct mpsse_read_write read_write;
+extern __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
+
+//DELETE:
+void putchar(char c);
+
 
 #endif // MPSSE_UTILS_H

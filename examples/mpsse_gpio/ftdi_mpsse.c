@@ -32,6 +32,7 @@
 void uart_tx(char c);
 //For handling SUDAV ISR
 volatile __bit got_sud;
+volatile __bit got_ep2;
 
 void main()
 {
@@ -59,6 +60,14 @@ void main()
             handle_setupdata();
             got_sud=FALSE;
         }
+        if ( got_ep2 )
+        {
+            /* Data from the host to the device*/
+            printf("Got data\r\n");
+            mpsse_handle_bulk();
+            got_ep2=FALSE;
+            EP2BCL = 0xff;
+        }
         // Input data on EP1
 	    //putchar(0x23);
     }
@@ -74,7 +83,7 @@ BOOL
 handle_vendorcommand (BYTE cmd)
 {
     //printf ("Need to implement vendor command: %02x\n", cmd);
-    mpsse_parse_control();
+    mpsse_handle_control();
     return FALSE;
 }
 
@@ -167,7 +176,7 @@ __interrupt HISPEED_ISR
 void ep2_isr()
 __interrupt EP2_ISR
 {
-    EP2BCL = 0xff;
+    got_ep2 = TRUE;
     CLEAR_EP2();
 }
 

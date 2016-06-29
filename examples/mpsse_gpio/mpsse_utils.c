@@ -5,11 +5,13 @@
 #include "mpsse_utils.h"
 
 __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
+__xdata __at(0xF000) volatile struct mpsse_read_write read_write;
+
 
 
 void uart_tx(char c);
 
-void mpsse_parse_control()
+void mpsse_handle_control()
 {
    switch (SETUPDAT[1])
    {
@@ -19,7 +21,6 @@ void mpsse_parse_control()
          EP0CS |= 0x80;
       }
       break;
-
       case SIO_SET_BAUD_RATE:
       {
          EP0CS |= 0x80;
@@ -78,4 +79,18 @@ void configure_endpoints()
 void putchar(char c)
 {
     uart_tx(c);
+}
+
+void mpsse_handle_bulk()
+{
+    switch(read_write.command)
+    {
+
+    case 0x80:
+        printf("Write\r\n");
+        break;
+    default:
+        break;
+
+    }
 }
