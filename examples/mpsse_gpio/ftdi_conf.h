@@ -36,7 +36,7 @@ void process_send_data(void);
 /**
  * \brief Inserts data into endpoint buffer 
 **/
-void putchar(char c);
+void putchar_usb(char c);
 /**
  * \brief Receives data from endpoint 1, and calls putchar_usb
 **/
