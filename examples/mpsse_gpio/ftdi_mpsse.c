@@ -22,6 +22,7 @@
 #include <eputils.h>
 #include <delay.h>
 #include "ftdi_conf.h"
+#include "mpsse_utils.h"
 #define DEBUG_MAIN
 #ifdef DEBUG_MAIN
 #include <stdio.h> // NOTE this needs deleted
@@ -64,12 +65,12 @@ void main()
         {
             /* Data from the host to the device*/
             printf("Got data\r\n");
+            /*Handle the bulk data*/
             mpsse_handle_bulk();
             got_ep2=FALSE;
+            /* Rearm the EP.*/
             EP2BCL = 0xff;
         }
-        // Input data on EP1
-	    //putchar(0x23);
     }
 }
 
@@ -108,7 +109,6 @@ BOOL
 handle_set_interface (BYTE ifc, BYTE alt_ifc)
 {
     //printf ("Set interface %d to alt: %d\n", ifc, alt_ifc);
-
     if (ifc == 0 && alt_ifc == 0)
     {
         // SEE TRM 2.3.7
@@ -172,7 +172,7 @@ __interrupt HISPEED_ISR
     CLEAR_HISPEED ();
 }
 
-
+/*Handles the ISR for data on EP 0x02*/
 void ep2_isr()
 __interrupt EP2_ISR
 {

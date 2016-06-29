@@ -13,6 +13,7 @@ void uart_tx(char c);
 
 void mpsse_handle_control()
 {
+   printf("Control %02x\r\n",SETUPDAT[1]);
    switch (SETUPDAT[1])
    {
       case SIO_RESET_REQUEST:
@@ -39,6 +40,9 @@ void mpsse_handle_control()
       break;
       case SIO_READ_PINS_REQUEST:
       {
+         EP0BUF[0] = 0x01;
+         EP0BCL = 0x01;
+         EP0BCH = 0x00;
          EP0CS |= 0x80;
       }
       break;
@@ -83,14 +87,29 @@ void putchar(char c)
 
 void mpsse_handle_bulk()
 {
+    /* Pin mapping docs details how the ports on FX2 are mapped to
+       those on FT2232H */
+    printf("Command %02x\r\n",read_write.command);
     switch(read_write.command)
     {
-
-    case 0x80:
-        printf("Write\r\n");
+    case SET_BITS_LOW:
+        //Look again and verify that this can actually be done
+        OEA = read_write.direction;
+        IOA = read_write.value;
+        printf("Write low bytes %02x\r\n",read_write.command);
+        break;
+    case SET_BITS_HIGH:
+        OEB = read_write.direction;
+        IOB = read_write.value;
+        printf("Write high bytes\r\n");
+        break;
+    case GET_BITS_LOW:
+        printf("Read low bytes\r\n");
+        break;
+    case GET_BITS_HIGH:
+        printf("Read high bytes\r\n");
         break;
     default:
         break;
-
     }
 }
