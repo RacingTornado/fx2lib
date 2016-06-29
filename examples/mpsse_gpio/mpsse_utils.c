@@ -23,16 +23,12 @@ void uart_tx(char c);
    EP0BCH = 0;
    EP0BCL = 3;
    //SUDPTRCTL = 0x01;
-   uart_tx(SETUPDAT[1]);
+   uart_tx(EP2BCL);
+   EP2BCL = 0xff;
    switch (SETUPDAT[1])
    {
       case MPSSE_BITBANG:
       {
-
-         EP0BUF[0] = 01;
-         EP0BUF[1] = 06;
-         EP0BCH = 0;
-         EP0BCL = 2;
          EP0CS |= 0x80;
       }
       break;
@@ -40,55 +36,54 @@ void uart_tx(char c);
       case MPSSE_TWO:
       {
          EP0CS |= 0x80;
-         EP0BUF[0] = 1;
-         EP0BUF[1] = 2;
-         EP0BCH = 0;
-         EP0BCL = 2;
-         SUDPTRL = 2;
+
       }
       break;
       case MPSSE_THREE:
       {
-         EP0BUF[0] = 1;
-         EP0BUF[1] = 2;
-         EP0BCH = 0;
-         EP0BCL = 2;
-         SUDPTRL = 2;
          EP0CS |= 0x80;
       }
       break;
       case MPSSE_FOUR:
       {
-         EP0BUF[0] = 0;
-         EP0BUF[1] = 1;
-         EP0BCH = 0;
-         EP0BCL = 2;
-         SUDPTRL = 3;
          EP0CS |= 0x80;
       }
       break;
       case MPSSE_FIVE:
       {
-         EP0BUF[0] = 1;
-         EP0BUF[1] = 0;
-         EP0BCH = 0;
-         EP0BCL = 1;
-         SUDPTRL = 3;
          EP0CS |= 0x80;
       }
       break;
       case MPSSE_SIX:
       {
-         EP0BUF[0] = 0;
-         EP0BUF[1] = 1;
-         EP0BCH = 0;
-         EP0BCL = 1;
-         SUDPTRL = 3;
          EP0CS |= 0x80;
       }
       break;
       default:
          break;
    }
+
+}
+
+
+void configure_endpoints()
+{
+    /*
+      Interface A is the only supported mode in FX2 currently
+      We need to configure endpoint 1 as IN, and endpoint 2
+      as OUT endpoint.
+      case INTERFACE_A:
+               ftdi->interface = 0;
+               ftdi->index     = INTERFACE_A;
+               ftdi->in_ep     = 0x02;
+               ftdi->out_ep    = 0x81;
+    */
+    EP1INCFG = 0xa0;
+    SYNCDELAY;
+    /*Out endpoint, double buffered, bulk endpoint*/
+    EP2CFG = 0xa2;
+    SYNCDELAY;
+    /*Arm the endpoint*/
+    EP2BCL = 0xff;
 
 }

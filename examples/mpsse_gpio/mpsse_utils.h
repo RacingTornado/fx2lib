@@ -106,7 +106,7 @@ BOOL handle_get_interface(BYTE ifc, BYTE* alt_ifc);
 BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc);
 BOOL handle_get_descriptor();
 
-/* Prints out the control endpoint request*/ 
+/* Prints out the control endpoint request.*/ 
 #define PRINT_REQUEST(str) \
 	printf( \
 		str " bControl:%d bRequest:%s bLength: %d\n", \
@@ -144,8 +144,8 @@ struct mpsse_control_request {
 
 /**
  * MPSSE context. 
- * This structures controls the operation of the MPSSE engine
- * Modelled after ftdi_context
+ * This structures controls the operation of the MPSSE engine.
+ * Modelled after ftdi_context.
 **/
 struct mpsse_context {
  /*Mode of operations */
@@ -170,7 +170,7 @@ enum ftdi_mpsse_mode
         BITMODE_MPSSE  = 0x02,    
         BITMODE_SYNCBB = 0x04,    
         BITMODE_MCU    = 0x08,    
-        /* CPU-style fifo mode gets set via EEPROM */
+        /* CPU-style fifo mode gets set via EEPROM.*/
         BITMODE_OPTO   = 0x10,    
         BITMODE_CBUS   = 0x20,    
         BITMODE_SYNCFF = 0x40,    
@@ -196,50 +196,55 @@ enum ftdi_interface
 
 /**
  * \brief Called whenever a SETUP packet is received and the bmRequest is 
- * 0x40 or 0xc0(vendor commands)
+ * 0x40 or 0xc0(vendor commands).
 **/
  void mpsse_parse_control();
 
 /**
  * \brief Called whenever a SETUP packet is received and the bmRequest is 
- * 0x40 or 0xc0(vendor commands)
+ * 0x40 or 0xc0(vendor commands).
 **/
  void set_baud_rate(BYTE rate);
 
 /**
- * \brief Sets the latency timer(currently unimplemented)
+ * \brief Sets the latency timer(currently unimplemented).
 **/
  void set_latency_timer(BYTE latency);
 
 /**
- * \brief Sets the bitmode to mode
+ * \brief Sets the bitmode to mode.
 **/
  void set_bitmode(BYTE mode);
 
 /**
- * \brief Setting the pins occurs via URB bulk request
+ * \brief Setting the pins occurs via URB bulk request.
 **/
  void parse_bulk_control();
 
 /**
- * \brief Setting the pins occurs via URB bulk request
+ * \brief Setting the pins occurs via URB bulk request.
 **/
  void set_pins_state(BYTE value, BYTE direction);
 
 /**
- * \brief Get the pin state indicated by pin
+ * \brief Get the pin state indicated by pin.
 **/
  BYTE get_pins_state(BYTE pins);
 
 /**
- * \brief Clear the RX buffer
+ * \brief Clear the RX buffer.
 **/
 void purge_rx_buffer();
 
 /**
- * \brief Clear the TX buffer
+ * \brief Clear the TX buffer.
 **/
 void purge_tx_buffer();
+
+/**
+ * \brief Configures the endpoints according to the FT2232H.
+**/
+void configure_endpoints();
 
 /**
  * Allow the struct to be accessed from anyfile that includes this header file.

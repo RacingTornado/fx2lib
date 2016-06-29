@@ -58,13 +58,7 @@ void main()
             got_sud=FALSE;
         }
         // Input data on EP1
-        if(!(EP1OUTCS & bmEPBUSY))
-        {
-            process_recv_data();
 	    //putchar(0x23);
-	    uart_tx(0x12);
-        }
-
     }
 }
 
