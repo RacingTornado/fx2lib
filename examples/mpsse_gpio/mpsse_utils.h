@@ -16,7 +16,7 @@ Bit 3 : LSB first = 1 else MSB first
 Bit 4 : Do write TDI
 Bit 5 : Do read  TDO
 Bit 6 : Do writeTMS
-Bit 7 : 0 
+Bit 7 : 0
 */
 #define MPSSE_WRITE_NEG 0x01   /* Write TDI/DO on negative TCK/SK edge,bit 0 has been set */
 #define MPSSE_BITMODE   0x02   /* Write bits, not bytes, set bit 1 */
@@ -95,7 +95,7 @@ Bit 7 : 0
 #define SIO_READ_EEPROM_REQUEST       0x90
 #define SIO_WRITE_EEPROM_REQUEST      0x91
 #define SIO_ERASE_EEPROM_REQUEST      0x92
-/* Reset commands , control endpoint*/ 
+/* Reset commands , control endpoint*/
 #define SIO_RESET_SIO 0
 #define SIO_RESET_PURGE_RX 1
 #define SIO_RESET_PURGE_TX 2
@@ -106,7 +106,7 @@ BOOL handle_get_interface(BYTE ifc, BYTE* alt_ifc);
 BOOL handle_set_interface(BYTE ifc, BYTE alt_ifc);
 BOOL handle_get_descriptor();
 
-/* Prints out the control endpoint request.*/ 
+/* Prints out the control endpoint request.*/
 #define PRINT_REQUEST(str) \
 	printf( \
 		str " bControl:%d bRequest:%s bLength: %d\n", \
@@ -143,7 +143,7 @@ struct mpsse_control_request {
 };
 
 /**
- * MPSSE context. 
+ * MPSSE context.
  * This structures controls the operation of the MPSSE engine.
  * Modelled after ftdi_context.
 **/
@@ -161,21 +161,21 @@ struct mpsse_context {
 };
 
 /**
- * MPSSE read/write commands.See section 3.6 for more information. 
+ * MPSSE read/write commands.See section 3.6 for more information.
  * This structures controls the operation of the MPSSE engine.
  * Modelled after ftdi_context.
 **/
 struct mpsse_read_write {
- /*Mode of operations 
+ /*Mode of operations
   * 0x80 - Set Data bits low.
   * 0x82 - Set Data bits high.
   * 0x81 - Read Data bits low.
   * 0x83 - Read Data bits high.
  */
  BYTE command;
- /*The value to write*/ 
+ /*The value to write*/
  BYTE value;
- /*The direction to set(OEA pins)*/ 
+ /*The direction to set(OEA pins)*/
  BYTE direction;
 };
 
@@ -184,20 +184,20 @@ struct mpsse_read_write {
 **/
 enum ftdi_mpsse_mode
     {
-        BITMODE_RESET  = 0x00,    
-        BITMODE_BITBANG= 0x01,    
-        BITMODE_MPSSE  = 0x02,    
-        BITMODE_SYNCBB = 0x04,    
-        BITMODE_MCU    = 0x08,    
+        BITMODE_RESET  = 0x00,
+        BITMODE_BITBANG= 0x01,
+        BITMODE_MPSSE  = 0x02,
+        BITMODE_SYNCBB = 0x04,
+        BITMODE_MCU    = 0x08,
         /* CPU-style fifo mode gets set via EEPROM.*/
-        BITMODE_OPTO   = 0x10,    
-        BITMODE_CBUS   = 0x20,    
-        BITMODE_SYNCFF = 0x40,    
-        BITMODE_FT1284 = 0x80,    
+        BITMODE_OPTO   = 0x10,
+        BITMODE_CBUS   = 0x20,
+        BITMODE_SYNCFF = 0x40,
+        BITMODE_FT1284 = 0x80,
     };
 
 /**
- * Supported interfaces. 
+ * Supported interfaces.
 **/
 enum ftdi_interface
     {
@@ -214,13 +214,13 @@ enum ftdi_interface
  void mpsse_reset();
 
 /**
- * \brief Called whenever a SETUP packet is received and the bmRequest is 
+ * \brief Called whenever a SETUP packet is received and the bmRequest is
  * 0x40 or 0xc0(vendor commands).
 **/
  void mpsse_handle_control();
 
 /**
- * \brief Called whenever a SETUP packet is received and the bmRequest is 
+ * \brief Called whenever a SETUP packet is received and the bmRequest is
  * 0x40 or 0xc0(vendor commands).
 **/
  void set_baud_rate(BYTE rate);
@@ -264,6 +264,115 @@ void purge_tx_buffer();
  * \brief Configures the endpoints according to the FT2232H.
 **/
 void configure_endpoints();
+
+
+
+
+/**
+ * \brief Clocks data out depending on length bytes(positive edge).
+ * \param The data is present in the endpoint buffer, and offset
+ * indicates the byte position of the length field inside the endpoint buffer
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_obyte_data_pos(unsigned char offset, __bit dir);
+/**
+ * \brief Clocks data out depending on length bytes(negative edge).
+ * \param offset - The data is present in the endpoint buffer, and offset
+ * indicates the byte position of the length field inside the endpoint buffer
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_obyte_data_neg(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data bits out depending on length field(positive edge).
+ * \param offset The data is present in the endpoint buffer, and offset
+ * indicates the byte position of the length field.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_obits_data_pos(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data bits out depending on length field(negative edge).
+ * \param offset The data is present in the endpoint buffer, and offset
+ * indicates the byte position of the length field.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_obits_data_neg(unsigned char offset,__bit dir);
+
+
+/**
+ * \brief Clocks data in depending on length bytes(positive edge).
+ * \param offset Location of length field in EP buffer.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_ibyte_data_pos(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data in depending on length bytes(negative edge).
+ * \param offset Location of length field in EP buffer.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_ibyte_data_neg(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data bits in depending on length field(positive edge).
+ * \param offset offset Location of length field in EP buffer.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_ibits_data_pos(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data bits out(negative edge) depending on length field(negative edge).
+ * \param offset Location of length field in EP buffer.
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_ibits_data_neg(unsigned char offset,__bit dir);
+
+/**
+ * \brief Clocks data bytes in and out depending on length bytes(positive edge).
+ * \param offset Location of length field in EP buffer. Normal operation is
+ * out on -ve,in on +ve.
+ * \param polarity 0 - normal mode, 1 - polarity inverted
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_iobyte_data(unsigned char offset, __bit polarity,__bit dir);
+
+/**
+ * \brief Clocks data bits in and out depending on length bytes(positive edge).
+ * \param offset Location of length field in EP buffer. Normal operation is
+ * out on -ve,in on +ve.
+ * \param polarity 0 - normal mode, 1 - polarity inverted
+ * \param dir
+ *    \li MSB(0 , MSB clocked out first)
+ *    \li LSB(1 , LSB clocked out first)
+**/
+void clock_iobits_data(unsigned char offset, __bit polarity,__bit dir);
+
+
+
+
+
+
+
+
 
 /**
  * Allow the struct to be accessed from anyfile that includes this header file.
