@@ -265,9 +265,6 @@ void purge_tx_buffer();
 **/
 void configure_endpoints();
 
-
-
-
 /**
  * \brief Clocks data out depending on length bytes(positive edge).
  * \param The data is present in the endpoint buffer, and offset
@@ -365,14 +362,6 @@ void clock_iobyte_data(unsigned char offset, __bit polarity,__bit dir);
  *    \li LSB(1 , LSB clocked out first)
 **/
 void clock_iobits_data(unsigned char offset, __bit polarity,__bit dir);
-
-
-
-
-
-
-
-
 
 /**
  * Allow the struct to be accessed from anyfile that includes this header file.
