@@ -143,11 +143,11 @@ struct mpsse_control_request {
 };
 
 /**
- * MPSSE length manager.Control endpoints and bulk endpoints
- * have different length messages coming in. The struct below 
+ * MPSSE command length .Control endpoints and bulk endpoints
+ * have different length messages coming in. The struct below
  * copies the length field and is used in all computation.
 **/
-struct mpsse_length_offset {
+struct mpsse_total_length {
         /*Low byte of number of bytes recieved*/
 	BYTE low_byte;
 	/* High byte if number of bytes received*/
@@ -220,6 +220,34 @@ enum ftdi_interface
         INTERFACE_B   = 2, //0x83,0x04 endpoints
         INTERFACE_C   = 3, //0x85,0x06 endpoints
         INTERFACE_D   = 4  //0x87,0x08 endpoints
+    };
+
+enum mpsse_clocking_commands
+    {
+    CLOCK_BYTES_OUT_POS_MSB         = 0x10,
+    CLOCK_BYTES_OUT_NEG_MSB         = 0x11,
+    CLOCK_BITS_OUT_POS_MSB          = 0x12,
+    CLOCK_BITS_OUT_NEG_MSB          = 0x13,
+    CLOCK_BYTES_IN_POS_MSB          = 0x20,
+    CLOCK_BYTES_IN_NEG_MSB          = 0x24,
+    CLOCK_BITS_IN_POS_MSB           = 0x22,
+    CLOCK_BITS_IN_NEG_MSB           = 0x26,
+    CLOCK_BYTES_IN_OUT_NORMAL_MSB   = 0x31,
+    CLOCK_BYTES_IN_OUT_INVERTED_MSB = 0x34,
+    CLOCK_BITS_IN_OUT_NORMAL_MSB    = 0x33,
+    CLOCK_BITS_IN_OUT_INVERTED_MSB  = 0x36,
+    CLOCK_BYTES_OUT_POS_LSB         = 0x18,
+    CLOCK_BYTES_OUT_NEG_LSB         = 0x19,
+    CLOCK_BITS_OUT_POS_LSB          = 0x1A,
+    CLOCK_BITS_OUT_NEG_LSB          = 0x1B,
+    CLOCK_BYTES_IN_POS_LSB          = 0x28,
+    CLOCK_BYTES_IN_NEG_LSB          = 0x2C,
+    CLOCK_BITS_IN_POS_LSB           = 0x2A,
+    CLOCK_BITS_IN_NEG_LSB           = 0x2E,
+    CLOCK_BYTES_IN_OUT_NORMAL_LSB   = 0x39,
+    CLOCK_BYTES_IN_OUT_INVERTED_LSB = 0x3C,
+    CLOCK_BITS_IN_OUT_NORMAL_LSB    = 0x3B,
+    CLOCK_BITS_IN_OUT_INVERTED_LSB  = 0x3E
     };
 
 /**

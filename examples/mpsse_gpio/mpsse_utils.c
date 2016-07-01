@@ -6,7 +6,8 @@
 
 __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
-
+__xdata enum mpsse_clocking_commands clocking_commands;
+__xdata struct mpsse_total_length total_length;
 
 
 void uart_tx(char c);
@@ -40,7 +41,12 @@ void mpsse_handle_control()
       break;
       case SIO_READ_PINS_REQUEST:
       {
-         EP0BUF[0] = 0x01;
+         /* The FT2232 docs and the libftdi just do a read. I am not sure
+          * which pin to return. Some examples return the CBUS. So , we will
+          * return port A
+          */
+         OEA = 0x00;
+         EP0BUF[0] = IOA;
          EP0BCL = 0x01;
          EP0BCH = 0x00;
          EP0CS |= 0x80;
@@ -89,14 +95,13 @@ void mpsse_handle_bulk()
 {
     /* Pin mapping docs details how the ports on FX2 are mapped to
        those on FT2232H */
-    printf("Command %02x\r\n",read_write.command);
     switch(read_write.command)
     {
     case SET_BITS_LOW:
         //Look again and verify that this can actually be done
         OEA = read_write.direction;
         IOA = read_write.value;
-        printf("Write low bytes %02x\r\n",read_write.command);
+        printf("Write direction %02x, value %02x\r\n",read_write.direction,read_write.value);
         break;
     case SET_BITS_HIGH:
         OEB = read_write.direction;

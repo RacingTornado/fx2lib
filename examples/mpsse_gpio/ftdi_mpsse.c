@@ -187,10 +187,7 @@ void timer1_isr ()
 __interrupt TF1_ISR
 {
 
-      __asm
-   mov _OEA, #0x08
-   cpl _PA3
-   __endasm;
+
 //    __asm
 //    mov a,_tx_rx
 //    CJNE A, #0x02, state //If in halt state, do nothing
