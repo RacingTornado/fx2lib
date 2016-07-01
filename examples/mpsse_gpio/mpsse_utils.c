@@ -144,3 +144,14 @@ void mpsse_configure_timer()
    TR1 = 1;
    SYNCDELAY;
 }
+
+void clock_obyte_data_pos(unsigned char offset, __bit dir)
+{
+    if(isr_state == IDLE || isr_state == COMPLETE)
+    {
+    mpsse_isr_buffer = 0x23;
+    mpsse_bit_count = 0x09;
+    }
+
+}
+

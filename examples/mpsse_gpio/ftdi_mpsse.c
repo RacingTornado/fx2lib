@@ -74,6 +74,7 @@ void main()
             /* Rearm the EP.*/
             EP2BCL = 0xff;
         }
+        clock_obyte_data_pos(0x23,1);
     }
 }
 
@@ -199,7 +200,7 @@ __interrupt TF1_ISR
     ajmp finish
     cont:
     clr _PA0 //Clear the TCK pin
-    mov a,_isr_state
+    mov a,_isr_mode
     CJNE A, #0x00, rx
     tx:
     mov a, _mpsse_isr_buffer;
