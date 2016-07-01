@@ -8,10 +8,25 @@ __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
 __xdata enum mpsse_clocking_commands clocking_commands;
 __xdata struct mpsse_ep2_buffer ep2_buffer;
+/*******************************************************
+These variables have already been declared in mpsse_util.h
+********************************************************/
 enum mpsse_isr_state isr_state;
 enum mpsse_isr_mode isr_mode;
 unsigned char mpsse_bit_count;
 unsigned char mpsse_isr_buffer;
+
+/*********************************************************************
+Temporary variables for use in this file. Nit declared in mpsse_util.h
+**********************************************************************/
+/**
+ * Used to keep track of number of bytes to clock out or in.
+**/
+unsigned short mpsse_byte_clock_length;
+/**
+ * Used to keep track of number of bits to clock out or in.
+**/
+unsigned char mpsse_bits_clock_length;
 
 void uart_tx(char c);
 
@@ -235,26 +250,96 @@ void mpsse_configure_timer()
    SYNCDELAY;
 }
 
-void clock_obyte_data_pos(unsigned char offset, __bit dir)
+void clock_obyte_data_pos(unsigned short offset, __bit dir)
 {
     unsigned char waiter;
-    if(isr_state == IDLE || isr_state == COMPLETE)
+    /* The command has been read. The next 2 bytes gives us the
+     * the number of bytes we need to clock out .
+     */
+    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    while(mpsse_byte_clock_length!=0)
     {
-    OEA = 0x03;
-    for(waiter = 0 ; waiter <0xff; waiter++)
-    {
-        __asm
-        mul ab
-        mul ab
-        mul ab
-        mul ab
-        __endasm;
+        if(isr_state == IDLE || isr_state == COMPLETE)
+        {
+            isr_state  = BUSY;
+            isr_mode   = TX;
+            mpsse_isr_buffer = get_next_byte();
+            mpsse_bit_count  = 0x09;
+            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+        }
 
     }
-    isr_state = BUSY;
-    mpsse_isr_buffer = 0x23;
-    mpsse_bit_count = 0x09;
+}
+
+
+void clock_obits_data_pos(unsigned short offset, __bit dir)
+{
+    unsigned char waiter;
+    /* The command has been read. The next byte gives use the number of bits
+     * to clock out.
+     */
+    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    if(isr_state == IDLE || isr_state == COMPLETE)
+    {
+        isr_state  = BUSY;
+        isr_mode   = TX;
+        mpsse_isr_buffer = get_next_byte();
+        mpsse_bit_count  = mpsse_bits_clock_length;
+    }
+}
+
+void clock_obyte_data_neg(unsigned short offset, __bit dir)
+{
+    printf("Function currently unimplemented");
+}
+
+void clock_obits_data_neg(unsigned short offset, __bit dir)
+{
+    printf("Function currently unimplemented");
+}
+
+void clock_ibyte_data_pos(unsigned char offset,__bit dir)
+{
+    /* The command has been read. The next 2 bytes gives us the
+     * the number of bytes we need to read .
+     */
+    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    while(mpsse_byte_clock_length!=0)
+    {
+        if(isr_state == IDLE || isr_state == COMPLETE)
+        {
+            isr_state  = BUSY;
+            isr_mode   = RX;
+            mpsse_isr_buffer = 0x00;
+            mpsse_bit_count  = 0x09;
+            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+        }
+
     }
 
 }
 
+void clock_ibits_data_pos(unsigned char offset,__bit dir)
+{
+    /* The command has been read.Read a single byte to get
+     * bit length.
+     */
+    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    if(isr_state == IDLE || isr_state == COMPLETE)
+    {
+        isr_state  = BUSY;
+        isr_mode   = RX;
+        mpsse_isr_buffer = 0x00;
+        mpsse_bit_count  = mpsse_bits_clock_length;
+    }
+}
+
+void clock_ibyte_data_neg(unsigned short offset, __bit dir)
+{
+    printf("Function currently unimplemented");
+}
+
+void clock_ibits_data_neg(unsigned short offset, __bit dir)
+{
+    printf("Function currently unimplemented");
+}
