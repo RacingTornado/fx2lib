@@ -116,9 +116,10 @@ void mpsse_handle_bulk()
     ep2_buffer.current_index = 65535;
     //get_next_byte();
     //printf("Data is %02x ",get_next_byte());
-    //printf("Length is %02d",ep2_buffer.total_length);
-//    while(ep2_buffer.total_length!=0)
-//    {
+    printf("Length is %02d",ep2_buffer.total_length);
+    while(ep2_buffer.total_length!=0)
+    {
+        printf("Length is %02d",ep2_buffer.total_length);
     switch(get_next_byte())
     {
     case SET_BITS_LOW:
@@ -128,24 +129,25 @@ void mpsse_handle_bulk()
         OEA = b;
         IOA = a;
         ep2_buffer.total_length = ep2_buffer.total_length - 3;
-        printf("Write direction %02x, value %02x\r\n",a,b);
+        printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
     case SET_BITS_HIGH:
         OEB = get_next_byte();
         IOB = get_next_byte();
         ep2_buffer.total_length = ep2_buffer.total_length - 3;
-        //printf("Write high bytes\r\n");
+        printf("Write high bytes\r\n");
         break;
     case GET_BITS_LOW:
-        //printf("Read low bytes\r\n");
+        printf("Read low bytes\r\n");
         break;
     case GET_BITS_HIGH:
-        //printf("Read high bytes\r\n");
+        printf("Read high bytes\r\n");
         break;
     default:
+        ep2_buffer.total_length = ep2_buffer.total_length - 1;
         break;
     }
-//    }
+    }
 }
 
 void mpsse_configure_timer()
