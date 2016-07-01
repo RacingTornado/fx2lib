@@ -147,9 +147,20 @@ void mpsse_configure_timer()
 
 void clock_obyte_data_pos(unsigned char offset, __bit dir)
 {
+    unsigned char waiter;
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
     OEA = 0x03;
+    for(waiter = 0 ; waiter <0xff; waiter++)
+    {
+        __asm
+        mul ab
+        mul ab
+        mul ab
+        mul ab
+        __endasm;
+
+    }
     isr_state = BUSY;
     mpsse_isr_buffer = 0x23;
     mpsse_bit_count = 0x09;
