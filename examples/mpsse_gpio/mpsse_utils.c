@@ -157,76 +157,76 @@ void mpsse_handle_bulk()
         printf("Read high bytes\r\n");
         break;
     case   CLOCK_BYTES_OUT_POS_MSB:
-        clock_obyte_data_pos(ep2_buffer.current_index,0);
+        clock_obyte_data_pos(0);
         break;
     case CLOCK_BYTES_OUT_NEG_MSB:
-        clock_obyte_data_neg(ep2_buffer.current_index,0);
+        clock_obyte_data_neg(0);
         break;
     case CLOCK_BITS_OUT_POS_MSB:
-        clock_obits_data_pos(ep2_buffer.current_index,0);
+        clock_obits_data_pos(0);
         break;
     case CLOCK_BITS_OUT_NEG_MSB:
-        clock_obits_data_neg(ep2_buffer.current_index,0);
+        clock_obits_data_neg(0);
         break;
     case CLOCK_BYTES_IN_POS_MSB:
-        clock_ibyte_data_pos(ep2_buffer.current_index,0);
+        clock_ibyte_data_pos(0);
         break;
     case CLOCK_BYTES_IN_NEG_MSB:
-        clock_ibyte_data_neg(ep2_buffer.current_index,0);
+        clock_ibyte_data_neg(0);
         break;
     case CLOCK_BITS_IN_POS_MSB:
-        clock_ibits_data_pos(ep2_buffer.current_index,0);
+        clock_ibits_data_pos(0);
         break;
     case CLOCK_BITS_IN_NEG_MSB:
-        clock_ibits_data_neg(ep2_buffer.current_index,0);
+        clock_ibits_data_neg(0);
         break;
     case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
-        clock_iobyte_data(ep2_buffer.current_index,0,0);
+        clock_iobyte_data(0,0);
         break;
     case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
-        clock_iobyte_data(ep2_buffer.current_index,1,0);
+        clock_iobyte_data(1,0);
         break;
     case CLOCK_BITS_IN_OUT_NORMAL_MSB:
-        clock_iobits_data(ep2_buffer.current_index,0,0);
+        clock_iobits_data(0,0);
         break;
     case CLOCK_BITS_IN_OUT_INVERTED_MSB:
-        clock_iobits_data(ep2_buffer.current_index,1,0);
+        clock_iobits_data(1,0);
         break;
     case CLOCK_BYTES_OUT_POS_LSB:
-        clock_obyte_data_pos(ep2_buffer.current_index,1);
+        clock_obyte_data_pos(1);
         break;
     case CLOCK_BYTES_OUT_NEG_LSB:
-        clock_obyte_data_neg(ep2_buffer.current_index,1);
+        clock_obyte_data_neg(1);
         break;
     case CLOCK_BITS_OUT_POS_LSB:
-        clock_obits_data_pos(ep2_buffer.current_index,1);
+        clock_obits_data_pos(1);
         break;
     case CLOCK_BITS_OUT_NEG_LSB:
-        clock_obits_data_neg(ep2_buffer.current_index,1);
+        clock_obits_data_neg(1);
         break;
     case CLOCK_BYTES_IN_POS_LSB:
-        clock_ibyte_data_pos(ep2_buffer.current_index,1);
+        clock_ibyte_data_pos(1);
         break;
     case CLOCK_BYTES_IN_NEG_LSB:
-        clock_ibyte_data_neg(ep2_buffer.current_index,1);
+        clock_ibyte_data_neg(1);
         break;
     case CLOCK_BITS_IN_POS_LSB:
-        clock_ibits_data_pos(ep2_buffer.current_index,1);
+        clock_ibits_data_pos(1);
         break;
     case CLOCK_BITS_IN_NEG_LSB:
-        clock_ibits_data_neg(ep2_buffer.current_index,1);
+        clock_ibits_data_neg(1);
         break;
     case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
-        clock_iobyte_data(ep2_buffer.current_index,0,1);
+        clock_iobyte_data(0,1);
         break;
     case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
-        clock_iobyte_data(ep2_buffer.current_index,1,1);
+        clock_iobyte_data(1,1);
         break;
     case CLOCK_BITS_IN_OUT_NORMAL_LSB:
-        clock_iobits_data(ep2_buffer.current_index,0,1);
+        clock_iobits_data(0,1);
         break;
     case CLOCK_BITS_IN_OUT_INVERTED_LSB:
-        clock_iobits_data(ep2_buffer.current_index,1,1);
+        clock_iobits_data(1,1);
         break;
     default:
         ep2_buffer.total_length = ep2_buffer.total_length - 1;
@@ -250,9 +250,8 @@ void mpsse_configure_timer()
    SYNCDELAY;
 }
 
-void clock_obyte_data_pos(unsigned short offset, __bit dir)
+void clock_obyte_data_pos(__bit dir)
 {
-    unsigned char waiter;
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to clock out .
      */
@@ -272,9 +271,8 @@ void clock_obyte_data_pos(unsigned short offset, __bit dir)
 }
 
 
-void clock_obits_data_pos(unsigned short offset, __bit dir)
+void clock_obits_data_pos(__bit dir)
 {
-    unsigned char waiter;
     /* The command has been read. The next byte gives use the number of bits
      * to clock out.
      */
@@ -288,22 +286,22 @@ void clock_obits_data_pos(unsigned short offset, __bit dir)
     }
 }
 
-void clock_obyte_data_neg(unsigned short offset, __bit dir)
+void clock_obyte_data_neg(__bit dir)
 {
     printf("Function currently unimplemented");
     //DELETE THIS
-    clock_obyte_data_pos(offset, 0);
+    clock_obyte_data_pos(0);
 }
 
-void clock_obits_data_neg(unsigned short offset, __bit dir)
+void clock_obits_data_neg(__bit dir)
 {
     printf("Function currently unimplemented");
     //DELETE THIS
-    clock_obits_data_pos(offset, 0);
+    clock_obits_data_pos(0);
 
 }
 
-void clock_ibyte_data_pos(unsigned char offset,__bit dir)
+void clock_ibyte_data_pos(__bit dir)
 {
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to read .
@@ -324,7 +322,7 @@ void clock_ibyte_data_pos(unsigned char offset,__bit dir)
 
 }
 
-void clock_ibits_data_pos(unsigned char offset,__bit dir)
+void clock_ibits_data_pos(__bit dir)
 {
     /* The command has been read.Read a single byte to get
      * bit length.
@@ -339,16 +337,27 @@ void clock_ibits_data_pos(unsigned char offset,__bit dir)
     }
 }
 
-void clock_ibyte_data_neg(unsigned short offset, __bit dir)
+void clock_ibyte_data_neg(__bit dir)
 {
     printf("Function currently unimplemented");
     //DELETE THIS
-    clock_ibyte_data_pos(offset,dir);
+    clock_ibyte_data_pos(dir);
 }
 
-void clock_ibits_data_neg(unsigned short offset, __bit dir)
+void clock_ibits_data_neg(__bit dir)
 {
     printf("Function currently unimplemented");
     //DELETE THIS
-    clock_ibits_data_pos(offset,dir);
+    clock_ibits_data_pos(dir);
+}
+
+
+void clock_iobyte_data( __bit polarity,__bit dir)
+{
+    printf("Function currently unimplemented");
+}
+
+void clock_iobits_data(__bit polarity,__bit dir)
+{
+    printf("Function currently unimplemented");
 }

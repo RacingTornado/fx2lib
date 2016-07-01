@@ -74,7 +74,6 @@ void main()
             /* Rearm the EP.*/
             EP2BCL = 0xff;
         }
-        clock_obyte_data_pos(0x23,1);
     }
 }
 
