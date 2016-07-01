@@ -160,6 +160,7 @@ struct mpsse_ep2_buffer {
 };
 
 #define get_next_byte() ep2_buffer.DAT[++ep2_buffer.current_index]
+#define get_current_byte() ep2_buffer.DAT[ep2_buffer.current_index]
 
 
 /**

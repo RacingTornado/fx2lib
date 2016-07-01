@@ -114,12 +114,10 @@ void mpsse_handle_bulk()
     //Store the total length of bytes received
     ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
     ep2_buffer.current_index = 65535;
-    //get_next_byte();
-    //printf("Data is %02x ",get_next_byte());
-    printf("Length is %02d",ep2_buffer.total_length);
+    printf("Length is %02d\r\n",ep2_buffer.total_length);
     while(ep2_buffer.total_length!=0)
     {
-        printf("Length is %02d",ep2_buffer.total_length);
+        printf("Length is %02d\r\n",ep2_buffer.total_length);
     switch(get_next_byte())
     {
     case SET_BITS_LOW:
@@ -145,6 +143,7 @@ void mpsse_handle_bulk()
         break;
     default:
         ep2_buffer.total_length = ep2_buffer.total_length - 1;
+        printf("Command has not been implemented %02x\r\n",get_current_byte());
         break;
     }
     }
