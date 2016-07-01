@@ -324,7 +324,7 @@ void configure_endpoints();
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_obyte_data_pos(unsigned char offset, __bit dir);
+void clock_obyte_data_pos(__bit dir);
 /**
  * \brief Clocks data out depending on length bytes(negative edge).
  * \param offset - The data is present in the endpoint buffer, and offset
@@ -333,7 +333,7 @@ void clock_obyte_data_pos(unsigned char offset, __bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_obyte_data_neg(unsigned char offset,__bit dir);
+void clock_obyte_data_neg(__bit dir);
 
 /**
  * \brief Clocks data bits out depending on length field(positive edge).
@@ -343,7 +343,7 @@ void clock_obyte_data_neg(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_obits_data_pos(unsigned char offset,__bit dir);
+void clock_obits_data_pos(__bit dir);
 
 /**
  * \brief Clocks data bits out depending on length field(negative edge).
@@ -353,7 +353,7 @@ void clock_obits_data_pos(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_obits_data_neg(unsigned char offset,__bit dir);
+void clock_obits_data_neg(__bit dir);
 
 
 /**
@@ -363,7 +363,7 @@ void clock_obits_data_neg(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_ibyte_data_pos(unsigned char offset,__bit dir);
+void clock_ibyte_data_pos(__bit dir);
 
 /**
  * \brief Clocks data in depending on length bytes(negative edge).
@@ -372,7 +372,7 @@ void clock_ibyte_data_pos(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_ibyte_data_neg(unsigned char offset,__bit dir);
+void clock_ibyte_data_neg(__bit dir);
 
 /**
  * \brief Clocks data bits in depending on length field(positive edge).
@@ -381,7 +381,7 @@ void clock_ibyte_data_neg(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_ibits_data_pos(unsigned char offset,__bit dir);
+void clock_ibits_data_pos(__bit dir);
 
 /**
  * \brief Clocks data bits out(negative edge) depending on length field(negative edge).
@@ -390,7 +390,7 @@ void clock_ibits_data_pos(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_ibits_data_neg(unsigned char offset,__bit dir);
+void clock_ibits_data_neg(__bit dir);
 
 /**
  * \brief Clocks data bytes in and out depending on length bytes(positive edge).
@@ -401,7 +401,7 @@ void clock_ibits_data_neg(unsigned char offset,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_iobyte_data(unsigned char offset, __bit polarity,__bit dir);
+void clock_iobyte_data( __bit polarity,__bit dir);
 
 /**
  * \brief Clocks data bits in and out depending on length bytes(positive edge).
@@ -412,7 +412,7 @@ void clock_iobyte_data(unsigned char offset, __bit polarity,__bit dir);
  *    \li MSB(0 , MSB clocked out first)
  *    \li LSB(1 , LSB clocked out first)
 **/
-void clock_iobits_data(unsigned char offset, __bit polarity,__bit dir);
+void clock_iobits_data(__bit polarity,__bit dir);
 
 /**
  * Enum controlling ISR operation.

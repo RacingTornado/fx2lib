@@ -291,11 +291,16 @@ void clock_obits_data_pos(unsigned short offset, __bit dir)
 void clock_obyte_data_neg(unsigned short offset, __bit dir)
 {
     printf("Function currently unimplemented");
+    //DELETE THIS
+    clock_obyte_data_pos(offset, 0);
 }
 
 void clock_obits_data_neg(unsigned short offset, __bit dir)
 {
     printf("Function currently unimplemented");
+    //DELETE THIS
+    clock_obits_data_pos(offset, 0);
+
 }
 
 void clock_ibyte_data_pos(unsigned char offset,__bit dir)
@@ -337,9 +342,13 @@ void clock_ibits_data_pos(unsigned char offset,__bit dir)
 void clock_ibyte_data_neg(unsigned short offset, __bit dir)
 {
     printf("Function currently unimplemented");
+    //DELETE THIS
+    clock_ibyte_data_pos(offset,dir);
 }
 
 void clock_ibits_data_neg(unsigned short offset, __bit dir)
 {
     printf("Function currently unimplemented");
+    //DELETE THIS
+    clock_ibits_data_pos(offset,dir);
 }
