@@ -410,6 +410,12 @@ void clock_iobits_data(unsigned char offset, __bit polarity,__bit dir);
  *    \li TX(0 , Data is being shifted out)
  *    \li RX(1 , Data is being shifted in)
 **/
+
+/**
+ * Configures timer 1 for shifting operations.
+**/
+void mpsse_configure_timer();
+
 enum mpsse_isr_mode
 {
    TX = 0,
@@ -429,7 +435,7 @@ enum mpsse_isr_state
 /**
  * Controls the number of bits to be shifted in or out.
 **/
-extern unsigned char bit_count;
+extern unsigned char mpsse_bit_count;
 
 /**
  * The buffer which holds data which is to be shifted out or has been shifted in.

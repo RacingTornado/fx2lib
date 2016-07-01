@@ -10,7 +10,8 @@ __xdata enum mpsse_clocking_commands clocking_commands;
 __xdata struct mpsse_total_length total_length;
 enum mpsse_isr_state isr_state;
 enum mpsse_isr_mode isr_mode;
-unsigned char bit_count;
+unsigned char mpsse_bit_count;
+unsigned char mpsse_isr_buffer;
 
 void uart_tx(char c);
 
@@ -19,7 +20,7 @@ void uart_tx(char c);
      //Initialize to IDLE state.
      isr_state = IDLE;
      //Number of bits which should be shifted in or out.
-     bit_count = 0;
+     mpsse_bit_count = 0;
      isr_mode  = TX;
  }
 
@@ -130,4 +131,16 @@ void mpsse_handle_bulk()
     }
 }
 
-
+void mpsse_configure_timer()
+{
+   TMOD = 0x20;
+   SYNCDELAY;
+   TR1 = 0;
+   SYNCDELAY;
+   TH1 = 0xc3;
+   SYNCDELAY;
+   TL1 = 0x23;
+   SYNCDELAY;
+   TR1 = 1;
+   SYNCDELAY;
+}

@@ -42,7 +42,7 @@ void main()
     got_sud=FALSE;
     //Call our custom function to do our UART init
     configure_endpoints();
-    configure_start_timer();
+    mpsse_configure_timer();
     RENUMERATE();
     SETCPUFREQ(CLK_48M);
     //Enable USB auto vectored interrupts
@@ -194,7 +194,7 @@ __interrupt TF1_ISR
     CJNE A, #0x02, state  //If COMPLETE, then wait for buffers to be read out.
     ajmp finish
     state:
-    djnz _bit_count,cont;
+    djnz _mpsse_bit_count,cont;
     mov _isr_state,#0x02
     ajmp finish
     cont:
@@ -208,14 +208,13 @@ __interrupt TF1_ISR
     mov _mpsse_isr_buffer,a;
     sjmp clkh
     rx:
-    mov a, _mpsse_i2c_buffer;
+    mov a, _mpsse_isr_buffer;
     mov c,_PA2 //PA2 is DI(see PINMAPPING docs)
     rlc a;
-    mov _mpsse_i2c_buffer,a;
-    nop;
-    finish:
+    mov _mpsse_isr_buffer,a;
     clkh:
     setb _PA0 //PA0 is the TCK pin(see PINMAPPING docs)
+    finish:
     nop
     __endasm;
 
