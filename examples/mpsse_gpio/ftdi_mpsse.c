@@ -187,41 +187,6 @@ void timer1_isr ()
 __interrupt TF1_ISR
 {
 
-
-//    __asm
-//    mov a,_tx_rx
-//    CJNE A, #0x02, state //If in halt state, do nothing
-//    ajmp finish
-//    state:
-//    djnz _bit_count,cont;
-//    mov _tx_rx,#0x02
-//    ajmp finish
-//    cont:
-//    orl _OEA,#0x40
-//    clr _PA6
-//    mov a,_tx_rx
-//    CJNE A, #0x00, rx
-//    tx:
-//    orl _OEA,#0x80
-//    mov a, _tx_i2c_buffer;
-//    rlc a;
-//    mov _PA7, c;
-//    mov _tx_i2c_buffer,a;
-//    sjmp sclh//Jump back
-//    rx:
-//    anl _OEA,#0x7f
-//    mov a, _tx_i2c_buffer;
-//    mov c,_PA7;
-//    rlc a;
-//    mov _tx_i2c_buffer,a;
-//    nop;
-//    sclh:
-//    setb _PA6
-//    finish:
-//    nop
-//    __endasm;
-
-
 }
 
 
