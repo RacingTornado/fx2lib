@@ -113,3 +113,20 @@ void mpsse_handle_bulk()
         break;
     }
 }
+
+void configure_start_timer()
+{
+
+
+   TMOD = 0x20;
+   SYNCDELAY;
+   TR1 = 0;
+   SYNCDELAY;
+   TH1 = 0xc3;
+   SYNCDELAY;
+   TL1 = 0x23;
+   SYNCDELAY;
+   TR1 = 1;
+   SYNCDELAY;
+
+}

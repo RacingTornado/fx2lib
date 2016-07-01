@@ -143,6 +143,20 @@ struct mpsse_control_request {
 };
 
 /**
+ * MPSSE length manager.Control endpoints and bulk endpoints
+ * have different length messages coming in. The struct below 
+ * copies the length field and is used in all computation.
+**/
+struct mpsse_length_offset {
+        /*Low byte of number of bytes recieved*/
+	BYTE low_byte;
+	/* High byte if number of bytes received*/
+	BYTE high_byte;
+};
+
+
+
+/**
  * MPSSE context.
  * This structures controls the operation of the MPSSE engine.
  * Modelled after ftdi_context.
