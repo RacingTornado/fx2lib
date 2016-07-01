@@ -142,52 +142,76 @@ void mpsse_handle_bulk()
         printf("Read high bytes\r\n");
         break;
     case   CLOCK_BYTES_OUT_POS_MSB:
+        clock_obyte_data_pos(ep2_buffer.current_index,0);
         break;
     case CLOCK_BYTES_OUT_NEG_MSB:
+        clock_obyte_data_neg(ep2_buffer.current_index,0);
         break;
     case CLOCK_BITS_OUT_POS_MSB:
+        clock_obits_data_pos(ep2_buffer.current_index,0);
         break;
     case CLOCK_BITS_OUT_NEG_MSB:
+        clock_obits_data_neg(ep2_buffer.current_index,0);
         break;
     case CLOCK_BYTES_IN_POS_MSB:
+        clock_ibyte_data_pos(ep2_buffer.current_index,0);
         break;
     case CLOCK_BYTES_IN_NEG_MSB:
+        clock_ibyte_data_neg(ep2_buffer.current_index,0);
         break;
     case CLOCK_BITS_IN_POS_MSB:
+        clock_ibits_data_pos(ep2_buffer.current_index,0);
         break;
     case CLOCK_BITS_IN_NEG_MSB:
+        clock_ibits_data_neg(ep2_buffer.current_index,0);
         break;
     case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
+        clock_iobyte_data(ep2_buffer.current_index,0,0);
         break;
     case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
+        clock_iobyte_data(ep2_buffer.current_index,1,0);
         break;
     case CLOCK_BITS_IN_OUT_NORMAL_MSB:
+        clock_iobits_data(ep2_buffer.current_index,0,0);
         break;
     case CLOCK_BITS_IN_OUT_INVERTED_MSB:
+        clock_iobits_data(ep2_buffer.current_index,1,0);
         break;
     case CLOCK_BYTES_OUT_POS_LSB:
+        clock_obyte_data_pos(ep2_buffer.current_index,1);
         break;
     case CLOCK_BYTES_OUT_NEG_LSB:
+        clock_obyte_data_neg(ep2_buffer.current_index,1);
         break;
     case CLOCK_BITS_OUT_POS_LSB:
+        clock_obits_data_pos(ep2_buffer.current_index,1);
         break;
     case CLOCK_BITS_OUT_NEG_LSB:
+        clock_obits_data_neg(ep2_buffer.current_index,1);
         break;
     case CLOCK_BYTES_IN_POS_LSB:
+        clock_ibyte_data_pos(ep2_buffer.current_index,1);
         break;
     case CLOCK_BYTES_IN_NEG_LSB:
+        clock_ibyte_data_neg(ep2_buffer.current_index,1);
         break;
     case CLOCK_BITS_IN_POS_LSB:
+        clock_ibits_data_pos(ep2_buffer.current_index,1);
         break;
     case CLOCK_BITS_IN_NEG_LSB:
+        clock_ibits_data_neg(ep2_buffer.current_index,1);
         break;
     case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
+        clock_iobyte_data(ep2_buffer.current_index,0,1);
         break;
     case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
+        clock_iobyte_data(ep2_buffer.current_index,1,1);
         break;
     case CLOCK_BITS_IN_OUT_NORMAL_LSB:
+        clock_iobits_data(ep2_buffer.current_index,0,1);
         break;
     case CLOCK_BITS_IN_OUT_INVERTED_LSB:
+        clock_iobits_data(ep2_buffer.current_index,1,1);
         break;
     default:
         ep2_buffer.total_length = ep2_buffer.total_length - 1;
