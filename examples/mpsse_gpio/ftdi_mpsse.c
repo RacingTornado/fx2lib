@@ -186,6 +186,39 @@ __interrupt EP2_ISR
 void timer1_isr ()
 __interrupt TF1_ISR
 {
+    /* This routine will always clock bit_count bits. Data is set when
+     * clk is low. It will clock out data MSB first.
+     */
+    __asm
+    mov a,_isr_state      //Find the current state
+    CJNE A, #0x02, state  //If COMPLETE, then wait for buffers to be read out.
+    ajmp finish
+    state:
+    djnz _bit_count,cont;
+    mov _isr_state,#0x02
+    ajmp finish
+    cont:
+    clr _PA0 //Clear the TCK pin
+    mov a,_isr_state
+    CJNE A, #0x00, rx
+    tx:
+    mov a, _mpsse_isr_buffer;
+    rlc a;
+    mov _PA1, c //PA1 is DO(see PINMAPPING docs)
+    mov _mpsse_isr_buffer,a;
+    sjmp clkh
+    rx:
+    mov a, _mpsse_i2c_buffer;
+    mov c,_PA2 //PA2 is DI(see PINMAPPING docs)
+    rlc a;
+    mov _mpsse_i2c_buffer,a;
+    nop;
+    finish:
+    clkh:
+    setb _PA0 //PA0 is the TCK pin(see PINMAPPING docs)
+    nop
+    __endasm;
+
 
 }
 

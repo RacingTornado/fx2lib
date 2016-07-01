@@ -8,9 +8,20 @@ __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
 __xdata enum mpsse_clocking_commands clocking_commands;
 __xdata struct mpsse_total_length total_length;
-
+enum mpsse_isr_state isr_state;
+enum mpsse_isr_mode isr_mode;
+unsigned char bit_count;
 
 void uart_tx(char c);
+
+ void mpsse_reset()
+ {
+     //Initialize to IDLE state.
+     isr_state = IDLE;
+     //Number of bits which should be shifted in or out.
+     bit_count = 0;
+     isr_mode  = TX;
+ }
 
 void mpsse_handle_control()
 {

@@ -406,10 +406,43 @@ void clock_iobyte_data(unsigned char offset, __bit polarity,__bit dir);
 void clock_iobits_data(unsigned char offset, __bit polarity,__bit dir);
 
 /**
+ * Enum controlling ISR operation.
+ *    \li TX(0 , Data is being shifted out)
+ *    \li RX(1 , Data is being shifted in)
+**/
+enum mpsse_isr_mode
+{
+   TX = 0,
+   RX = 1
+};
+
+/**
+ * Enum controlling ISR mode.
+**/
+enum mpsse_isr_state
+{
+   IDLE = 0,    //Data from the buffer has been read out.
+   BUSY = 1 ,   //Operation is ongoing.
+   COMPLETE = 2 //Operation is complete , data now needs to be read out.
+};
+
+/**
+ * Controls the number of bits to be shifted in or out.
+**/
+extern unsigned char bit_count;
+
+/**
+ * The buffer which holds data which is to be shifted out or has been shifted in.
+**/
+extern unsigned char mpsse_isr_buffer;
+
+/**
  * Allow the struct to be accessed from anyfile that includes this header file.
 **/
 extern __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 extern __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
+extern enum mpsse_isr_state isr_state;
+extern enum mpsse_isr_mode isr_mode;
 
 //DELETE:
 void putchar(char c);
