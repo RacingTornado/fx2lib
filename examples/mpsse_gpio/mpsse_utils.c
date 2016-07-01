@@ -7,7 +7,7 @@
 __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
 __xdata enum mpsse_clocking_commands clocking_commands;
-__xdata struct mpsse_total_length total_length;
+__xdata struct mpsse_ep2_buffer ep2_buffer;
 enum mpsse_isr_state isr_state;
 enum mpsse_isr_mode isr_mode;
 unsigned char mpsse_bit_count;
@@ -107,28 +107,45 @@ void mpsse_handle_bulk()
 {
     /* Pin mapping docs details how the ports on FX2 are mapped to
        those on FT2232H */
-    switch(read_write.command)
+           unsigned char a;
+    unsigned char b;
+    //Points to the endpoint 2 FIFO buffer
+    ep2_buffer.DAT = EP2FIFOBUF;
+    //Store the total length of bytes received
+    ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
+    ep2_buffer.current_index = 65535;
+    //get_next_byte();
+    //printf("Data is %02x ",get_next_byte());
+    //printf("Length is %02d",ep2_buffer.total_length);
+//    while(ep2_buffer.total_length!=0)
+//    {
+    switch(get_next_byte())
     {
     case SET_BITS_LOW:
         //Look again and verify that this can actually be done
-        OEA = read_write.direction;
-        IOA = read_write.value;
-        printf("Write direction %02x, value %02x\r\n",read_write.direction,read_write.value);
+        a = get_next_byte();
+        b = get_next_byte();
+        OEA = b;
+        IOA = a;
+        ep2_buffer.total_length = ep2_buffer.total_length - 3;
+        printf("Write direction %02x, value %02x\r\n",a,b);
         break;
     case SET_BITS_HIGH:
-        OEB = read_write.direction;
-        IOB = read_write.value;
-        printf("Write high bytes\r\n");
+        OEB = get_next_byte();
+        IOB = get_next_byte();
+        ep2_buffer.total_length = ep2_buffer.total_length - 3;
+        //printf("Write high bytes\r\n");
         break;
     case GET_BITS_LOW:
-        printf("Read low bytes\r\n");
+        //printf("Read low bytes\r\n");
         break;
     case GET_BITS_HIGH:
-        printf("Read high bytes\r\n");
+        //printf("Read high bytes\r\n");
         break;
     default:
         break;
     }
+//    }
 }
 
 void mpsse_configure_timer()

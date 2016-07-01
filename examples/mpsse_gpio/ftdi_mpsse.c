@@ -42,7 +42,7 @@ void main()
     got_sud=FALSE;
     //Call our custom function to do our UART init
     configure_endpoints();
-    mpsse_configure_timer();
+    //mpsse_configure_timer();
     RENUMERATE();
     SETCPUFREQ(CLK_48M);
     //Enable USB auto vectored interrupts
@@ -52,7 +52,7 @@ void main()
     ENABLE_HISPEED();
     ENABLE_USBRESET();
     ENABLE_EP2();
-    ENABLE_TIMER1();
+    //ENABLE_TIMER1();
     EP2BCL = 0xff;
     EA=1; // global interrupt enable
 

@@ -142,18 +142,24 @@ struct mpsse_control_request {
 	WORD wLength;
 };
 
-/**
- * MPSSE command length .Control endpoints and bulk endpoints
- * have different length messages coming in. The struct below
- * copies the length field and is used in all computation.
-**/
-struct mpsse_total_length {
-        /*Low byte of number of bytes recieved*/
-	BYTE low_byte;
-	/* High byte if number of bytes received*/
-	BYTE high_byte;
+
+
+
+
+
+struct mpsse_ep2_buffer {
+    /* Pointer to the buffer */
+    __xdata unsigned char *DAT;
+    /*
+     * MPSSE command length .The field below is 2 bytes long and
+     * copies the EP2BCL,EP2BCH and is used in all computation.
+     */
+    unsigned short total_length;
+    /* Current BYTE which is being used */
+    unsigned short current_index;
 };
 
+#define get_next_byte() ep2_buffer.DAT[++ep2_buffer.current_index]
 
 
 /**
