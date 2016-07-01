@@ -141,6 +141,54 @@ void mpsse_handle_bulk()
     case GET_BITS_HIGH:
         printf("Read high bytes\r\n");
         break;
+    case   CLOCK_BYTES_OUT_POS_MSB:
+        break;
+    case CLOCK_BYTES_OUT_NEG_MSB:
+        break;
+    case CLOCK_BITS_OUT_POS_MSB:
+        break;
+    case CLOCK_BITS_OUT_NEG_MSB:
+        break;
+    case CLOCK_BYTES_IN_POS_MSB:
+        break;
+    case CLOCK_BYTES_IN_NEG_MSB:
+        break;
+    case CLOCK_BITS_IN_POS_MSB:
+        break;
+    case CLOCK_BITS_IN_NEG_MSB:
+        break;
+    case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
+        break;
+    case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
+        break;
+    case CLOCK_BITS_IN_OUT_NORMAL_MSB:
+        break;
+    case CLOCK_BITS_IN_OUT_INVERTED_MSB:
+        break;
+    case CLOCK_BYTES_OUT_POS_LSB:
+        break;
+    case CLOCK_BYTES_OUT_NEG_LSB:
+        break;
+    case CLOCK_BITS_OUT_POS_LSB:
+        break;
+    case CLOCK_BITS_OUT_NEG_LSB:
+        break;
+    case CLOCK_BYTES_IN_POS_LSB:
+        break;
+    case CLOCK_BYTES_IN_NEG_LSB:
+        break;
+    case CLOCK_BITS_IN_POS_LSB:
+        break;
+    case CLOCK_BITS_IN_NEG_LSB:
+        break;
+    case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
+        break;
+    case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
+        break;
+    case CLOCK_BITS_IN_OUT_NORMAL_LSB:
+        break;
+    case CLOCK_BITS_IN_OUT_INVERTED_LSB:
+        break;
     default:
         ep2_buffer.total_length = ep2_buffer.total_length - 1;
         printf("Command has not been implemented %02x\r\n",get_current_byte());
