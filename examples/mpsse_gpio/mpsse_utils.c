@@ -149,6 +149,8 @@ void clock_obyte_data_pos(unsigned char offset, __bit dir)
 {
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
+    OEA = 0x03;
+    isr_state = BUSY;
     mpsse_isr_buffer = 0x23;
     mpsse_bit_count = 0x09;
     }
