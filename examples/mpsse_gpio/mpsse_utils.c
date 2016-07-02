@@ -107,9 +107,11 @@ void configure_endpoints()
     SYNCDELAY;
     /*Out endpoint, double buffered, bulk endpoint*/
     EP2CFG = 0xa2;
+    	FIFORESET = 0x80;    // Reset the FIFO
     SYNCDELAY;
-    /*Arm the endpoint*/
-    EP2BCL = 0xff;
+    FIFORESET = 0x88;
+    SYNCDELAY;
+    FIFORESET = 0x00;
 
 }
 
@@ -255,6 +257,7 @@ void clock_obyte_data_pos(__bit dir)
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to clock out .
      */
+    printf("clock_obyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
     while(mpsse_byte_clock_length!=0)
     {
@@ -276,6 +279,7 @@ void clock_obits_data_pos(__bit dir)
     /* The command has been read. The next byte gives use the number of bits
      * to clock out.
      */
+    printf("clock_obits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
@@ -306,6 +310,7 @@ void clock_ibyte_data_pos(__bit dir)
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to read .
      */
+    printf("clock_ibyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
     while(mpsse_byte_clock_length!=0)
     {
@@ -327,6 +332,7 @@ void clock_ibits_data_pos(__bit dir)
     /* The command has been read.Read a single byte to get
      * bit length.
      */
+    printf("clock_ibits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
     if(isr_state == IDLE || isr_state == COMPLETE)
     {

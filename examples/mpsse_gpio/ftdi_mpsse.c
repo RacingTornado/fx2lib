@@ -35,6 +35,8 @@ void uart_tx(char c);
 //For handling SUDAV ISR
 volatile __bit got_sud;
 volatile __bit got_ep2;
+volatile __bit got_ep1_in;
+unsigned char isr_enter;
 
 void main()
 {
@@ -42,7 +44,7 @@ void main()
     got_sud=FALSE;
     //Call our custom function to do our UART init
     configure_endpoints();
-    //mpsse_configure_timer();
+    mpsse_configure_timer();
     RENUMERATE();
     SETCPUFREQ(CLK_48M);
     //Enable USB auto vectored interrupts
@@ -52,27 +54,38 @@ void main()
     ENABLE_HISPEED();
     ENABLE_USBRESET();
     ENABLE_EP2();
-    //ENABLE_TIMER1();
-    EP2BCL = 0xff;
+    //Do we really need this??
+    //ENABLE_EP1IN();
+    ENABLE_TIMER1();
+     // arm ep2
+ EP2BCL = 0x80; // write once
+ SYNCDELAY;
+ EP2BCL = 0x80; // do it again
     EA=1; // global interrupt enable
-
+	REVCTL=0x00;
+	SYNCDELAY;
+	isr_enter = 0;
     while(TRUE)
     {
         //Handles device descriptor requests
+
         if ( got_sud )
         {
             handle_setupdata();
             got_sud=FALSE;
         }
-        if ( got_ep2 )
+        if ( isr_enter != 0 )
         {
             /* Data from the host to the device*/
-            printf("Got data\r\n");
+            printf("Got data %02x, length is %04x %02x\r\n",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS);
             /*Handle the bulk data*/
-            mpsse_handle_bulk();
-            got_ep2=FALSE;
+            //mpsse_handle_bulk();
             /* Rearm the EP.*/
-            EP2BCL = 0xff;
+             // arm ep2
+            EP2BCL = 0x80; // write once
+            EP1INCS = 0x00;
+            got_ep2=FALSE;
+            isr_enter -- ;
         }
     }
 }
@@ -176,10 +189,18 @@ __interrupt HISPEED_ISR
 }
 
 /*Handles the ISR for data on EP 0x02*/
+void ep1in_isr() __interrupt EP1IN_ISR
+{
+    got_ep1_in = TRUE;
+    CLEAR_EP1IN();
+}
+
+/*Handles the ISR for data on EP 0x02*/
 void ep2_isr()
 __interrupt EP2_ISR
 {
     got_ep2 = TRUE;
+    isr_enter++;
     CLEAR_EP2();
 }
 
