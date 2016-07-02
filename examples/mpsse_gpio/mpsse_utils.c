@@ -143,13 +143,13 @@ void mpsse_handle_bulk()
         b = get_next_byte();
         OEA = b;
         IOA = a;
-        ep2_buffer.total_length = ep2_buffer.total_length - 3;
+        decrement_total_byte_count(3);
         printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
     case SET_BITS_HIGH:
         OEB = get_next_byte();
         IOB = get_next_byte();
-        ep2_buffer.total_length = ep2_buffer.total_length - 3;
+        decrement_total_byte_count(3);
         printf("Write high bytes\r\n");
         break;
     case GET_BITS_LOW:
@@ -231,8 +231,8 @@ void mpsse_handle_bulk()
         clock_iobits_data(1,1);
         break;
     default:
-        ep2_buffer.total_length = ep2_buffer.total_length - 1;
-        printf("Command has not been implemented %02x\r\n",get_current_byte());
+        decrement_total_byte_count(1);
+        printf("Command has not been implemented %02x,length is %02x\r\n",get_current_byte(),get_current_length());
         break;
     }
     }
@@ -259,6 +259,8 @@ void clock_obyte_data_pos(__bit dir)
      */
     printf("clock_obyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    decrement_total_byte_count(3);
+    ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
     while(mpsse_byte_clock_length!=0)
     {
         if(isr_state == IDLE || isr_state == COMPLETE)
@@ -281,6 +283,7 @@ void clock_obits_data_pos(__bit dir)
      */
     printf("clock_obits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
+    decrement_total_byte_count(3);
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
         isr_state  = BUSY;
@@ -312,6 +315,7 @@ void clock_ibyte_data_pos(__bit dir)
      */
     printf("clock_ibyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    decrement_total_byte_count(2);
     while(mpsse_byte_clock_length!=0)
     {
         if(isr_state == IDLE || isr_state == COMPLETE)
@@ -334,6 +338,7 @@ void clock_ibits_data_pos(__bit dir)
      */
     printf("clock_ibits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
+    decrement_total_byte_count(2);
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
         isr_state  = BUSY;
