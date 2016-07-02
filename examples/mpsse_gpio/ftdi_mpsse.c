@@ -79,7 +79,7 @@ void main()
             /* Data from the host to the device*/
             printf("Got data %02x, length is %04x %02x\r\n",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS);
             /*Handle the bulk data*/
-            //mpsse_handle_bulk();
+            mpsse_handle_bulk();
             /* Rearm the EP.*/
              // arm ep2
             EP2BCL = 0x80; // write once
