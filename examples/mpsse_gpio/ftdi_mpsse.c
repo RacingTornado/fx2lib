@@ -212,12 +212,6 @@ __interrupt TF1_ISR
     /* This routine will always clock bit_count bits. Data is set when
      * clk is low. It will clock out data MSB first.
      */
-     if(counter == 5)
-     {
-    uart_tx_unsigned(isr_state);
-    counter = 0;
-     }
-     counter++;
     __asm
     mov a,_isr_state      //Find the current state
     cjne a, #0x02, state  //If COMPLETE, then wait for buffers to be read out.

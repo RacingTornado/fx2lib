@@ -266,13 +266,14 @@ void clock_obyte_data_pos(__bit dir)
     ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
     while(mpsse_byte_clock_length!=0)
     {
-        if(isr_state == IDLE || isr_state == COMPLETE)
+        if(isr_state != BUSY)
         {
             isr_mode   = TX;
             mpsse_isr_buffer = get_next_byte();
             printf("Clocking out %02x\r\n",mpsse_isr_buffer);
             mpsse_bit_count  = 0x09;
             isr_state  = BUSY;
+            while(isr_state  == BUSY);
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
         }
 
