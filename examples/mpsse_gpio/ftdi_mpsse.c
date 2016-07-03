@@ -250,7 +250,7 @@ __interrupt TF1_ISR
     sjmp clkh
     rx:
     mov a, _mpsse_isr_buffer;
-    mov c,_PA2 //PA2 is DI(see PINMAPPING docs)
+    mov c,_PA1 //PA2 is DI(see PINMAPPING docs)
     rlc a;
     mov _mpsse_isr_buffer,a;
     clkh:
