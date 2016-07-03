@@ -298,7 +298,7 @@ void clock_obits_data_pos(__bit dir)
 
         mpsse_isr_buffer = get_next_byte();
         printf("Clocking out %02x\r\n",mpsse_isr_buffer);
-        mpsse_bit_count  = mpsse_bits_clock_length;
+        mpsse_bit_count  = mpsse_bits_clock_length + 1;
         isr_state  = BUSY;
         isr_mode   = TX;
         while(isr_state  == BUSY);
