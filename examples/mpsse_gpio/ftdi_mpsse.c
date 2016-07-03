@@ -38,7 +38,8 @@ volatile __bit got_ep2;
 volatile __bit got_ep1_in;
 unsigned char isr_enter;
 unsigned short counter ;
-unsigned short delete_length ;
+unsigned short delete_length;
+unsigned long delete_total_count;
 unsigned char volatile mpsse_bit_count;
 
 void main()
@@ -90,6 +91,8 @@ void main()
             printf("]\r\n");
             /*Handle the bulk data*/
             mpsse_handle_bulk();
+            delete_total_count = delete_length +delete_total_count;
+            printf("TOTAL length main %lu",delete_total_count);
             /* Rearm the EP.*/
              // arm ep2
             EP2BCL = 0x80; // write once
@@ -198,7 +201,7 @@ __interrupt HISPEED_ISR
     CLEAR_HISPEED ();
 }
 
-/*Handles the ISR for data on EP 0x02*/
+/*Handles the ISR for data on EP 0x01*/
 void ep1in_isr() __interrupt EP1IN_ISR
 {
     got_ep1_in = TRUE;

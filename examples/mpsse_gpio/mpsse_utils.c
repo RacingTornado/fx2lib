@@ -433,7 +433,7 @@ void decrement_total_byte_count(unsigned char length)
 
 unsigned char get_next_byte()
 {
-    if(ep2_buffer.current_index == 512 )
+    if(ep2_buffer.current_index == 511 )
     {
             //Rearm the endpoint
             EP2BCL = 0x80; // write once
@@ -443,6 +443,8 @@ unsigned char get_next_byte()
             ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
             ep2_buffer.current_index = 65535;
             decrement_total_byte_count(1);
+            delete_total_count = delete_total_count +ep2_buffer.total_length;
+            printf("TOTAL length %lu",delete_total_count);
             return ep2_buffer.DAT[++ep2_buffer.current_index];
     }
     else
