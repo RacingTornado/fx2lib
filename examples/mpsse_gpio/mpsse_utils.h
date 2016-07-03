@@ -450,6 +450,11 @@ unsigned char get_next_byte();
 void put_ep1in_data();
 
 /**
+ * \brief Flushes the remaining data in the endpoint buffer out via EP1IN.
+**/
+void flush_ep1in_data();
+
+/**
  * Enum controlling ISR operation.
  *    \li TX(0 , Data is being shifted out)
  *    \li RX(1 , Data is being shifted in)

@@ -93,6 +93,7 @@ void main()
             mpsse_handle_bulk();
             delete_total_count = delete_length +delete_total_count;
             printf("TOTAL length main %lu",delete_total_count);
+            flush_ep1in_data();
             /* Rearm the EP.*/
              // arm ep2
             EP2BCL = 0x80; // write once

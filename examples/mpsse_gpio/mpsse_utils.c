@@ -14,7 +14,7 @@ These variables have already been declared in mpsse_util.h
 volatile enum  mpsse_isr_state isr_state;
 volatile enum  mpsse_isr_mode isr_mode;
 unsigned char volatile mpsse_isr_buffer;
-unsigned char ep1in_buffer_length;
+unsigned char ep1in_buffer_length = 0;
 
 /*********************************************************************
 Temporary variables for use in this file. Nit declared in mpsse_util.h
@@ -27,6 +27,9 @@ unsigned short mpsse_byte_clock_length;
  * Used to keep track of number of bits to clock out or in.
 **/
 unsigned char mpsse_bits_clock_length;
+
+//DELETE
+unsigned char delete_packets_read;
 
 void uart_tx(char c);
 
@@ -341,13 +344,13 @@ void clock_ibyte_data_pos(__bit dir)
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
             isr_state  = BUSY;
             isr_mode   = RX;
+            delete_packets_read++;
             while(isr_state  == BUSY);
-            printf("Length is %02d\r\n",mpsse_byte_clock_length);
+            printf("Packets read is %02d\r\n",delete_packets_read);
             put_ep1in_data();
         }
 
     }
-
 }
 
 void clock_ibits_data_pos(__bit dir)
@@ -456,14 +459,49 @@ unsigned char get_next_byte()
 
 void put_ep1in_data()
 {
-    EP1INBUF[ep1in_buffer_length]= mpsse_isr_buffer;
-    ep1in_buffer_length++;
-    if(ep1in_buffer_length == 3)
+
+    if(ep1in_buffer_length == 0)
+    {
+        EP1INBUF[ep1in_buffer_length] = 0x32;
+        ep1in_buffer_length++;
+        EP1INBUF[ep1in_buffer_length] = 0x00;
+        ep1in_buffer_length++;
+        EP1INBUF[ep1in_buffer_length] = mpsse_isr_buffer;
+        ep1in_buffer_length++;
+    }
+    else if(ep1in_buffer_length == 40)
     {
         EP1INBC = ep1in_buffer_length;
         //Wait till data has been sent out
         while((EP1INCS&0x02) == 0x02);
         ep1in_buffer_length = 0;
         printf("put_ep1in_data\r\n");
+        EP1INBUF[ep1in_buffer_length] = 0x32;
+        ep1in_buffer_length++;
+        EP1INBUF[ep1in_buffer_length] = 0x00;
+        ep1in_buffer_length++;
+        EP1INBUF[ep1in_buffer_length] = mpsse_isr_buffer;
+        ep1in_buffer_length++;
+    }
+    else
+    {
+        EP1INBUF[ep1in_buffer_length] = mpsse_isr_buffer;
+        ep1in_buffer_length++;
+    }
+
+
+
+}
+
+void flush_ep1in_data()
+{
+    if(ep1in_buffer_length!=0)
+    {
+
+        EP1INBC = ep1in_buffer_length;
+        //Wait till data has been sent out
+        while((EP1INCS&0x02) == 0x02);
+        ep1in_buffer_length = 0;
+        printf("Flushing data\r\n");
     }
 }
