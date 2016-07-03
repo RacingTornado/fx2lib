@@ -162,7 +162,6 @@ struct mpsse_ep2_buffer {
 #define get_next_byte() ep2_buffer.DAT[++ep2_buffer.current_index]
 #define get_current_byte() ep2_buffer.DAT[ep2_buffer.current_index]
 #define get_prev_byte() ep2_buffer.DAT[--ep2_buffer.current_index]
-#define decrement_total_byte_count(length) ep2_buffer.total_length = ep2_buffer.total_length - length
 #define get_current_length() ep2_buffer.total_length
 
 
@@ -415,21 +414,47 @@ void clock_iobyte_data( __bit polarity,__bit dir);
 **/
 void clock_iobits_data(__bit polarity,__bit dir);
 
-/**
- * Enum controlling ISR operation.
- *    \li TX(0 , Data is being shifted out)
- *    \li RX(1 , Data is being shifted in)
-**/
+
 
 /**
  * Configures timer 1 for shifting operations.
 **/
 void mpsse_configure_timer();
 
+/**
+ * Send ACK on Endpoint 1.
+ * \param type - The ACK to send out.
+ *    \li INITIAL  ACK(0 , Data is being shifted out)
+ *    \li REPEAT ACK(1 , Data is being shifted in)
+**/
+void send_endpoint_flush(unsigned char type);
+
+/**
+ * \brief Decrements length and also checks for rollover.
+ * \param length - The parameter to decrement by.
+**/
+void decrement_total_byte_count(unsigned char length);
+
+/**
+ * Enum controlling ISR operation.
+ *    \li TX(0 , Data is being shifted out)
+ *    \li RX(1 , Data is being shifted in)
+**/
 enum mpsse_isr_mode
 {
    TX = 0,
    RX = 1
+};
+
+/**
+ * Enum controlling flush operation.
+ *    \li INITIAL FLUSH(0x32,0x70,0x00 sent out)
+ *    \li REPEAT_FLUSH(1 , 0x32,0x60,0x00 sent out)
+**/
+enum mpsse_flush_mode
+{
+   INITIAL_ACK = 0,
+   REPEAT_ACK = 1
 };
 
 /**
@@ -445,23 +470,24 @@ enum mpsse_isr_state
 /**
  * Controls the number of bits to be shifted in or out.
 **/
-extern unsigned char mpsse_bit_count;
+extern unsigned char volatile mpsse_bit_count;
 
 /**
  * The buffer which holds data which is to be shifted out or has been shifted in.
 **/
-extern unsigned char mpsse_isr_buffer;
+extern unsigned char volatile mpsse_isr_buffer;
 
 /**
  * Allow the struct to be accessed from anyfile that includes this header file.
 **/
 extern __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 extern __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
-extern enum mpsse_isr_state isr_state;
-extern enum mpsse_isr_mode isr_mode;
+extern volatile enum  mpsse_isr_state isr_state;
+extern volatile enum mpsse_isr_mode isr_mode;
 
 //DELETE:
 void putchar(char c);
+void uart_tx_unsigned(unsigned char c);
 
 
 #endif // MPSSE_UTILS_H

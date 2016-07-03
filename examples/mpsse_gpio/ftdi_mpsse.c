@@ -37,6 +37,8 @@ volatile __bit got_sud;
 volatile __bit got_ep2;
 volatile __bit got_ep1_in;
 unsigned char isr_enter;
+unsigned char counter ;
+unsigned char volatile mpsse_bit_count;
 
 void main()
 {
@@ -210,15 +212,27 @@ __interrupt TF1_ISR
     /* This routine will always clock bit_count bits. Data is set when
      * clk is low. It will clock out data MSB first.
      */
+     if(counter == 5)
+     {
+    uart_tx_unsigned(isr_state);
+    counter = 0;
+     }
+     counter++;
     __asm
     mov a,_isr_state      //Find the current state
-    CJNE A, #0x02, state  //If COMPLETE, then wait for buffers to be read out.
+    cjne a, #0x02, state  //If COMPLETE, then wait for buffers to be read out.
     ajmp finish
     state:
-    djnz _mpsse_bit_count,cont;
+    cjne a, #0x00, start_op
+    ajmp finish
+    start_op:
+    mov r0,_mpsse_bit_count;
+    djnz r0,cont;
+    mov _mpsse_bit_count,r0;
     mov _isr_state,#0x02
     ajmp finish
     cont:
+    mov _mpsse_bit_count,r0;
     clr _PA0 //Clear the TCK pin
     mov a,_isr_mode
     CJNE A, #0x00, rx

@@ -11,10 +11,9 @@ __xdata struct mpsse_ep2_buffer ep2_buffer;
 /*******************************************************
 These variables have already been declared in mpsse_util.h
 ********************************************************/
-enum mpsse_isr_state isr_state;
-enum mpsse_isr_mode isr_mode;
-unsigned char mpsse_bit_count;
-unsigned char mpsse_isr_buffer;
+volatile enum  mpsse_isr_state isr_state;
+volatile enum  mpsse_isr_mode isr_mode;
+unsigned char volatile mpsse_isr_buffer;
 
 /*********************************************************************
 Temporary variables for use in this file. Nit declared in mpsse_util.h
@@ -134,7 +133,7 @@ void mpsse_handle_bulk()
     printf("Length is %02d\r\n",ep2_buffer.total_length);
     while(ep2_buffer.total_length!=0)
     {
-        printf("Length is %02d\r\n",ep2_buffer.total_length);
+        //printf("Length is %02d\r\n",ep2_buffer.total_length);
     switch(get_next_byte())
     {
     case SET_BITS_LOW:
@@ -144,19 +143,21 @@ void mpsse_handle_bulk()
         OEA = b;
         IOA = a;
         decrement_total_byte_count(3);
-        printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
+        //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
     case SET_BITS_HIGH:
         OEB = get_next_byte();
         IOB = get_next_byte();
         decrement_total_byte_count(3);
-        printf("Write high bytes\r\n");
+        //printf("Write high bytes\r\n");
         break;
     case GET_BITS_LOW:
-        printf("Read low bytes\r\n");
+        decrement_total_byte_count(1);
+        //printf("Read low bytes\r\n");
         break;
     case GET_BITS_HIGH:
-        printf("Read high bytes\r\n");
+        decrement_total_byte_count(1);
+        //printf("Read high bytes\r\n");
         break;
     case   CLOCK_BYTES_OUT_POS_MSB:
         clock_obyte_data_pos(0);
@@ -230,9 +231,11 @@ void mpsse_handle_bulk()
     case CLOCK_BITS_IN_OUT_INVERTED_LSB:
         clock_iobits_data(1,1);
         break;
+    case SEND_IMMEDIATE:
+        send_endpoint_flush(0);
     default:
         decrement_total_byte_count(1);
-        printf("Command has not been implemented %02x,length is %02x\r\n",get_current_byte(),get_current_length());
+        printf("Command has not been implemented %02x\r\n",get_current_byte());
         break;
     }
     }
@@ -257,7 +260,7 @@ void clock_obyte_data_pos(__bit dir)
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to clock out .
      */
-    printf("clock_obyte_data_pos\r\n");
+    //printf("clock_obyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
     decrement_total_byte_count(3);
     ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
@@ -265,10 +268,11 @@ void clock_obyte_data_pos(__bit dir)
     {
         if(isr_state == IDLE || isr_state == COMPLETE)
         {
-            isr_state  = BUSY;
             isr_mode   = TX;
             mpsse_isr_buffer = get_next_byte();
+            printf("Clocking out %02x\r\n",mpsse_isr_buffer);
             mpsse_bit_count  = 0x09;
+            isr_state  = BUSY;
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
         }
 
@@ -281,7 +285,7 @@ void clock_obits_data_pos(__bit dir)
     /* The command has been read. The next byte gives use the number of bits
      * to clock out.
      */
-    printf("clock_obits_data_pos\r\n");
+    //printf("clock_obits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
     decrement_total_byte_count(3);
     if(isr_state == IDLE || isr_state == COMPLETE)
@@ -289,20 +293,21 @@ void clock_obits_data_pos(__bit dir)
         isr_state  = BUSY;
         isr_mode   = TX;
         mpsse_isr_buffer = get_next_byte();
+        printf("Clocking out %02x\r\n",mpsse_isr_buffer);
         mpsse_bit_count  = mpsse_bits_clock_length;
     }
 }
 
 void clock_obyte_data_neg(__bit dir)
 {
-    printf("Function currently unimplemented");
+    //printf("Function currently unimplemented");
     //DELETE THIS
     clock_obyte_data_pos(0);
 }
 
 void clock_obits_data_neg(__bit dir)
 {
-    printf("Function currently unimplemented");
+    //printf("Function currently unimplemented");
     //DELETE THIS
     clock_obits_data_pos(0);
 
@@ -313,7 +318,7 @@ void clock_ibyte_data_pos(__bit dir)
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to read .
      */
-    printf("clock_ibyte_data_pos\r\n");
+    //printf("clock_ibyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
     decrement_total_byte_count(2);
     while(mpsse_byte_clock_length!=0)
@@ -336,7 +341,7 @@ void clock_ibits_data_pos(__bit dir)
     /* The command has been read.Read a single byte to get
      * bit length.
      */
-    printf("clock_ibits_data_pos\r\n");
+    //printf("clock_ibits_data_pos\r\n");
     mpsse_bits_clock_length = (get_next_byte()) + 1;
     decrement_total_byte_count(2);
     if(isr_state == IDLE || isr_state == COMPLETE)
@@ -350,14 +355,14 @@ void clock_ibits_data_pos(__bit dir)
 
 void clock_ibyte_data_neg(__bit dir)
 {
-    printf("Function currently unimplemented");
+    //printf("Function currently unimplemented");
     //DELETE THIS
     clock_ibyte_data_pos(dir);
 }
 
 void clock_ibits_data_neg(__bit dir)
 {
-    printf("Function currently unimplemented");
+    //printf("Function currently unimplemented");
     //DELETE THIS
     clock_ibits_data_pos(dir);
 }
@@ -365,10 +370,43 @@ void clock_ibits_data_neg(__bit dir)
 
 void clock_iobyte_data( __bit polarity,__bit dir)
 {
-    printf("Function currently unimplemented");
+    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobyte_data ");
 }
 
 void clock_iobits_data(__bit polarity,__bit dir)
 {
-    printf("Function currently unimplemented");
+     printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobits_data ");
+}
+
+void send_endpoint_flush(unsigned char type)
+{
+    switch(type)
+    {
+    case INITIAL_ACK:
+        EP1INBUF[0] = 0x32;
+        EP1INBUF[1] = 0x70;
+        EP1INBUF[2] = 0x00;
+        EP1INBC = 0x03;
+        break;
+    case REPEAT_ACK:
+        EP1INBUF[0] = 0x32;
+        EP1INBUF[1] = 0x60;
+        EP1INBUF[2] = 0x00;
+        EP1INBC = 0x03;
+        break;
+    default :
+        //printf("Endpoint flush not implemented\r\n");
+    }
+}
+
+void decrement_total_byte_count(unsigned char length)
+{
+   if( (ep2_buffer.total_length - length) > ep2_buffer.total_length)
+   {
+       printf("I cant decrement by %02x",length);
+   }
+   else
+   {
+       ep2_buffer.total_length = ep2_buffer.total_length - length;
+   }
 }
