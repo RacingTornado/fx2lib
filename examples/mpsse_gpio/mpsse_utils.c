@@ -134,30 +134,30 @@ void mpsse_handle_bulk()
     while(ep2_buffer.total_length!=0)
     {
     get_next_byte();
-    printf("Current byte is %02x\r\n",get_current_byte());
+    printf("Current byte is %02x and length is %02d\r\n",get_current_byte(),ep2_buffer.current_index);
     switch(get_current_byte())
     {
     case SET_BITS_LOW:
         //Look again and verify that this can actually be done
         a = get_next_byte();
         b = get_next_byte();
-        OEA = b;
         IOA = a;
-        decrement_total_byte_count(3);
+        OEA = b;
+        //decrement_total_byte_count(3);
         //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
     case SET_BITS_HIGH:
         OEB = get_next_byte();
         IOB = get_next_byte();
-        decrement_total_byte_count(3);
+        //decrement_total_byte_count(3);
         //printf("Write high bytes\r\n");
         break;
     case GET_BITS_LOW:
-        decrement_total_byte_count(1);
+        //decrement_total_byte_count(1);
         //printf("Read low bytes\r\n");
         break;
     case GET_BITS_HIGH:
-        decrement_total_byte_count(1);
+        //decrement_total_byte_count(1);
         //printf("Read high bytes\r\n");
         break;
     case   CLOCK_BYTES_OUT_POS_MSB:
@@ -237,7 +237,7 @@ void mpsse_handle_bulk()
         send_endpoint_flush(0);
         break;
     default:
-        decrement_total_byte_count(1);
+        //decrement_total_byte_count(1);
         printf("Command has not been implemented %02x\r\n",get_current_byte());
         break;
     }
@@ -265,8 +265,8 @@ void clock_obyte_data_pos(__bit dir)
      */
     printf("clock_obyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
-    decrement_total_byte_count(3);
-    ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
+    //decrement_total_byte_count(3);
+    //ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
     while(mpsse_byte_clock_length!=0)
     {
         if(isr_state != BUSY)
@@ -277,6 +277,7 @@ void clock_obyte_data_pos(__bit dir)
             mpsse_bit_count  = 0x09;
             isr_state  = BUSY;
             while(isr_state  == BUSY);
+
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
         }
 
@@ -289,16 +290,17 @@ void clock_obits_data_pos(__bit dir)
     /* The command has been read. The next byte gives use the number of bits
      * to clock out.
      */
-    printf("clock_obits_data_pos\r\n");
+    printf("clock_obits_data_pos %02d\r\n",get_current_length());
     mpsse_bits_clock_length = (get_next_byte()) + 1;
-    decrement_total_byte_count(3);
+    //decrement_total_byte_count(3);
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
-        isr_state  = BUSY;
-        isr_mode   = TX;
+
         mpsse_isr_buffer = get_next_byte();
         printf("Clocking out %02x\r\n",mpsse_isr_buffer);
         mpsse_bit_count  = mpsse_bits_clock_length;
+        isr_state  = BUSY;
+        isr_mode   = TX;
         while(isr_state  == BUSY);
     }
 }
@@ -325,16 +327,17 @@ void clock_ibyte_data_pos(__bit dir)
      */
     printf("clock_ibyte_data_pos %02x\r\n",get_current_byte());
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
-    decrement_total_byte_count(2);
+    //decrement_total_byte_count(2);
     while(mpsse_byte_clock_length!=0)
     {
         if(isr_state == IDLE || isr_state == COMPLETE)
         {
-            isr_state  = BUSY;
-            isr_mode   = RX;
+
             mpsse_isr_buffer = 0x00;
             mpsse_bit_count  = 0x09;
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+            isr_state  = BUSY;
+            isr_mode   = RX;
             while(isr_state  == BUSY);
         }
 
@@ -349,15 +352,17 @@ void clock_ibits_data_pos(__bit dir)
      */
     printf("clock_ibits_data_pos %02x\r\n",get_current_byte());
     mpsse_bits_clock_length = (get_next_byte()) + 1;
-    decrement_total_byte_count(2);
+    //decrement_total_byte_count(2);
     printf("Length %02x\r\n",get_current_length());
     if(isr_state == IDLE || isr_state == COMPLETE)
     {
-        isr_state  = BUSY;
-        isr_mode   = RX;
         mpsse_isr_buffer = 0x00;
         mpsse_bit_count  = mpsse_bits_clock_length+1;
+        isr_mode   = RX;
+        isr_state  = BUSY;
         while(isr_state  == BUSY);
+
+
     }
 }
 
@@ -388,7 +393,7 @@ void clock_iobits_data(__bit polarity,__bit dir)
 
 void send_endpoint_flush(unsigned char type)
 {
-    decrement_total_byte_count(1);
+    //decrement_total_byte_count(1);
     switch(type)
     {
     case INITIAL_ACK:
@@ -419,3 +424,26 @@ void decrement_total_byte_count(unsigned char length)
        ep2_buffer.total_length = ep2_buffer.total_length - length;
    }
 }
+
+
+unsigned char get_next_byte()
+{
+    if(ep2_buffer.current_index == 512 )
+    {
+            //Rearm the endpoint
+            EP2BCL = 0x80; // write once
+            //Decrement the isr counter
+            SYNCDELAY;
+            isr_enter -- ;
+            ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
+            ep2_buffer.current_index = 65535;
+            decrement_total_byte_count(1);
+            return ep2_buffer.DAT[++ep2_buffer.current_index];
+    }
+    else
+    {
+    decrement_total_byte_count(1);
+    return ep2_buffer.DAT[++ep2_buffer.current_index];
+    }
+}
+

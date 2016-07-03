@@ -37,8 +37,8 @@ volatile __bit got_sud;
 volatile __bit got_ep2;
 volatile __bit got_ep1_in;
 unsigned char isr_enter;
-unsigned char counter ;
-unsigned char delete_length ;
+unsigned short counter ;
+unsigned short delete_length ;
 unsigned char volatile mpsse_bit_count;
 
 void main()
@@ -85,7 +85,7 @@ void main()
             printf("[ ");
             for(counter =0 ;counter < delete_length;counter++)
             {
-               printf("%02x, ",EP2FIFOBUF[counter]);
+               printf("%02x-%02d, ",EP2FIFOBUF[counter],counter);
             }
             printf("]\r\n");
             /*Handle the bulk data*/

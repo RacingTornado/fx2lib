@@ -159,7 +159,7 @@ struct mpsse_ep2_buffer {
     unsigned short current_index;
 };
 
-#define get_next_byte() ep2_buffer.DAT[++ep2_buffer.current_index]
+//#define get_next_byte() ep2_buffer.DAT[++ep2_buffer.current_index]
 #define get_current_byte() ep2_buffer.DAT[ep2_buffer.current_index]
 #define get_prev_byte() ep2_buffer.DAT[--ep2_buffer.current_index]
 #define get_current_length() ep2_buffer.total_length
@@ -436,6 +436,15 @@ void send_endpoint_flush(unsigned char type);
 void decrement_total_byte_count(unsigned char length);
 
 /**
+ * \brief Gets the next byte in the buffer. This is a transparent
+ * function. It looks at the length and automatically rearms the endpoint
+ * when the length has reached 512 bytes.
+**/
+unsigned char get_next_byte();
+
+
+
+/**
  * Enum controlling ISR operation.
  *    \li TX(0 , Data is being shifted out)
  *    \li RX(1 , Data is being shifted in)
@@ -484,6 +493,11 @@ extern __xdata __at(0xE6B8) volatile struct mpsse_control_request control_reques
 extern __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
 extern volatile enum  mpsse_isr_state isr_state;
 extern volatile enum mpsse_isr_mode isr_mode;
+/**
+ * Keeps track of how many times the ISR has fired.
+**/
+extern unsigned char isr_enter;
+
 
 //DELETE:
 void putchar(char c);
