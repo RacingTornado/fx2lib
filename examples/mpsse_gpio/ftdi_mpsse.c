@@ -38,6 +38,7 @@ volatile __bit got_ep2;
 volatile __bit got_ep1_in;
 unsigned char isr_enter;
 unsigned char counter ;
+unsigned char delete_length ;
 unsigned char volatile mpsse_bit_count;
 
 void main()
@@ -79,7 +80,14 @@ void main()
         if ( isr_enter != 0 )
         {
             /* Data from the host to the device*/
-            printf("Got data %02x, length is %04x %02x\r\n",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS);
+            delete_length= EP2BCL | (EP2BCH <<8);
+            printf("Got data %02x, length is %04x %02x",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS);
+            printf("[ ");
+            for(counter =0 ;counter < delete_length;counter++)
+            {
+               printf("%02x, ",EP2FIFOBUF[counter]);
+            }
+            printf("]\r\n");
             /*Handle the bulk data*/
             mpsse_handle_bulk();
             /* Rearm the EP.*/
