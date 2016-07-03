@@ -356,7 +356,7 @@ void clock_ibits_data_pos(__bit dir)
         isr_state  = BUSY;
         isr_mode   = RX;
         mpsse_isr_buffer = 0x00;
-        mpsse_bit_count  = mpsse_bits_clock_length;
+        mpsse_bit_count  = mpsse_bits_clock_length+1;
         while(isr_state  == BUSY);
     }
 }
