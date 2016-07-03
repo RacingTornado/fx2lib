@@ -14,6 +14,7 @@ These variables have already been declared in mpsse_util.h
 volatile enum  mpsse_isr_state isr_state;
 volatile enum  mpsse_isr_mode isr_mode;
 unsigned char volatile mpsse_isr_buffer;
+unsigned char ep1in_buffer_length;
 
 /*********************************************************************
 Temporary variables for use in this file. Nit declared in mpsse_util.h
@@ -36,6 +37,7 @@ void uart_tx(char c);
      //Number of bits which should be shifted in or out.
      mpsse_bit_count = 0;
      isr_mode  = TX;
+     ep1in_buffer_length = 0;
  }
 
 void mpsse_handle_control()
@@ -328,6 +330,7 @@ void clock_ibyte_data_pos(__bit dir)
     printf("clock_ibyte_data_pos %02x\r\n",get_current_byte());
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
     //decrement_total_byte_count(2);
+    //Initialize to 0 once we enter.
     while(mpsse_byte_clock_length!=0)
     {
         if(isr_state == IDLE || isr_state == COMPLETE)
@@ -339,6 +342,8 @@ void clock_ibyte_data_pos(__bit dir)
             isr_state  = BUSY;
             isr_mode   = RX;
             while(isr_state  == BUSY);
+            printf("Length is %02d\r\n",mpsse_byte_clock_length);
+            put_ep1in_data();
         }
 
     }
@@ -447,3 +452,16 @@ unsigned char get_next_byte()
     }
 }
 
+void put_ep1in_data()
+{
+    EP1INBUF[ep1in_buffer_length]= mpsse_isr_buffer;
+    ep1in_buffer_length++;
+    if(ep1in_buffer_length == 3)
+    {
+        EP1INBC = ep1in_buffer_length;
+        //Wait till data has been sent out
+        while((EP1INCS&0x02) == 0x02);
+        ep1in_buffer_length = 0;
+        printf("put_ep1in_data\r\n");
+    }
+}

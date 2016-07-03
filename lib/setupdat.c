@@ -412,11 +412,11 @@ void uart_tx(char c)
     //cycles to move the data out, however a delay has been
     //introduced in order to get a baud rate of 115200
     //The mask which is to be written into the pin
-    OEA |= 0x04;
+    OEB |= 0x04;
     //An efficient UART bitbang routine in assembly
     __asm
     //Like #define in C. Can easily be used to change the pin
-    .equ _TX_PIN, _PA2
+    .equ _TX_PIN, _PB2
     //Disable interrupts
     //This is used because timing is critical
     //If the FX2 jumps into the ISR temporarily , it may cause transmit
@@ -483,11 +483,11 @@ void uart_tx_unsigned(unsigned char c)
     //cycles to move the data out, however a delay has been
     //introduced in order to get a baud rate of 115200
     //The mask which is to be written into the pin
-    OEA |= 0x04;
+    OEB |= 0x04;
     //An efficient UART bitbang routine in assembly
     __asm
     //Like #define in C. Can easily be used to change the pin
-    .equ _TX_PIN, _PA2
+    .equ _TX_PIN, _PB2
     //Disable interrupts
     //This is used because timing is critical
     //If the FX2 jumps into the ISR temporarily , it may cause transmit

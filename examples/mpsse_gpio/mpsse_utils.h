@@ -442,7 +442,12 @@ void decrement_total_byte_count(unsigned char length);
 **/
 unsigned char get_next_byte();
 
-
+/**
+ * \brief Inserts data into EP1IN buffer. If count is more than 64,
+ * it sends the data out and blocks till an ACK has been received
+ * from the host.
+**/
+void put_ep1in_data();
 
 /**
  * Enum controlling ISR operation.
@@ -497,6 +502,11 @@ extern volatile enum mpsse_isr_mode isr_mode;
  * Keeps track of how many times the ISR has fired.
 **/
 extern unsigned char isr_enter;
+
+/**
+ * Keeps track of how many bytes are read and inserted into the EP1IN buffer.
+**/
+extern unsigned char ep1in_buffer_length;
 
 
 //DELETE:
