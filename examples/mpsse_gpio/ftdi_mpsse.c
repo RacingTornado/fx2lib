@@ -45,6 +45,19 @@ unsigned char volatile mpsse_bit_count;
 void main()
 {
     //Setup data available and other init
+
+
+
+
+
+
+
+
+
+
+
+
+
     got_sud=FALSE;
     //Call our custom function to do our UART init
     configure_endpoints();
@@ -69,6 +82,12 @@ void main()
 	REVCTL=0x00;
 	SYNCDELAY;
 	isr_enter = 0;
+
+
+
+
+
+
     while(TRUE)
     {
         //Handles device descriptor requests
@@ -249,9 +268,12 @@ __interrupt TF1_ISR
     mov _mpsse_isr_buffer,a;
     sjmp clkh
     rx:
+    mul ab
+    mul ab
     setb _PA0 //Set SCL
+    mul ab
     mov a, _mpsse_isr_buffer;
-    mov c,_PA1 //PA2 is DI(see PINMAPPING docs)
+    mov c,_PA1 //PA2(connected to PA1 for I2C) is DI(see PINMAPPING docs)
     rlc a;
     mov _mpsse_isr_buffer,a;
     sjmp finish
