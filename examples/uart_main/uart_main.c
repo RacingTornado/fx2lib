@@ -22,23 +22,27 @@
 #include <uart/soft_uart.h>
 #include <fx2macros.h>
 
-//We need this declaration
-void uart0_tx(char c);
+
 
 //Initialize UART, call it uart0 and set the tx pin on PA1
-CREATE_FAST_UART(uart0,0x82)
+CREATE_FAST_UART(uart0,_PA2,bmBIT2)
+CREATE_FAST_UART(uart1,_PA3,bmBIT3)
 
 //Used for setting the baud rate.
 enum uart_baud baud;
 void main(void)
 {
-    baud = BAUD_115200;
-    uartX_init(baud);
-    uartX_set_baud(baud);
+    baud = BAUD_19200;
     SETCPUFREQ(CLK_48M);
+    while(!uart0_init(baud));
+    while(!uart1_init(baud));
+    uart0_set_baud(baud);
+    baud = BAUD_115200;
+    uart1_set_baud(baud); 
     while (TRUE)
     {
         printf("Hello\r\n");
+	uart1_tx(0x44);
     }
 }
 
