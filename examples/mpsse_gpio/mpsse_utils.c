@@ -148,6 +148,12 @@ void mpsse_handle_bulk()
         b = get_next_byte();
         IOA = a;
         OEA = b;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
         //decrement_total_byte_count(3);
         //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
@@ -307,6 +313,14 @@ void clock_obits_data_pos(__bit dir)
         isr_state  = BUSY;
         isr_mode   = TX;
         while(isr_state  == BUSY);
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
+        SYNCDELAY;
     }
 }
 

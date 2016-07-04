@@ -249,10 +249,12 @@ __interrupt TF1_ISR
     mov _mpsse_isr_buffer,a;
     sjmp clkh
     rx:
+    setb _PA0 //Set SCL
     mov a, _mpsse_isr_buffer;
     mov c,_PA1 //PA2 is DI(see PINMAPPING docs)
     rlc a;
     mov _mpsse_isr_buffer,a;
+    sjmp finish
     clkh:
     setb _PA0 //PA0 is the TCK pin(see PINMAPPING docs)
     finish:
