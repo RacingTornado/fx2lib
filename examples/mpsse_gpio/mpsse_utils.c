@@ -149,9 +149,6 @@ void mpsse_handle_bulk()
         IOA = a;
         OEA = b;
         OEA = b;
-
-
-
         //decrement_total_byte_count(3);
         //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
         break;
