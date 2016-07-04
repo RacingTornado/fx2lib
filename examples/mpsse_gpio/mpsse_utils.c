@@ -146,11 +146,9 @@ void mpsse_handle_bulk()
         //Look again and verify that this can actually be done
         a = get_next_byte();
         b = get_next_byte();
-        EA = 0 ;
-
         IOA = a;
         OEA = b;
-        EA = 1;
+        OEA = b;
 
 
 
@@ -282,13 +280,13 @@ void clock_obyte_data_pos(__bit dir)
     {
         if(isr_state != BUSY)
         {
-            isr_mode   = TX;
+
             mpsse_isr_buffer = get_next_byte();
             printf("Clocking out %02x\r\n",mpsse_isr_buffer);
             mpsse_bit_count  = 0x09;
             isr_state  = BUSY;
+            isr_mode   = TX;
             while(isr_state  == BUSY);
-
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
         }
 
