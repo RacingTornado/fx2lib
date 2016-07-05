@@ -33,64 +33,64 @@ unsigned char delete_packets_read;
 
 void uart_tx(char c);
 
- void mpsse_reset()
- {
-     //Initialize to IDLE state.
-     isr_state = IDLE;
-     //Number of bits which should be shifted in or out.
-     mpsse_bit_count = 0;
-     isr_mode  = TX;
-     ep1in_buffer_length = 0;
- }
+void mpsse_reset()
+{
+    //Initialize to IDLE state.
+    isr_state = IDLE;
+    //Number of bits which should be shifted in or out.
+    mpsse_bit_count = 0;
+    isr_mode  = TX;
+    ep1in_buffer_length = 0;
+}
 
 void mpsse_handle_control()
 {
-   printf("Control %02x\r\n",SETUPDAT[1]);
-   switch (SETUPDAT[1])
-   {
-      case SIO_RESET_REQUEST:
-      {
-         printf("Resetting %02x\r\n",SETUPDAT[1]);
-         EP0CS |= 0x80;
-      }
-      break;
-      case SIO_SET_BAUD_RATE:
-      {
-         EP0CS |= 0x80;
+    printf("Control %02x\r\n",SETUPDAT[1]);
+    switch (SETUPDAT[1])
+    {
+    case SIO_RESET_REQUEST:
+    {
+        printf("Resetting %02x\r\n",SETUPDAT[1]);
+        EP0CS |= 0x80;
+    }
+    break;
+    case SIO_SET_BAUD_RATE:
+    {
+        EP0CS |= 0x80;
 
-      }
-      break;
-      case SIO_SET_LATENCY_TIMER_REQUEST:
-      {
-         EP0CS |= 0x80;
-      }
-      break;
-      case SIO_SET_BITMODE_REQUEST:
-      {
-         EP0CS |= 0x80;
-      }
-      break;
-      case SIO_READ_PINS_REQUEST:
-      {
-         /* The FT2232 docs and the libftdi just do a read. I am not sure
-          * which pin to return. Some examples return the CBUS. So , we will
-          * return port A
-          */
-         OEA = 0x00;
-         EP0BUF[0] = IOA;
-         EP0BCL = 0x01;
-         EP0BCH = 0x00;
-         EP0CS |= 0x80;
-      }
-      break;
-      case SIO_SET_EVENT_CHAR_REQUEST:
-      {
-         EP0CS |= 0x80;
-      }
-      break;
-      default:
-         break;
-   }
+    }
+    break;
+    case SIO_SET_LATENCY_TIMER_REQUEST:
+    {
+        EP0CS |= 0x80;
+    }
+    break;
+    case SIO_SET_BITMODE_REQUEST:
+    {
+        EP0CS |= 0x80;
+    }
+    break;
+    case SIO_READ_PINS_REQUEST:
+    {
+        /* The FT2232 docs and the libftdi just do a read. I am not sure
+         * which pin to return. Some examples return the CBUS. So , we will
+         * return port A
+         */
+        OEA = 0x00;
+        EP0BUF[0] = IOA;
+        EP0BCL = 0x01;
+        EP0BCH = 0x00;
+        EP0CS |= 0x80;
+    }
+    break;
+    case SIO_SET_EVENT_CHAR_REQUEST:
+    {
+        EP0CS |= 0x80;
+    }
+    break;
+    default:
+        break;
+    }
 
 }
 
@@ -111,7 +111,7 @@ void configure_endpoints()
     SYNCDELAY;
     /*Out endpoint, double buffered, bulk endpoint*/
     EP2CFG = 0xa2;
-    	FIFORESET = 0x80;    // Reset the FIFO
+    FIFORESET = 0x80;    // Reset the FIFO
     SYNCDELAY;
     FIFORESET = 0x88;
     SYNCDELAY;
@@ -128,7 +128,7 @@ void mpsse_handle_bulk()
 {
     /* Pin mapping docs details how the ports on FX2 are mapped to
        those on FT2232H */
-           unsigned char a;
+    unsigned char a;
     unsigned char b;
     //Points to the endpoint 2 FIFO buffer
     ep2_buffer.DAT = EP2FIFOBUF;
@@ -138,130 +138,130 @@ void mpsse_handle_bulk()
     printf("Length is %02d\r\n",ep2_buffer.total_length);
     while(ep2_buffer.total_length!=0)
     {
-    get_next_byte();
-    printf("Current byte is %02x and length is %02d\r\n",get_current_byte(),ep2_buffer.current_index);
-    switch(get_current_byte())
-    {
-    case SET_BITS_LOW:
-        //Look again and verify that this can actually be done
-        a = get_next_byte();
-        b = get_next_byte();
-        IOA = a;
-        OEA = b;
-        OEA = b;
-        //decrement_total_byte_count(3);
-        //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
-        break;
-    case SET_BITS_HIGH:
-        OEB = get_next_byte();
-        IOB = get_next_byte();
-        //decrement_total_byte_count(3);
-        //printf("Write high bytes\r\n");
-        break;
-    case GET_BITS_LOW:
-        //decrement_total_byte_count(1);
-        //printf("Read low bytes\r\n");
-        break;
-    case GET_BITS_HIGH:
-        //decrement_total_byte_count(1);
-        //printf("Read high bytes\r\n");
-        break;
-    case   CLOCK_BYTES_OUT_POS_MSB:
-        clock_obyte_data_pos(0);
-        break;
-    case CLOCK_BYTES_OUT_NEG_MSB:
-        clock_obyte_data_neg(0);
-        break;
-    case CLOCK_BITS_OUT_POS_MSB:
-        clock_obits_data_pos(0);
-        break;
-    case CLOCK_BITS_OUT_NEG_MSB:
-        clock_obits_data_neg(0);
-        break;
-    case CLOCK_BYTES_IN_POS_MSB:
-        clock_ibyte_data_pos(0);
-        break;
-    case CLOCK_BYTES_IN_NEG_MSB:
-        clock_ibyte_data_neg(0);
-        break;
-    case CLOCK_BITS_IN_POS_MSB:
-        clock_ibits_data_pos(0);
-        printf("Now length is %02x current byte is %02x",get_current_length(),get_current_byte());
-        break;
-    case CLOCK_BITS_IN_NEG_MSB:
-        clock_ibits_data_neg(0);
-        break;
-    case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
-        clock_iobyte_data(0,0);
-        break;
-    case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
-        clock_iobyte_data(1,0);
-        break;
-    case CLOCK_BITS_IN_OUT_NORMAL_MSB:
-        clock_iobits_data(0,0);
-        break;
-    case CLOCK_BITS_IN_OUT_INVERTED_MSB:
-        clock_iobits_data(1,0);
-        break;
-    case CLOCK_BYTES_OUT_POS_LSB:
-        clock_obyte_data_pos(1);
-        break;
-    case CLOCK_BYTES_OUT_NEG_LSB:
-        clock_obyte_data_neg(1);
-        break;
-    case CLOCK_BITS_OUT_POS_LSB:
-        clock_obits_data_pos(1);
-        break;
-    case CLOCK_BITS_OUT_NEG_LSB:
-        clock_obits_data_neg(1);
-        break;
-    case CLOCK_BYTES_IN_POS_LSB:
-        clock_ibyte_data_pos(1);
-        break;
-    case CLOCK_BYTES_IN_NEG_LSB:
-        clock_ibyte_data_neg(1);
-        break;
-    case CLOCK_BITS_IN_POS_LSB:
-        clock_ibits_data_pos(1);
-        break;
-    case CLOCK_BITS_IN_NEG_LSB:
-        clock_ibits_data_neg(1);
-        break;
-    case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
-        clock_iobyte_data(0,1);
-        break;
-    case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
-        clock_iobyte_data(1,1);
-        break;
-    case CLOCK_BITS_IN_OUT_NORMAL_LSB:
-        clock_iobits_data(0,1);
-        break;
-    case CLOCK_BITS_IN_OUT_INVERTED_LSB:
-        clock_iobits_data(1,1);
-        break;
-    case SEND_IMMEDIATE:
-        send_endpoint_flush(0);
-        break;
-    default:
-        //decrement_total_byte_count(1);
-        printf("Command has not been implemented %02x\r\n",get_current_byte());
-        break;
-    }
+        get_next_byte();
+        printf("Current byte is %02x and length is %02d\r\n",get_current_byte(),ep2_buffer.current_index);
+        switch(get_current_byte())
+        {
+        case SET_BITS_LOW:
+            //Look again and verify that this can actually be done
+            a = get_next_byte();
+            b = get_next_byte();
+            IOA = a;
+            OEA = b;
+            OEA = b;
+            //decrement_total_byte_count(3);
+            //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
+            break;
+        case SET_BITS_HIGH:
+            OEB = get_next_byte();
+            IOB = get_next_byte();
+            //decrement_total_byte_count(3);
+            //printf("Write high bytes\r\n");
+            break;
+        case GET_BITS_LOW:
+            //decrement_total_byte_count(1);
+            //printf("Read low bytes\r\n");
+            break;
+        case GET_BITS_HIGH:
+            //decrement_total_byte_count(1);
+            //printf("Read high bytes\r\n");
+            break;
+        case   CLOCK_BYTES_OUT_POS_MSB:
+            clock_obyte_data_pos(0);
+            break;
+        case CLOCK_BYTES_OUT_NEG_MSB:
+            clock_obyte_data_neg(0);
+            break;
+        case CLOCK_BITS_OUT_POS_MSB:
+            clock_obits_data_pos(0);
+            break;
+        case CLOCK_BITS_OUT_NEG_MSB:
+            clock_obits_data_neg(0);
+            break;
+        case CLOCK_BYTES_IN_POS_MSB:
+            clock_ibyte_data_pos(0);
+            break;
+        case CLOCK_BYTES_IN_NEG_MSB:
+            clock_ibyte_data_neg(0);
+            break;
+        case CLOCK_BITS_IN_POS_MSB:
+            clock_ibits_data_pos(0);
+            printf("Now length is %02x current byte is %02x",get_current_length(),get_current_byte());
+            break;
+        case CLOCK_BITS_IN_NEG_MSB:
+            clock_ibits_data_neg(0);
+            break;
+        case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
+            clock_iobyte_data(0,0);
+            break;
+        case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
+            clock_iobyte_data(1,0);
+            break;
+        case CLOCK_BITS_IN_OUT_NORMAL_MSB:
+            clock_iobits_data(0,0);
+            break;
+        case CLOCK_BITS_IN_OUT_INVERTED_MSB:
+            clock_iobits_data(1,0);
+            break;
+        case CLOCK_BYTES_OUT_POS_LSB:
+            clock_obyte_data_pos(1);
+            break;
+        case CLOCK_BYTES_OUT_NEG_LSB:
+            clock_obyte_data_neg(1);
+            break;
+        case CLOCK_BITS_OUT_POS_LSB:
+            clock_obits_data_pos(1);
+            break;
+        case CLOCK_BITS_OUT_NEG_LSB:
+            clock_obits_data_neg(1);
+            break;
+        case CLOCK_BYTES_IN_POS_LSB:
+            clock_ibyte_data_pos(1);
+            break;
+        case CLOCK_BYTES_IN_NEG_LSB:
+            clock_ibyte_data_neg(1);
+            break;
+        case CLOCK_BITS_IN_POS_LSB:
+            clock_ibits_data_pos(1);
+            break;
+        case CLOCK_BITS_IN_NEG_LSB:
+            clock_ibits_data_neg(1);
+            break;
+        case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
+            clock_iobyte_data(0,1);
+            break;
+        case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
+            clock_iobyte_data(1,1);
+            break;
+        case CLOCK_BITS_IN_OUT_NORMAL_LSB:
+            clock_iobits_data(0,1);
+            break;
+        case CLOCK_BITS_IN_OUT_INVERTED_LSB:
+            clock_iobits_data(1,1);
+            break;
+        case SEND_IMMEDIATE:
+            send_endpoint_flush(0);
+            break;
+        default:
+            //decrement_total_byte_count(1);
+            printf("Command has not been implemented %02x\r\n",get_current_byte());
+            break;
+        }
     }
 }
 
 void mpsse_configure_timer()
 {
-   TMOD = 0x20;
-   SYNCDELAY;
-   TR1 = 0;
-   SYNCDELAY;
-   TH1 = 0xc3;
-   SYNCDELAY;
-   TL1 = 0x23;
-   SYNCDELAY;
-   TR1 = 1;
-   SYNCDELAY;
+    TMOD = 0x20;
+    SYNCDELAY;
+    TR1 = 0;
+    SYNCDELAY;
+    TH1 = 0xc3;
+    SYNCDELAY;
+    TL1 = 0x23;
+    SYNCDELAY;
+    TR1 = 1;
+    SYNCDELAY;
 }
 
 void clock_obyte_data_pos(__bit dir)
@@ -398,7 +398,7 @@ void clock_iobyte_data( __bit polarity,__bit dir)
 
 void clock_iobits_data(__bit polarity,__bit dir)
 {
-     printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobits_data ");
+    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobits_data ");
 }
 
 void send_endpoint_flush(unsigned char type)
@@ -425,14 +425,14 @@ void send_endpoint_flush(unsigned char type)
 
 void decrement_total_byte_count(unsigned char length)
 {
-   if( (ep2_buffer.total_length - length) > ep2_buffer.total_length)
-   {
-       printf("I cant decrement by %02x",length);
-   }
-   else
-   {
-       ep2_buffer.total_length = ep2_buffer.total_length - length;
-   }
+    if( (ep2_buffer.total_length - length) > ep2_buffer.total_length)
+    {
+        printf("I cant decrement by %02x",length);
+    }
+    else
+    {
+        ep2_buffer.total_length = ep2_buffer.total_length - length;
+    }
 }
 
 
@@ -440,22 +440,22 @@ unsigned char get_next_byte()
 {
     if(ep2_buffer.current_index == 511 )
     {
-            //Rearm the endpoint
-            EP2BCL = 0x80; // write once
-            //Decrement the isr counter
-            SYNCDELAY;
-            isr_enter -- ;
-            ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
-            ep2_buffer.current_index = 65535;
-            decrement_total_byte_count(1);
-            delete_total_count = delete_total_count +ep2_buffer.total_length;
-            printf("TOTAL length %lu",delete_total_count);
-            return ep2_buffer.DAT[++ep2_buffer.current_index];
+        //Rearm the endpoint
+        EP2BCL = 0x80; // write once
+        //Decrement the isr counter
+        SYNCDELAY;
+        isr_enter -- ;
+        ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
+        ep2_buffer.current_index = 65535;
+        decrement_total_byte_count(1);
+        delete_total_count = delete_total_count +ep2_buffer.total_length;
+        printf("TOTAL length %lu",delete_total_count);
+        return ep2_buffer.DAT[++ep2_buffer.current_index];
     }
     else
     {
-    decrement_total_byte_count(1);
-    return ep2_buffer.DAT[++ep2_buffer.current_index];
+        decrement_total_byte_count(1);
+        return ep2_buffer.DAT[++ep2_buffer.current_index];
     }
 }
 

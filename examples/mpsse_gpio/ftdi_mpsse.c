@@ -45,19 +45,6 @@ unsigned char volatile mpsse_bit_count;
 void main()
 {
     //Setup data available and other init
-
-
-
-
-
-
-
-
-
-
-
-
-
     got_sud=FALSE;
     //Call our custom function to do our UART init
     configure_endpoints();
@@ -74,20 +61,14 @@ void main()
     //Do we really need this??
     //ENABLE_EP1IN();
     ENABLE_TIMER1();
-     // arm ep2
- EP2BCL = 0x80; // write once
- SYNCDELAY;
- EP2BCL = 0x80; // do it again
+    // arm ep2
+    EP2BCL = 0x80; // write once
+    SYNCDELAY;
+    EP2BCL = 0x80; // do it again
     EA=1; // global interrupt enable
-	REVCTL=0x00;
-	SYNCDELAY;
-	isr_enter = 0;
-
-
-
-
-
-
+    REVCTL=0x00;
+    SYNCDELAY;
+    isr_enter = 0;
     while(TRUE)
     {
         //Handles device descriptor requests
@@ -103,9 +84,9 @@ void main()
             delete_length= EP2BCL | (EP2BCH <<8);
             printf("Got data %02x, length is %04x %02x",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS);
             printf("[ ");
-            for(counter =0 ;counter < delete_length;counter++)
+            for(counter =0 ; counter < delete_length; counter++)
             {
-               printf("%02x-%02d, ",EP2FIFOBUF[counter],counter);
+                printf("%02x-%02d, ",EP2FIFOBUF[counter],counter);
             }
             printf("]\r\n");
             /*Handle the bulk data*/
@@ -114,7 +95,7 @@ void main()
             printf("TOTAL length main %lu",delete_total_count);
             flush_ep1in_data();
             /* Rearm the EP.*/
-             // arm ep2
+            // arm ep2
             EP2BCL = 0x80; // write once
             EP1INCS = 0x00;
             got_ep2=FALSE;
