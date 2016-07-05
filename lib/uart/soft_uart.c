@@ -62,17 +62,17 @@ BOOL uartX_init(enum uart_baud rate, ...)
  **/
 void timer_init()
 {
-   TMOD |= 0x20;
-   SYNCDELAY;
-   TR1 = 0;
-   SYNCDELAY;
-   TH1 = 0x97;
-   SYNCDELAY;
-   TL1 = 0x97;
-   SYNCDELAY;
-   ENABLE_TIMER1();
-   EA = 1;
-   TR1 = 1;
+    TMOD |= 0x20;
+    SYNCDELAY;
+    TR1 = 0;
+    SYNCDELAY;
+    TH1 = 0x97;
+    SYNCDELAY;
+    TL1 = 0x97;
+    SYNCDELAY;
+    ENABLE_TIMER1();
+    EA = 1;
+    TR1 = 1;
 }
 
 /**
@@ -80,13 +80,12 @@ void timer_init()
  **/
 void softuart_init( void )
 {
-
-   timer_init();
-   QueueInitRX();
-   QueueInitTX();
-   SETCPUFREQ(CLK_48M);
-   tx_uart_state = IDLE;
-   rx_uart_state = IDLE_RX;
+    timer_init();
+    QueueInitRX();
+    QueueInitTX();
+    SETCPUFREQ(CLK_48M);
+    tx_uart_state = IDLE;
+    rx_uart_state = IDLE_RX;
 }
 
 /**
@@ -96,20 +95,20 @@ void softuart_init( void )
 **/
 void uart_tx_service()
 {
-   //Data has been loaded by the calling function in a buffer
-   //Check if operation is ongoing
-   //fast_uart(tx_buffer);
-   if ( QueueCheckTX() != 1)
-   {
-      if ( tx_uart_state == IDLE )
-      {
-         //Load value
-         QueueGetTX(&tx_buffer);
-         //Busy. Operation is ongoing
-         tx_uart_state = BUSY;
-         tx_count = 0;
-      }
-   }
+    //Data has been loaded by the calling function in a buffer
+    //Check if operation is ongoing
+    //fast_uart(tx_buffer);
+    if ( QueueCheckTX() != 1)
+    {
+        if ( tx_uart_state == IDLE )
+        {
+            //Load value
+            QueueGetTX(&tx_buffer);
+            //Busy. Operation is ongoing
+            tx_uart_state = BUSY;
+            tx_count = 0;
+        }
+    }
 }
 
 
@@ -120,12 +119,12 @@ void uart_tx_service()
 **/
 void uart_rx_service()
 {
-   if (rx_uart_state == DATA_COMPLETE )
-   {
-      //Load value
-      QueuePutTX(rx_buffer);
-      rx_uart_state = IDLE_RX;
-   }
+    if (rx_uart_state == DATA_COMPLETE )
+    {
+        //Load value
+        QueuePutTX(rx_buffer);
+        rx_uart_state = IDLE_RX;
+    }
 }
 
 
@@ -149,23 +148,21 @@ void uart_rx_service()
  **/
 void QueueInitTX(void)
 {
-   QueueInTX = QueueOutTX = 0;
+    QueueInTX = QueueOutTX = 0;
 }
 
 
 
 __bit QueuePutTX(unsigned char data)
 {
-   //Additional check to make sure there is space in the queue
-   if (QueueInTX == (( QueueOutTX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
-   {
-
-
-      return 1; /* Queue Full*/
-   }
-   QueueTX[QueueInTX] = data;
-   QueueInTX = (QueueInTX + 1) % QUEUE_SIZE;
-   return 0;
+    //Additional check to make sure there is space in the queue
+    if (QueueInTX == (( QueueOutTX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
+    {
+        return 1; /* Queue Full*/
+    }
+    QueueTX[QueueInTX] = data;
+    QueueInTX = (QueueInTX + 1) % QUEUE_SIZE;
+    return 0;
 }
 
 
@@ -176,13 +173,13 @@ __bit QueuePutTX(unsigned char data)
  **/
 __bit QueueGetTX(unsigned char  *old)
 {
-   if ((QueueInTX == QueueOutTX))
-   {
-      return 1; /* Queue Empty - nothing to get*/
-   }
-   *old = QueueTX[QueueOutTX];
-   QueueOutTX = (QueueOutTX + 1) % QUEUE_SIZE;
-   return 0; // No errors
+    if ((QueueInTX == QueueOutTX))
+    {
+        return 1; /* Queue Empty - nothing to get*/
+    }
+    *old = QueueTX[QueueOutTX];
+    QueueOutTX = (QueueOutTX + 1) % QUEUE_SIZE;
+    return 0; // No errors
 }
 
 
@@ -191,12 +188,11 @@ __bit QueueGetTX(unsigned char  *old)
  **/
 __bit QueueCheckTX()
 {
-   if ((QueueInTX == QueueOutTX))
-   {
-      return 1; /* Queue Empty - nothing to get*/
-   }
-
-   return 0; // No errors
+    if ((QueueInTX == QueueOutTX))
+    {
+        return 1; /* Queue Empty - nothing to get*/
+    }
+    return 0; // No errors
 }
 
 
@@ -206,7 +202,7 @@ __bit QueueCheckTX()
  **/
 void QueueInitRX(void)
 {
-   QueueInRX = QueueOutRX = 0;
+    QueueInRX = QueueOutRX = 0;
 }
 
 
@@ -217,13 +213,13 @@ void QueueInitRX(void)
  **/
 __bit QueuePutRX(unsigned char data)
 {
-   if (QueueInRX == (( QueueOutRX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
-   {
-      return 1; /* Queue Full*/
-   }
-   QueueRX[QueueInRX] = data;
-   QueueInRX = (QueueInRX + 1) % QUEUE_SIZE;
-   return 0; // No errors
+    if (QueueInRX == (( QueueOutRX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
+    {
+        return 1; /* Queue Full*/
+    }
+    QueueRX[QueueInRX] = data;
+    QueueInRX = (QueueInRX + 1) % QUEUE_SIZE;
+    return 0; // No errors
 }
 
 
@@ -234,13 +230,13 @@ __bit QueuePutRX(unsigned char data)
  **/
 __bit QueueGetRX(unsigned char * old)
 {
-   if (QueueInRX == QueueOutRX)
-   {
-      return 1; /* Queue Empty - nothing to get*/
-   }
-   *old = QueueRX[QueueOutRX];
-   QueueOutRX = (QueueOutRX + 1) % QUEUE_SIZE;
-   return 0; // No errors
+    if (QueueInRX == QueueOutRX)
+    {
+        return 1; /* Queue Empty - nothing to get*/
+    }
+    *old = QueueRX[QueueOutRX];
+    QueueOutRX = (QueueOutRX + 1) % QUEUE_SIZE;
+    return 0; // No errors
 }
 
 
@@ -250,12 +246,12 @@ __bit QueueGetRX(unsigned char * old)
  **/
 __bit QueueCheckRX()
 {
-   if (QueueInRX == (( QueueOutRX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
-   {
-      return 1; /* Queue Full*/
-   }
+    if (QueueInRX == (( QueueOutRX - 1 + QUEUE_SIZE) % QUEUE_SIZE))
+    {
+        return 1; /* Queue Full*/
+    }
 
-   return 0; // No errors
+    return 0; // No errors
 }
 
 
@@ -274,78 +270,78 @@ void uartX_tx(char c)
  **/
 void process_isr()
 {
-tx_count = tx_count + 1;
-   if ( (tx_count % 4)  == 0)
-   {
-      if (tx_uart_state == 0x01)
-      {
-         OEA |= 0x10;
-         tx_bits_sent ++;
+    tx_count = tx_count + 1;
+    if ( (tx_count % 4)  == 0)
+    {
+        if (tx_uart_state == 0x01)
+        {
+            OEA |= 0x10;
+            tx_bits_sent ++;
 
-         //Writing bits out via UART
-         if (tx_bits_sent == 1)
-         {
-            PA4 = 0 ;
-         }
-         else if (tx_bits_sent > 1 && tx_bits_sent <= 10)
-         {
-            __asm
-            mov a, _tx_buffer;
-            rrc a;
-            mov _PA4, c;
-            mov _tx_buffer, a;
-            __endasm;
-         }
-         else
-         {
-            PA4 = 1;
-            tx_bits_sent = 0;
-            tx_uart_state = 0;
-         }
-      }
-      tx_count = 0x00;
-   }
-   rx_count = rx_count + 1;
-   if (rx_uart_state == IDLE_RX)
-   {
-      __asm
-      anl _OEA, #0xdf;
-      mov c, _PA5;
-      jc 0001$;
-      mov _rx_count, #0x00
-      mov _rx_bits_rcvd, #0x00
-      mov _rx_uart_state , #0x02
-      0001$:
-      __endasm;
-   }
-   if ( (rx_count % 4)  == 0)
-   {
-      if ((rx_uart_state == START_DETECT) || (rx_uart_state == BUSY_RX))
-      {
-         rx_uart_state = BUSY_RX;
-         OEA &= 0xdf;
-         rx_bits_rcvd ++;
-         //Writing bits out via UART
-         if (rx_bits_rcvd < 10)
-         {
-            __asm
-            mov a, _rx_buffer;
-            mov c, _PA5;
-            rrc a;
-            mov _rx_buffer, a;
-            __endasm;
-         }
-         else
-         {
-            __asm
-            mov c, _PA5;
-            __endasm;
-            rx_bits_rcvd = 0;
-            rx_uart_state = DATA_COMPLETE;
-         }
-      }
-      rx_count = 0x00;
-   }
+            //Writing bits out via UART
+            if (tx_bits_sent == 1)
+            {
+                PA4 = 0 ;
+            }
+            else if (tx_bits_sent > 1 && tx_bits_sent <= 10)
+            {
+                __asm
+                mov a, _tx_buffer;
+                rrc a;
+                mov _PA4, c;
+                mov _tx_buffer, a;
+                __endasm;
+            }
+            else
+            {
+                PA4 = 1;
+                tx_bits_sent = 0;
+                tx_uart_state = 0;
+            }
+        }
+        tx_count = 0x00;
+    }
+    rx_count = rx_count + 1;
+    if (rx_uart_state == IDLE_RX)
+    {
+        __asm
+        anl _OEA, #0xdf;
+        mov c, _PA5;
+        jc 0001$;
+        mov _rx_count, #0x00
+        mov _rx_bits_rcvd, #0x00
+        mov _rx_uart_state , #0x02
+        0001$:
+        __endasm;
+    }
+    if ( (rx_count % 4)  == 0)
+    {
+        if ((rx_uart_state == START_DETECT) || (rx_uart_state == BUSY_RX))
+        {
+            rx_uart_state = BUSY_RX;
+            OEA &= 0xdf;
+            rx_bits_rcvd ++;
+            //Writing bits out via UART
+            if (rx_bits_rcvd < 10)
+            {
+                __asm
+                mov a, _rx_buffer;
+                mov c, _PA5;
+                rrc a;
+                mov _rx_buffer, a;
+                __endasm;
+            }
+            else
+            {
+                __asm
+                mov c, _PA5;
+                __endasm;
+                rx_bits_rcvd = 0;
+                rx_uart_state = DATA_COMPLETE;
+            }
+        }
+        rx_count = 0x00;
+    }
 }
 
 BOOL uartX_set_baud(enum uart_baud rate)
@@ -360,23 +356,23 @@ enum uart_baud uartX_get_baud()
 
 BOOL uartX_tx_willblock()
 {
-	return FALSE;
+    return FALSE;
 }
 
 char uartX_rx()
 {
- //This function should never be called
- return 0xFF;
+//This function should never be called
+    return 0xFF;
 }
 
 BOOL uartX_check_rx_blocking()
 {
- //The timer based UART does not block
- return FALSE;
+//The timer based UART does not block
+    return FALSE;
 }
 
 BYTE uartX_check_receive_buffer()
 {
- //Read not implemented. Always return a 0.
- return 0x00;
+//Read not implemented. Always return a 0.
+    return 0x00;
 }
