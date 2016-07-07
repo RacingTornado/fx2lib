@@ -33,11 +33,11 @@ void main(void)
 	// loop endlessly
 	for(;;) {
 		buffer0_push(0x44);
-		printf("HeaderWrite MSB %02x \r\n",buffer0_head_MSB);
-		printf("HeaderWrite LSB %02x \r\n",buffer0_head_LSB);
+		printf("HeaderWrite MSB %02x \r\n",head_MSB);
+		printf("HeaderWrite LSB %02x \r\n",head_LSB);
 		printf("Buffer is at %p \r\n",buffer0_buffer);
-		printf("HeaderRead MSB %02x \r\n",buffer0_tail_MSB);
-		printf("HeaderRead LSB %02x \r\n",buffer0_tail_LSB);
+		printf("HeaderRead MSB %02x \r\n",tail_MSB);
+		printf("HeaderRead LSB %02x \r\n",tail_LSB);
 		printf("Data is %02x\r\n",buffer0_pop());
 	    }
 }
