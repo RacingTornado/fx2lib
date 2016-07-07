@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,5)
-
+__xdata BYTE data_buffer[10];
 void uart0_tx(char data);
 void main(void)
 {

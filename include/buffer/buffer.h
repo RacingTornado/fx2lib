@@ -62,7 +62,8 @@ __sfr __at 0x9e   tail_LSB;
 	}										\
 	BOOL name##_push(BYTE data)							\
 	{										\
-		__asm									\
+		printf("INside buffer makeowrd is %p",MAKEWORD(name##src,name##_offset));\
+		__asm\
 		mov a, _##name##count				\
 		cjne a,_##name##_sizeb,0002$			\
 		ret;							\
@@ -73,8 +74,11 @@ __sfr __at 0x9e   tail_LSB;
 		cjne a,_current_buffer,0001$			\
 		__endasm;										\
 		put_data();				\
+		__asm__("mov _" #name "_offset,_head_LSB");\
+		name##count++;\
 		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
-		{												\
+		{\
+			printf("INside");\
 			name##src = MSB(&name##_buffer);\
 			name##_offset = LSB(&name##_buffer);\
 			__asm\
@@ -90,9 +94,22 @@ __sfr __at 0x9e   tail_LSB;
 		mov _head_LSB,_##name##_offset			\
 		__endasm;								\
 		put_data();					\
+		__asm__("mov  _" #name    "_offset,_head_LSB");\
+		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
+		{\
+			printf("INside");\
+			name##src = MSB(&name##_buffer);\
+			name##_offset = LSB(&name##_buffer);\
+			__asm\
+			mov _head_MSB,_##name##src				\
+			mov _head_LSB,_##name##_offset		\
+			__endasm;\
+		}\
+		name##count++;					\
 	}										\
 	BYTE name##_pop()								\
 	{										\
+		name##count--;								\
 		return_data();								\
 	}										\
 	BOOL name##_init();								\
