@@ -42,29 +42,47 @@ __sfr __at 0x9e   tail_LSB;
 	BYTE name##_offset;								\
 	BYTE name##number;								\
 	BYTE name##src;									\
-	__xdata BYTE name##_buffer[1<<size];						\
+	BYTE name##count;								\
+	BYTE name##_sizeb;								\
+	__xdata BYTE name##_buffer[size];						\
 	BOOL name##_init()								\
 	{										\
 		AUTOPTRSETUP =   bmAPTREN|bmAPTR1INC|bmAPTR2INC;			\
 		LOADWORD(AUTOPTR1, &name##_buffer);					\
 		LOADWORD(AUTOPTR2, &name##_buffer);					\
 		name##number = buffer_number;						\
+		name##_sizeb = size;							\
 		buffer_number++;							\
 		return TRUE;								\
 	}										\
 	BOOL name##_push(BYTE data)							\
 	{										\
 		__asm									\
-		mov a,_##name##number ;Move the buffer number				\
-		cjne a,_current_buffer,0001$		;Check the last accessed buffer	\
-		__endasm;								\
-		put_data();								\
-		__asm									\
-		ret ;Return from the function						\
-		0001$:									\
-		mov _current_buffer,_##name##number	;(Load buffer in use)		\
-		mov _head_MSB,_##name##src		;(Reload the MSB location)	\
-		mov _head_LSB,_##name##_offset		;(Reload the LSB location)	\
+		mov a, _##name##count				\
+		cjne a,_##name##_sizeb,0002$			\
+		ret;							\
+		0002$:												\
+		__endasm;											\
+		__asm												\
+		mov a,_##name##number					\
+		cjne a,_current_buffer,0001$			\
+		__endasm;										\
+		put_data();				\
+		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
+		{												\
+			name##src = MSB(&name##_buffer);\
+			name##_offset = LSB(&name##_buffer);\
+			__asm\
+			mov _head_MSB,_##name##src				\
+			mov _head_LSB,_##name##_offset		\
+			__endasm;\
+		}												\
+		__asm											\
+		ret ;Return from the function								\
+		0001$:											\
+		mov _current_buffer,_##name##number				\
+		mov _head_MSB,_##name##src				\
+		mov _head_LSB,_##name##_offset			\
 		__endasm;								\
 											\
 	}										\
@@ -95,5 +113,6 @@ static inline BYTE return_data()
 	movx	a,@dptr							//(1 cycle)
 	mov dpl,a							//(2 cycles)
 	__endasm;
-}		
+}
+		
 #endif
