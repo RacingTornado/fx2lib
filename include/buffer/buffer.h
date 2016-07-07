@@ -37,7 +37,7 @@
 	}										\
 	BOOL name##_push(BYTE data)							\
 	{										\
-		get_data();								\
+		put_data();								\
 	}										\
 	BYTE name##_pop()								\
 	{										\
@@ -47,17 +47,17 @@
 	BOOL name##_push(BYTE data);							\
 	BYTE name##_pop();
 
-static inline void get_data()
+static inline void put_data()
 {
-	XAUTODAT1 = 0x45;
+	XAUTODAT1 = 0x45; 						//(6 cycles totally)
 }
 
 static inline BYTE return_data()
 {
 	__asm
-	mov	dptr,#_XAUTODAT2
-	movx	a,@dptr
-	mov dpl,a
+	mov	dptr,#_XAUTODAT2					//(3 cycles)
+	movx	a,@dptr							//(1 cycle)
+	mov dpl,a							//(2 cycles)
 	__endasm;
 }		
 #endif
