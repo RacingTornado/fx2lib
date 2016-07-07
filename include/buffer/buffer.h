@@ -21,16 +21,16 @@
 	type BYTE name##_buffer[1<<size];
 
 #define CREATE_BUFFER_AUTOPTR_SINGLE(name,size) 					\
-	__sfr __at 0x9a volatile BYTE ##name_head_MSB; 					\
-	__sfr __at 0x9b volatile BYTE ##name_head_LSB; 					\
-	__sfr __at 0x9d volatile BYTE ##name_tail_MSB; 					\
-	__sfr __at 0x9e volatile BYTE ##name_tail_LSB;					\
-	__sfr __at 0x9e volatile BYTE ##name_tail_LSB;					\
+	__sfr __at 0x9a   name##_head_MSB; 					\
+	__sfr __at 0x9b   name##_head_LSB; 					\
+	__sfr __at 0x9d   name##_tail_MSB; 					\
+	__sfr __at 0x9e   name##_tail_LSB;					\
+	__sfr __at 0x9e   name##_tail_LSB;					\
 	BYTE name##_size;								\
 	__xdata BYTE name##_buffer[1<<size];						\
 	BOOL name##_init()								\
 	{										\
-		AUTOPTRSETUP = bmAPTR2INC | bmAPTR1INC | bmAPTREN;			\
+		AUTOPTRSETUP =   bmAPTREN|bmAPTR1INC|bmAPTR2INC;			\
 		LOADWORD(AUTOPTR1, &name##_buffer);					\
 		LOADWORD(AUTOPTR2, &name##_buffer);					\
 		return TRUE;								\
@@ -47,21 +47,17 @@
 	BOOL name##_push(BYTE data);							\
 	BYTE name##_pop();
 
-static inline get_data()
+static inline void get_data()
 {
-	__asm
-	mov a,#0x45 							
-	mov dptr,#0xE67B							
-	movx @dptr,a
-	__endasm;
+	XAUTODAT1 = 0x45;
 }
 
-static inline return_data()
+static inline BYTE return_data()
 {
-	__asm									
-	mov dptr,#0xE67C							
-	movx a,@dptr								
-	mov dpl,a								
+	__asm
+	mov dptr,#0x3c00
+	movx a,@dptr
+	mov dpl,a
 	__endasm;
 }		
 #endif

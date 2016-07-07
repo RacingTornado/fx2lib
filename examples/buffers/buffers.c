@@ -21,18 +21,24 @@
 #include <lights.h>
 #include <delay.h>
 #include <buffer/buffer.h>
+#include <stdio.h>
 
-CREATE_BUFFER_AUTOPTR_SINGLE(uart0,5)
+CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,5)
 
-
+void uart0_tx(char data);
 void main(void)
 {
-	//buffer0_init();
+	buffer0_init();
 	SETCPUFREQ(CLK_48M);
 	// loop endlessly
 	for(;;) {
-		//buffer0_push(0x44);
-		//uart0_tx(buffer0_pop());
+		buffer0_push(0x44);
+		printf("HeaderWrite MSB %02x \r\n",buffer0_head_MSB);
+		printf("HeaderWrite LSB %02x \r\n",buffer0_head_LSB);
+		printf("Buffer is at %p \r\n",buffer0_buffer);
+		printf("HeaderRead MSB %02x \r\n",buffer0_tail_MSB);
+		printf("HeaderRead LSB %02x \r\n",buffer0_tail_LSB);
+		printf("Data is %02x\r\n",buffer0_pop());
 	    }
 }
 
@@ -98,6 +104,10 @@ void uart0_tx(char c)
     __endasm;
 }
 
+void putchar(char c)
+{
+uart0_tx(c);
+}
 
 
 
