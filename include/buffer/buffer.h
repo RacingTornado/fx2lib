@@ -55,7 +55,8 @@ static inline void get_data()
 static inline BYTE return_data()
 {
 	__asm
-	mov dptr,#0x3c00
+	mov dph,_buffer0_tail_MSB
+	mov dpl,_buffer0_tail_LSB
 	movx a,@dptr
 	mov dpl,a
 	__endasm;
