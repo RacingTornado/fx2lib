@@ -17,6 +17,11 @@ BYTE buffer_number;
  **/
 BYTE current_buffer;
 
+/**
+ * \brief Stores the current data. The data in the DPL is often over written because of the DPTR functions.
+ **/
+BYTE store_data;
+
 
 
 __sfr __at 0x9a   head_MSB;
@@ -84,7 +89,7 @@ __sfr __at 0x9e   tail_LSB;
 		mov _head_MSB,_##name##src				\
 		mov _head_LSB,_##name##_offset			\
 		__endasm;								\
-											\
+		put_data();					\
 	}										\
 	BYTE name##_pop()								\
 	{										\
@@ -98,11 +103,12 @@ static inline void put_data()
 {
 	/*The first thing to do is check whether we need to reload the address pointer
 	 *This handles the buffer_switch logic. That is a new buffer is being opened.	
-	*/	
-	__asm				
-	mov	dptr,#_XAUTODAT1		;(Read data now)		
-	mov	a,#0x35				;(push the data into the ACC)	
-	movx	@dptr,a				;(Move the data back)	
+	*/
+	__asm
+	mov _store_data,dpl		
+	mov	dptr,#_XAUTODAT1			;(Read data now)		
+	mov	a,_store_data				;(push the data into the ACC)	
+	movx	@dptr,a					;(Move the data back)	
 	__endasm;				
 }
 
