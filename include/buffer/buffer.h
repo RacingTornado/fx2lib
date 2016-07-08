@@ -57,12 +57,15 @@ __sfr __at 0x9e   tail_LSB;
 		LOADWORD(AUTOPTR2, &name##_buffer);					\
 		name##number = buffer_number;						\
 		name##_sizeb = size;							\
+		name##src = MSB(&name##_buffer);					\
+		name##_offset = LSB(&name##_buffer);					\
 		buffer_number++;							\
 		return TRUE;								\
 	}										\
 	BOOL name##_push(BYTE data)							\
 	{										\
-		printf("INside buffer makeowrd is %p",MAKEWORD(name##src,name##_offset));\
+		printf("INside buffer makeowrd is %02x",name##_offset);\
+		printf("INside value makeowrd is %p",(&name##_buffer) + name##_sizeb);\
 		__asm\
 		mov a, _##name##count				\
 		cjne a,_##name##_sizeb,0002$			\
