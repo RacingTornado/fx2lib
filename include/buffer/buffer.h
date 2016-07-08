@@ -49,6 +49,7 @@ __sfr __at 0x9e   tail_LSB;
 	BYTE name##src;									\
 	BYTE name##count;								\
 	BYTE name##_sizeb;								\
+	BYTE name##_tail_offset;\
 	__xdata BYTE name##_buffer[size];						\
 	BOOL name##_init()								\
 	{										\
@@ -63,9 +64,8 @@ __sfr __at 0x9e   tail_LSB;
 		return TRUE;								\
 	}										\
 	BOOL name##_push(BYTE data)							\
-	{										\
-		printf("INside buffer makeowrd is %02x",name##_offset);\
-		printf("INside value makeowrd is %p",(&name##_buffer) + name##_sizeb);\
+	{\
+		__asm__("mov _store_data,dpl ;Store the value to be written to the buffer");\
 		__asm\
 		mov a, _##name##count				\
 		cjne a,_##name##_sizeb,0002$			\
@@ -81,7 +81,7 @@ __sfr __at 0x9e   tail_LSB;
 		name##count++;\
 		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
 		{\
-			printf("INside");\
+			printf("INsidexxxxxxxxxxxxxxxxxxxxxxxxx");\
 			name##src = MSB(&name##_buffer);\
 			name##_offset = LSB(&name##_buffer);\
 			__asm\
@@ -97,10 +97,11 @@ __sfr __at 0x9e   tail_LSB;
 		mov _head_LSB,_##name##_offset			\
 		__endasm;								\
 		put_data();					\
+		printf("I shouldnt not be here");\
 		__asm__("mov  _" #name    "_offset,_head_LSB");\
 		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
 		{\
-			printf("INside");\
+			printf("INsideyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");\
 			name##src = MSB(&name##_buffer);\
 			name##_offset = LSB(&name##_buffer);\
 			__asm\
@@ -111,9 +112,49 @@ __sfr __at 0x9e   tail_LSB;
 		name##count++;					\
 	}										\
 	BYTE name##_pop()								\
-	{										\
-		name##count--;								\
-		return_data();								\
+	{\
+		__asm\
+		mov a, _##name##count				\
+		jnz 0003$			\
+		ret;											\
+		0003$:\
+		mov a,_##name##number					\
+		cjne a,_current_buffer,0001$			\
+		__endasm;										\
+		return_data();				\
+		__asm__("mov _" #name "_tail_offset,_tail_LSB");\
+		name##count--;\
+		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_tail_offset))			\
+		{\
+			printf("INsidexxxxxxxxxxxxxxxxxxxxxxxxx");\
+			name##src = MSB(&name##_buffer);\
+			name##_tail_offset = LSB(&name##_buffer);\
+			__asm\
+			mov _tail_MSB,_##name##src				\
+			mov _tail_LSB,_##name##_offset		\
+			__endasm;\
+		}												\
+		__asm											\
+		ret ;Return from the function								\
+		0001$:											\
+		mov _current_buffer,_##name##number				\
+		mov _head_MSB,_##name##src				\
+		mov _head_LSB,_##name##_offset			\
+		__endasm;								\
+		put_data();					\
+		printf("I shouldnt not be here");\
+		__asm__("mov  _" #name    "_offset,_head_LSB");\
+		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))			\
+		{\
+			printf("INsideyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");\
+			name##src = MSB(&name##_buffer);\
+			name##_offset = LSB(&name##_buffer);\
+			__asm\
+			mov _head_MSB,_##name##src				\
+			mov _head_LSB,_##name##_offset		\
+			__endasm;\
+		}\
+		name##count++;					\
 	}										\
 	BOOL name##_init();								\
 	BOOL name##_push(BYTE data);							\
@@ -124,10 +165,9 @@ static inline void put_data()
 	/*The first thing to do is check whether we need to reload the address pointer
 	 *This handles the buffer_switch logic. That is a new buffer is being opened.	
 	*/
-	__asm
-	mov _store_data,dpl		
+	__asm		
 	mov	dptr,#_XAUTODAT1			;(Read data now)		
-	mov	a,_store_data				;(push the data into the ACC)	
+	mov	a,#0x45;_store_data				;(push the data into the ACC)	
 	movx	@dptr,a					;(Move the data back)	
 	__endasm;				
 }

@@ -32,13 +32,22 @@ void main(void)
 	SETCPUFREQ(CLK_48M);
 	// loop endlessly
 	for(;;) {
-		buffer0_push(0x44);
+		buffer0_push(0x46);
+		//buffer0_push(0x45);
+		//buffer0_push(0x46);
+		//buffer0_push(0x47);
+		//buffer0_push(0x48);
+		//buffer0_push(0x49);
 		printf("HeaderWrite MSB %02x \r\n",head_MSB);
 		printf("HeaderWrite LSB %02x \r\n",head_LSB);
 		printf("Buffer is at %p \r\n",buffer0_buffer);
 		printf("HeaderRead MSB %02x \r\n",tail_MSB);
 		printf("HeaderRead LSB %02x \r\n",tail_LSB);
 		printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
 	    }
 }
 
