@@ -47,7 +47,6 @@ __bit I2CCheckTX();
 void i2c_init(BYTE retry);
 void i2c_control();
 void configure_start_timer();
-extern void fast_uart(BYTE a, BYTE b);
 
 
 
