@@ -18,11 +18,11 @@ struct i2c_client
    //Address
    unsigned short addr[I2C_ADDR];
    //Upto 5 data bytes can be written
-   unsigned char data[I2C_DATA];
+   BYTE data[I2C_DATA];
    //The length of data to write to I2C lines
    //Does not include the address byte
-   unsigned char data_length;
-   unsigned char addr_length;
+   BYTE data_length;
+   BYTE addr_length;
 };
 
 //Structure for reading data from I2C device.
@@ -32,22 +32,22 @@ struct i2c_client_read
    unsigned short addr[I2C_ADDR];
    //The length of data to write to I2C lines
    //Does not include the address byte
-   unsigned char data_length;
-   unsigned char addr_length;
+   BYTE data_length;
+   BYTE addr_length;
 };
-__bit I2CPutTX(unsigned char * addr, unsigned char * data, unsigned char addr_length, unsigned char data_length);
-__bit I2CPutRXRead(unsigned char * addr, unsigned char addr_length, unsigned char data_length);
+__bit I2CPutTX(BYTE * addr, BYTE * data, BYTE addr_length, BYTE data_length);
+__bit I2CPutRXRead(BYTE * addr, BYTE addr_length, BYTE data_length);
 __bit I2CGetRXRead();
 __bit I2CCheckRXRead();
-__bit I2CPutRXData(unsigned char * addr, unsigned char * data, unsigned char addr_length, unsigned char data_length);
-__bit I2CGetRXData(unsigned char * addr, unsigned char * data);
+__bit I2CPutRXData(BYTE * addr, BYTE * data, BYTE addr_length, BYTE data_length);
+__bit I2CGetRXData(BYTE * addr, BYTE * data);
 __bit I2CCheckRXData();
 __bit I2CGetTX();
 __bit I2CCheckTX();
-void i2c_init(unsigned char retry);
+void i2c_init(BYTE retry);
 void i2c_control();
 void configure_start_timer();
-extern void fast_uart(unsigned char a, unsigned char b);
+extern void fast_uart(BYTE a, BYTE b);
 
 
 
@@ -76,19 +76,19 @@ enum i2c_states
    read_data_ack = 10,
 };
 extern enum isr_state tx_rx;
-extern unsigned char bit_count;
-extern unsigned char tx_i2c_buffer;
+extern BYTE bit_count;
+extern BYTE tx_i2c_buffer;
 //Variable declarations for address and data
-extern __xdata unsigned char addr[I2C_ADDR];
-extern __xdata unsigned char data[I2C_DATA];
-extern __xdata unsigned char length;
-extern __xdata unsigned char retries;
+extern __xdata BYTE addr[I2C_ADDR];
+extern __xdata BYTE data[I2C_DATA];
+extern __xdata BYTE length;
+extern __xdata BYTE retries;
 /****************************************
 Cant pass so many arguments in a function
 *****************************************/
-extern __xdata unsigned char write_addr[I2C_ADDR];
-extern __xdata unsigned char write_data[I2C_DATA];
-extern __xdata unsigned char rx_addr_length;
-extern __xdata unsigned char rx_data_length;
-extern __xdata unsigned char wr_addr;
+extern __xdata BYTE write_addr[I2C_ADDR];
+extern __xdata BYTE write_data[I2C_DATA];
+extern __xdata BYTE rx_addr_length;
+extern __xdata BYTE rx_data_length;
+extern __xdata BYTE wr_addr;
 #endif

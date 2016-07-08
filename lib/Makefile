@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 AS8051?=sdas8051
-SOURCES = serial.c i2c.c delay.c setupdat.c gpif.c eputils.c softuart.c i2c_utils.c $(wildcard interrupts/*.c)
+SOURCES = serial.c i2c.c delay.c setupdat.c gpif.c eputils.c softuart.c $(wildcard interrupts/*.c) $(wildcard i2c/*.c)
 FX2_OBJS = $(patsubst %.c,%.rel, $(SOURCES)) usbav.rel
 INCLUDES = -I../include
 SDCC = sdcc -mmcs51 $(SDCCFLAGS)
