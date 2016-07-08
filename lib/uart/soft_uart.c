@@ -44,9 +44,7 @@ __xdata unsigned char QueueInRX, QueueOutRX;
 
 /* Enum creation for transmitter*/
 enum uart_tx_state tx_uart_state;
-
 enum uart_rx_state rx_uart_state;
-
 
 BOOL uartX_init(enum uart_baud rate, ...)
 {
@@ -111,7 +109,6 @@ void uart_tx_service()
     }
 }
 
-
 /**
  * \brief Called periodically from main. If the data reception is
  * complete, then the rx_buffer is automatically put into
@@ -126,8 +123,6 @@ void uart_rx_service()
         rx_uart_state = IDLE_RX;
     }
 }
-
-
 
 /* Very simple queue
  * These are FIFO queues which discard the new data when full.
@@ -151,8 +146,6 @@ void QueueInitTX(void)
     QueueInTX = QueueOutTX = 0;
 }
 
-
-
 __bit QueuePutTX(unsigned char data)
 {
     //Additional check to make sure there is space in the queue
@@ -164,7 +157,6 @@ __bit QueuePutTX(unsigned char data)
     QueueInTX = (QueueInTX + 1) % QUEUE_SIZE;
     return 0;
 }
-
 
 /**
  * \brief This is called to get data from the TX queue
@@ -182,7 +174,6 @@ __bit QueueGetTX(unsigned char  *old)
     return 0; // No errors
 }
 
-
 /**
  * \brief Check if the tx_queue is full
  **/
@@ -195,7 +186,6 @@ __bit QueueCheckTX()
     return 0; // No errors
 }
 
-
 /**
  * \brief Initialize the rx_queue
  *
@@ -204,7 +194,6 @@ void QueueInitRX(void)
 {
     QueueInRX = QueueOutRX = 0;
 }
-
 
 /**
  * \brief Insert data into the RX queue
@@ -222,7 +211,6 @@ __bit QueuePutRX(unsigned char data)
     return 0; // No errors
 }
 
-
 /**
  * \brief Get data from the rx_queue
  *
@@ -239,8 +227,6 @@ __bit QueueGetRX(unsigned char * old)
     return 0; // No errors
 }
 
-
-
 /**
  * \brief This function checks if Queue is full . If full, it returns 1
  **/
@@ -253,7 +239,6 @@ __bit QueueCheckRX()
 
     return 0; // No errors
 }
-
 
 /**
  * \brief This function is called from putchar
@@ -277,7 +262,6 @@ void process_isr()
         {
             OEA |= 0x10;
             tx_bits_sent ++;
-
             //Writing bits out via UART
             if (tx_bits_sent == 1)
             {
