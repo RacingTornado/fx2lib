@@ -23,7 +23,9 @@
 #include <buffer/buffer.h>
 #include <stdio.h>
 
-CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,5)
+#define SYNCDELAY SYNCDELAY4
+
+CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,10)
 __xdata BYTE data_buffer[10];
 void uart0_tx(char data);
 void main(void)
@@ -32,22 +34,68 @@ void main(void)
 	SETCPUFREQ(CLK_48M);
 	// loop endlessly
 	for(;;) {
+		buffer0_push(0x45);
 		buffer0_push(0x46);
-		//buffer0_push(0x45);
-		//buffer0_push(0x46);
-		//buffer0_push(0x47);
-		//buffer0_push(0x48);
-		//buffer0_push(0x49);
+		buffer0_push(0x47);
+		buffer0_push(0x48);
+		buffer0_push(0x49);
+		buffer0_push(0x50);
 		printf("HeaderWrite MSB %02x \r\n",head_MSB);
 		printf("HeaderWrite LSB %02x \r\n",head_LSB);
 		printf("Buffer is at %p \r\n",buffer0_buffer);
 		printf("HeaderRead MSB %02x \r\n",tail_MSB);
 		printf("HeaderRead LSB %02x \r\n",tail_LSB);
-		printf("Data is %02x\r\n",buffer0_pop());
-//printf("Data is %02x\r\n",buffer0_pop());
-//printf("Data is %02x\r\n",buffer0_pop());
-//printf("Data is %02x\r\n",buffer0_pop());
-//printf("Data is %02x\r\n",buffer0_pop());
+printf("Popping data\r\n");
+printf("Data is %02x\r\n",buffer0_pop());
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+printf("Data is %02x\r\n",buffer0_pop());
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+printf("Data is %02x\r\n",buffer0_pop());
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+printf("Data is %02x\r\n",buffer0_pop());
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+printf("Data is %02x\r\n",buffer0_pop());
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+SYNCDELAY;
+printf("Data is %02x\r\n",buffer0_pop());
 	    }
 }
 
