@@ -27,12 +27,14 @@
 
 CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,10)
 CREATE_BUFFER_AUTOPTR_SINGLE(buffer1,10)
+CREATE_BUFFER_AUTOPTR_SINGLE(buffer2,5)
 __xdata BYTE data_buffer[10];
 void uart0_tx(char data);
 void main(void)
 {
 	buffer0_init();
 	buffer1_init();
+	buffer2_init();
 	SETCPUFREQ(CLK_48M);
 	// loop endlessly
 	for(;;) {
@@ -50,6 +52,7 @@ void main(void)
 		buffer0_push(0x46);
 		buffer0_push(0x47);
 		buffer0_push(0x48);
+		buffer2_push(0x21);
 		//buffer0_push(0x49);
 		//buffer0_push(0x50);
 		//printf("HeaderWrite0 MSB,now pushed %02x \r\n",head_MSB);
@@ -93,6 +96,7 @@ printf("Buffer 1 %02x\r\n",buffer1_pop());
 printf("Buffer 1 %02x\r\n",buffer1_pop());
 printf("Buffer 1 %02x\r\n",buffer1_pop());
 printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 2 %02x\r\n",buffer2_pop());
 	    }
 }
 
