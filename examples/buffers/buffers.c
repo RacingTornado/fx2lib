@@ -26,76 +26,73 @@
 #define SYNCDELAY SYNCDELAY4
 
 CREATE_BUFFER_AUTOPTR_SINGLE(buffer0,10)
+CREATE_BUFFER_AUTOPTR_SINGLE(buffer1,10)
 __xdata BYTE data_buffer[10];
 void uart0_tx(char data);
 void main(void)
 {
 	buffer0_init();
+	buffer1_init();
 	SETCPUFREQ(CLK_48M);
 	// loop endlessly
 	for(;;) {
+		//printf("HeaderWrite0 MSB %02x \r\n",head_MSB);
+		//printf("HeaderWrite0 LSB %02x \r\n",head_LSB);
+		//printf("Buffer 0 source %02x \r\n",buffer0src);
+		//printf("Buffer 0 offser %02x \r\n",buffer0_offset);
+		//printf("Buffer 1 source %02x \r\n",buffer1src);
+		//printf("Buffer 1 offser %02x \r\n",buffer1_offset);
+		//printf("Buffer0 is at %p \r\n",buffer0_buffer);
+		//printf("HeaderRead0 MSB %02x \r\n",tail_MSB);
+		//printf("HeaderRead0 LSB,now pushing %02x \r\n",tail_LSB);
+//printf("Buffer number %02x \r\n",buffer_number);
 		buffer0_push(0x45);
 		buffer0_push(0x46);
 		buffer0_push(0x47);
 		buffer0_push(0x48);
-		buffer0_push(0x49);
-		buffer0_push(0x50);
-		printf("HeaderWrite MSB %02x \r\n",head_MSB);
-		printf("HeaderWrite LSB %02x \r\n",head_LSB);
-		printf("Buffer is at %p \r\n",buffer0_buffer);
-		printf("HeaderRead MSB %02x \r\n",tail_MSB);
-		printf("HeaderRead LSB %02x \r\n",tail_LSB);
+		//buffer0_push(0x49);
+		//buffer0_push(0x50);
+		//printf("HeaderWrite0 MSB,now pushed %02x \r\n",head_MSB);
+		//printf("HeaderWrite0 LSB %02x \r\n",head_LSB);
+		//printf("Buffer 0 source %02x \r\n",buffer0src);
+		//printf("Buffer 0 offser %02x \r\n",buffer0_offset);
+		//printf("Buffer 1 source %02x \r\n",buffer1src);
+		//printf("Buffer 1 offser %02x \r\n",buffer1_offset);
+		//printf("Buffer0 is at %p \r\n",buffer0_buffer);
+		//printf("HeaderRead0 MSB %02x \r\n",tail_MSB);
+		//printf("HeaderRead0 LSB %02x \r\n",tail_LSB);
+		buffer1_push(0x35);
+		buffer1_push(0x36);
+		buffer1_push(0x37);
+		buffer1_push(0x38);
+		buffer1_push(0x39);
+		buffer1_push(0x40);
+		//printf("HeaderWrite1 MSB %02x \r\n",head_MSB);
+		//printf("HeaderWrite1 LSB %02x \r\n",head_LSB);
+		//printf("Buffer1 is at %p \r\n",buffer1_buffer);
+		//printf("HeaderRead1 MSB %02x \r\n",tail_MSB);
+		//printf("HeaderRead1 LSB %02x \r\n",tail_LSB);
 printf("Popping data\r\n");
-printf("Data is %02x\r\n",buffer0_pop());
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-printf("Data is %02x\r\n",buffer0_pop());
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-printf("Data is %02x\r\n",buffer0_pop());
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-printf("Data is %02x\r\n",buffer0_pop());
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-printf("Data is %02x\r\n",buffer0_pop());
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-SYNCDELAY;
-printf("Data is %02x\r\n",buffer0_pop());
+//printf("Current buffer pop %02x \r\n",current_buffer_pop);
+//printf("buffer1 number pop %02x \r\n",buffer0number);
+printf("Buffer 0 %02x\r\n",buffer0_pop());
+printf("Buffer 0 %02x\r\n",buffer0_pop());
+printf("Buffer 0 %02x\r\n",buffer0_pop());
+printf("Buffer 0 %02x\r\n",buffer0_pop());
+//		printf("HeaderRead0 MSB %02x \r\n",tail_MSB);
+//		printf("HeaderRead0 LSB %02x \r\n",tail_LSB);
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+//printf("Data is %02x\r\n",buffer0_pop());
+
+printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 1 %02x\r\n",buffer1_pop());
+printf("Buffer 1 %02x\r\n",buffer1_pop());
 	    }
 }
 

@@ -5,6 +5,7 @@
 #define BUFFER_BUFFER_H
 #include "fx2types.h"
 #include <fx2macros.h>
+#include <stdio.h>
 
 /**
  * \brief Stores the buffer number. This is incremented everytime the CREATE_BUFFER
@@ -13,9 +14,14 @@
 BYTE buffer_number;
 
 /**
- * \brief Stores the current buffer number. Used to identify which buffer switched last.
+ * \brief Stores the current buffer number. Used to identify the buffer into which data was last inserted.
  **/
-BYTE current_buffer;
+BYTE current_buffer_push;
+
+/**
+ * \brief Stores the current buffer number. Used to identify the buffer into which data was last removed.
+ **/
+BYTE current_buffer_pop;
 
 /**
  * \brief Stores the current data. The data in the DPL is often over written because of the DPTR functions.
@@ -73,6 +79,9 @@ __sfr __at 0x9e   tail_LSB;
 		name##_sizeb = size;									\
 		name##src = MSB(&name##_buffer);							\
 		name##_offset = LSB(&name##_buffer);							\
+		name##_tail_offset = LSB(&name##_buffer);						\
+		current_buffer_push = buffer_number;							\
+		current_buffer_pop = buffer_number;							\
 		buffer_number++;									\
 		return TRUE;										\
 	}												\
@@ -87,7 +96,7 @@ __sfr __at 0x9e   tail_LSB;
 		__endasm;										\
 		__asm											\
 		mov a,_##name##number									\
-		cjne a,_current_buffer,0001$								\
+		cjne a,_current_buffer_push,0001$								\
 		__endasm;										\
 		put_data();										\
 		__asm__("mov _" #name "_offset,_head_LSB");						\
@@ -105,16 +114,17 @@ __sfr __at 0x9e   tail_LSB;
 		__asm											\
 		ret ;Return from the function								\
 		0001$:											\
-		mov _current_buffer,_##name##number							\
+		mov _current_buffer_push,_##name##number							\
 		mov _head_MSB,_##name##src								\
 		mov _head_LSB,_##name##_offset								\
 		__endasm;										\
-		put_data();										\
 		printf("I shouldnt not be here");							\
-		__asm__("mov  _" #name    "_offset,_head_LSB");						\
+		put_data();										\
+		__asm__("mov _" #name "_offset,_head_LSB");						\
+		name##count++;										\
 		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_offset))		\
 		{											\
-			printf("INsideyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy");				\
+			printf("INsidexxxxxxxxxxxxxxxxxxxxxxxxx");					\
 			name##src = MSB(&name##_buffer);						\
 			name##_offset = LSB(&name##_buffer);						\
 			__asm										\
@@ -122,7 +132,6 @@ __sfr __at 0x9e   tail_LSB;
 			mov _head_LSB,_##name##_offset							\
 			__endasm;									\
 		}											\
-		name##count++;										\
 	}												\
 	BYTE name##_pop()										\
 	{												\
@@ -132,7 +141,7 @@ __sfr __at 0x9e   tail_LSB;
 		ret;											\
 		0003$:											\
 		mov a,_##name##number									\
-		cjne a,_current_buffer,0001$								\
+		cjne a,_current_buffer_pop,0001$								\
 		__endasm;										\
 		return_data();										\
 		name##count--;										\
@@ -149,12 +158,11 @@ __sfr __at 0x9e   tail_LSB;
 		__asm\
 		ret ;Return from the function								\
 		0001$:											\
-		mov _current_buffer,_##name##number							\
+		mov _current_buffer_pop,_##name##number							\
 		mov _tail_MSB,_##name##src								\
 		mov _tail_LSB,_##name##_tail_offset								\
 		__endasm;										\
 		return_data();										\
-		__asm__("mov dpl,_store_data");\
 		printf("I shouldnt not be here");							\
 		__asm__("mov _" #name "_tail_offset,_tail_LSB");						\
 		if((&name##_buffer) + name##_sizeb == MAKEWORD(name##src,name##_tail_offset))		\
@@ -168,6 +176,7 @@ __sfr __at 0x9e   tail_LSB;
 			__endasm;									\
 		}											\
 		name##count--;										\
+		__asm__("mov dpl,_store_data");\
 	}												\
 	BOOL name##_init();										\
 	BOOL name##_push(BYTE data);									\
@@ -178,6 +187,8 @@ static inline void put_data()
 	/*The first thing to do is check whether we need to reload the address pointer
 	 *This handles the buffer_switch logic. That is a new buffer is being opened.	
 	*/
+		//printf("w %02x \r\n",head_LSB);
+
 	__asm		
 	mov	dptr,#_XAUTODAT1			;(Read data now)		
 	mov	a,_store_data				;(push the data into the ACC)	
@@ -187,11 +198,13 @@ static inline void put_data()
 
 static inline BYTE return_data()
 {
+		
 	__asm
 	mov	dptr,#_XAUTODAT2					//(3 cycles)
 	movx	a,@dptr							//(1 cycle)
 	mov _store_data,a							//(2 cycles)
 	__endasm;
+//printf("r%02x \r\n",store_data);
 }
 		
 #endif
