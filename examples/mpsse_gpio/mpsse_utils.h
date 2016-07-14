@@ -461,7 +461,7 @@ void flush_ep1in_data();
 /**
  * \brief Read data bits from TDO and write data bits into TDI on TCK.
 **/
-BYTE read_write_bits_JTAG();
+void read_write_bits_JTAG();
 
 /**
  * \brief Read data bits from TDO and write data bytes into TDI on TCK.
@@ -532,6 +532,6 @@ extern unsigned char ep1in_buffer_length;
 void putchar(char c);
 void uart_tx_unsigned(unsigned char c);
 extern unsigned long delete_total_count;
-//#define printf(...)
+#define printf(...)
 
 #endif // MPSSE_UTILS_H

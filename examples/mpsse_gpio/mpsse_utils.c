@@ -424,7 +424,7 @@ void send_endpoint_flush(unsigned char type)
     case INITIAL_ACK:
         EP1INBUF[0] = 0x32;
         EP1INBUF[1] = 0x70;
-        EP1INBUF[2] = 0x00;
+        EP1INBUF[2] = 0x01;
         EP1INBC = 0x03;
         break;
     case REPEAT_ACK:
@@ -436,6 +436,9 @@ void send_endpoint_flush(unsigned char type)
     default :
         //printf("Endpoint flush not implemented\r\n");
     }
+    while((EP1INCS&0x02) == 0x02);
+    ep1in_buffer_length = 0;
+    printf("Flushing data\r\n");
 }
 
 void decrement_total_byte_count(unsigned char length)
@@ -476,7 +479,7 @@ unsigned char get_next_byte()
 
 void put_ep1in_data()
 {
-
+    printf("Data length is %02x\r\n",ep1in_buffer_length);
     if(ep1in_buffer_length == 0)
     {
         EP1INBUF[ep1in_buffer_length] = 0x32;
@@ -565,61 +568,6 @@ __sbit __at 0x83          TMS; /* Port A.3 */
 
 
 
-//-----------------------------------------------------------------------------
-
-void ProgIO_ShiftOut(unsigned char c)
-{
-  /* Shift out byte C:
-   *
-   * 8x {
-   *   Output least significant bit on TDI
-   *   Raise TCK
-   *   Shift c right
-   *   Lower TCK
-   * }
-   */
-
-  (void)c; /* argument passed in DPL */
-
-  __asm
-        MOV  A,DPL                  ;Move the data into the accumulator
-        RRC  A                      ;Rotate the accumulator right
-        MOV  _TDI,C                 ;Move the value into TDI
-        SETB _TCK                   ;Set the clock high, keep repeating.
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        nop
-        CLR  _TCK
-        ret
-  __endasm;
-}
-
 /*
 ;; For ShiftInOut, the timing is a little more
 ;; critical because we have to read _TDO/shift/set _TDI
@@ -627,20 +575,9 @@ void ProgIO_ShiftOut(unsigned char c)
 ;; is just like 50% at 6 Mhz, and that's still acceptable
 */
 
-unsigned char read_write_bits_JTAG()
+void read_write_bits_JTAG()
 {
-  /* Shift out byte C, shift in from TDO:
-   *
-   * 8x {
-   *   Read carry from TDO
-   *   Output least significant bit on TDI
-   *   Raise TCK
-   *   Shift c right, append carry (TDO) at left
-   *   Lower TCK
-   * }
-   * Return c.
-   */
-    printf("Shifting data in and out %02x\r\n",get_current_byte());
+    printf("Read TDO and write TDI bits %02x\r\n",get_current_byte());
     mpsse_bits_clock_length = get_next_byte() + 1;
     data_epbuf = get_next_byte();
   __asm
@@ -653,58 +590,17 @@ unsigned char read_write_bits_JTAG()
         SETB _TCK
         CLR  _TCK
         djnz r0, 0001$
-        MOV  DPL,A
-        ret
+        MOV  _mpsse_isr_buffer,A
   __endasm;
-
-  /* return value in DPL */
-
-  return ;
-}
-
-
-void shift_bytes_JTAG()
-{
-  /* Shift out byte C, shift in from TDO:
-   *
-   * 8x {
-   *   Read carry from TDO
-   *   Output least significant bit on TDI
-   *   Raise TCK
-   *   Shift c right, append carry (TDO) at left
-   *   Lower TCK
-   * }
-   * Return c.
-   */
-    printf("Shifting data in and out for JTAG %02x\r\n",get_current_byte());
-    data_epbuf = get_next_byte();
-    EA = 0;
-  __asm
-        nop
-        nop
-        nop
-        nop
-        MOV  A,_data_epbuf
-        mov r0,#0x08
-        0001$:
-        MOV  C,_TDO
-        RRC  A
-        MOV  _TDI,C
-        SETB _TCK
-        nop
-        nop
-        nop
-        nop
-        CLR  _TCK
-        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
-        mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
-        ret
-  __endasm;
-  EA = 1;
+  /* Insert the data back into the buffer */
+  //put_ep1in_data();
 }
 
 
 
+
+
+/* Change the state of TAP controller only. Don't read anything from TDO/TDI */
 void clock_bits_tms()
 {
 
@@ -720,16 +616,16 @@ void clock_bits_tms()
         djnz r0,0001$
         nop
         CLR  _TCK
-        ret
   __endasm;
 
 
 }
 
+/* Read TDO, write TMS */
 unsigned char read_bits_write_TMS_JTAG()
 {
-
-    printf("Read TDI, clock out TDO %02x\r\n",get_current_byte());
+    /* Write and read x bits from JTAG */
+    printf("Read TDI, clock out TMS %02x\r\n",get_current_byte());
     mpsse_bits_clock_length = get_next_byte();
     data_epbuf = get_next_byte();
   __asm
@@ -742,42 +638,56 @@ unsigned char read_bits_write_TMS_JTAG()
         SETB _TCK
         CLR  _TCK
         djnz r0, 0001$
-        MOV  DPL,A
-        ret
+        MOV  _mpsse_isr_buffer,A
   __endasm;
+  /* Insert the data back into the buffer */
+  //put_ep1in_data();
 
 }
 
-
+/* Read and writes bytes for JTAG*/
 void read_write_bytes_JTAG()
 {
-
-        /* The command has been read. The next 2 bytes gives us the
-     * the number of bytes we need to read .
-     */
     printf("Reading and writing bytes from JTAG %02x\r\n",get_current_byte());
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
-    //decrement_total_byte_count(2);
-    //Initialize to 0 once we enter.
     while(mpsse_byte_clock_length!=0)
     {
-
-
-            //mpsse_isr_buffer = 0x00;
-            //mpsse_bit_count  = 0x09;
             shift_bytes_JTAG();
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
-            //isr_state  = BUSY;
-            //isr_mode   = RX;
-            //delete_packets_read++;
-            //while(isr_state  == BUSY);
-            //printf("Packets read is %02d\r\n",delete_packets_read);
             put_ep1in_data();
     }
 }
 
-
-
+/* Shifts exactly 1 byte out, and reads one byte in */
+void shift_bytes_JTAG()
+{
+    printf("Shifting data in and out for JTAG %02x\r\n",get_current_byte());
+    data_epbuf = get_next_byte();
+    EA = 0;
+  __asm
+        MOV  A,_data_epbuf
+        mov r0,#0x08
+        0001$:
+            nop
+            nop
+            nop
+            nop
+            nop
+        MOV  C,_TDO
+        RRC  A
+        MOV  _TDI,C
+        SETB _TCK
+        nop
+        nop
+        nop
+        nop
+        nop
+        CLR  _TCK
+        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
+        mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
+  __endasm;
+  EA = 1;
+}
 
 
 
