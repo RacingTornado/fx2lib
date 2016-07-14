@@ -248,7 +248,7 @@ void mpsse_handle_bulk()
             clock_iobits_data(1,1);
             break;
         case SEND_IMMEDIATE:
-            send_endpoint_flush(0);
+            flush_ep1in_data();
             break;
         case CLOCK_DATA_TMS_NEG:
             /* The next 2 bytes indicate the number of bits to clock out via TMS*/
@@ -593,7 +593,7 @@ void read_write_bits_JTAG()
         MOV  _mpsse_isr_buffer,A
   __endasm;
   /* Insert the data back into the buffer */
-  //put_ep1in_data();
+  put_ep1in_data();
 }
 
 
@@ -641,7 +641,7 @@ unsigned char read_bits_write_TMS_JTAG()
         MOV  _mpsse_isr_buffer,A
   __endasm;
   /* Insert the data back into the buffer */
-  //put_ep1in_data();
+  put_ep1in_data();
 
 }
 
@@ -668,20 +668,10 @@ void shift_bytes_JTAG()
         MOV  A,_data_epbuf
         mov r0,#0x08
         0001$:
-            nop
-            nop
-            nop
-            nop
-            nop
         MOV  C,_TDO
         RRC  A
         MOV  _TDI,C
         SETB _TCK
-        nop
-        nop
-        nop
-        nop
-        nop
         CLR  _TCK
         djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
         mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
