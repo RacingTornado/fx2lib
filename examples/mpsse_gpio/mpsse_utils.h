@@ -99,6 +99,10 @@ Bit 7 : 0
 #define SIO_RESET_SIO 0
 #define SIO_RESET_PURGE_RX 1
 #define SIO_RESET_PURGE_TX 2
+/* JTAG specific commands */
+#define CLOCK_DATA_TMS_NEG 0x4B
+#define CLOCK_DATA_TMS_WITH_READ 0x6B
+
 
 BYTE handle_get_configuration();
 BOOL handle_set_configuration(BYTE cfg);
@@ -455,6 +459,16 @@ void put_ep1in_data();
 void flush_ep1in_data();
 
 /**
+ * \brief Read data bits from TDO and write data bits into TDI on TCK.
+**/
+BYTE read_write_bits_JTAG();
+
+/**
+ * \brief Read data bits from TDO and write data bytes into TDI on TCK.
+**/
+void read_write_bytes_JTAG();
+
+/**
  * Enum controlling ISR operation.
  *    \li TX(0 , Data is being shifted out)
  *    \li RX(1 , Data is being shifted in)
@@ -518,6 +532,6 @@ extern unsigned char ep1in_buffer_length;
 void putchar(char c);
 void uart_tx_unsigned(unsigned char c);
 extern unsigned long delete_total_count;
-#define printf(...)
+//#define printf(...)
 
 #endif // MPSSE_UTILS_H

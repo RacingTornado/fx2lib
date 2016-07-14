@@ -16,8 +16,9 @@ volatile enum  mpsse_isr_mode isr_mode;
 unsigned char volatile mpsse_isr_buffer;
 unsigned char ep1in_buffer_length = 0;
 
+
 /*********************************************************************
-Temporary variables for use in this file. Nit declared in mpsse_util.h
+Temporary variables for use in this file. Not declared in mpsse_util.h
 **********************************************************************/
 /**
  * Used to keep track of number of bytes to clock out or in.
@@ -27,6 +28,11 @@ unsigned short mpsse_byte_clock_length;
  * Used to keep track of number of bits to clock out or in.
 **/
 unsigned char mpsse_bits_clock_length;
+
+/**
+ * Used to keep track of data being sent in or out.
+**/
+unsigned char data_epbuf;
 
 //DELETE
 unsigned char delete_packets_read;
@@ -228,19 +234,28 @@ void mpsse_handle_bulk()
             clock_ibits_data_neg(1);
             break;
         case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
-            clock_iobyte_data(0,1);
+             read_write_bytes_JTAG();
+            //clock_iobyte_data(0,1);
             break;
         case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
             clock_iobyte_data(1,1);
             break;
         case CLOCK_BITS_IN_OUT_NORMAL_LSB:
-            clock_iobits_data(0,1);
+            read_write_bits_JTAG();
+            //clock_iobits_data(0,1);
             break;
         case CLOCK_BITS_IN_OUT_INVERTED_LSB:
             clock_iobits_data(1,1);
             break;
         case SEND_IMMEDIATE:
             send_endpoint_flush(0);
+            break;
+        case CLOCK_DATA_TMS_NEG:
+            /* The next 2 bytes indicate the number of bits to clock out via TMS*/
+            clock_bits_tms();
+            break;
+        case CLOCK_DATA_TMS_WITH_READ:
+            read_bits_write_TMS_JTAG();
             break;
         default:
             //decrement_total_byte_count(1);
@@ -507,3 +522,263 @@ void flush_ep1in_data()
         printf("Flushing data\r\n");
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-----------------------------------------------------------------------------
+
+/* JTAG TCK, AS/PS DCLK */
+
+__sbit __at 0x80          TCK; /* Port A.0 */
+
+
+/* JTAG TDI, AS ASDI, PS DATA0 */
+
+__sbit __at 0x82         TDO; /* Port A.1 */
+
+
+/* JTAG TMS, AS/PS nCONFIG */
+
+__sbit __at 0x81          TDI; /* Port A.2 */
+
+
+/* JTAG TDO, AS/PS CONF_DONE */
+
+__sbit __at 0x83          TMS; /* Port A.3 */
+
+
+
+
+//-----------------------------------------------------------------------------
+
+void ProgIO_ShiftOut(unsigned char c)
+{
+  /* Shift out byte C:
+   *
+   * 8x {
+   *   Output least significant bit on TDI
+   *   Raise TCK
+   *   Shift c right
+   *   Lower TCK
+   * }
+   */
+
+  (void)c; /* argument passed in DPL */
+
+  __asm
+        MOV  A,DPL                  ;Move the data into the accumulator
+        RRC  A                      ;Rotate the accumulator right
+        MOV  _TDI,C                 ;Move the value into TDI
+        SETB _TCK                   ;Set the clock high, keep repeating.
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        nop
+        CLR  _TCK
+        ret
+  __endasm;
+}
+
+/*
+;; For ShiftInOut, the timing is a little more
+;; critical because we have to read _TDO/shift/set _TDI
+;; when _TCK is low. But 20% duty cycle at 48/4/5 MHz
+;; is just like 50% at 6 Mhz, and that's still acceptable
+*/
+
+unsigned char read_write_bits_JTAG()
+{
+  /* Shift out byte C, shift in from TDO:
+   *
+   * 8x {
+   *   Read carry from TDO
+   *   Output least significant bit on TDI
+   *   Raise TCK
+   *   Shift c right, append carry (TDO) at left
+   *   Lower TCK
+   * }
+   * Return c.
+   */
+    printf("Shifting data in and out %02x\r\n",get_current_byte());
+    mpsse_bits_clock_length = get_next_byte() + 1;
+    data_epbuf = get_next_byte();
+  __asm
+        MOV  A,_data_epbuf
+        mov r0,_mpsse_bits_clock_length
+        0001$:
+        MOV  C,_TDO
+        RRC  A
+        MOV  _TDI,C
+        SETB _TCK
+        CLR  _TCK
+        djnz r0, 0001$
+        MOV  DPL,A
+        ret
+  __endasm;
+
+  /* return value in DPL */
+
+  return ;
+}
+
+
+void shift_bytes_JTAG()
+{
+  /* Shift out byte C, shift in from TDO:
+   *
+   * 8x {
+   *   Read carry from TDO
+   *   Output least significant bit on TDI
+   *   Raise TCK
+   *   Shift c right, append carry (TDO) at left
+   *   Lower TCK
+   * }
+   * Return c.
+   */
+    printf("Shifting data in and out for JTAG %02x\r\n",get_current_byte());
+    data_epbuf = get_next_byte();
+    EA = 0;
+  __asm
+        nop
+        nop
+        nop
+        nop
+        MOV  A,_data_epbuf
+        mov r0,#0x08
+        0001$:
+        MOV  C,_TDO
+        RRC  A
+        MOV  _TDI,C
+        SETB _TCK
+        nop
+        nop
+        nop
+        nop
+        CLR  _TCK
+        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
+        mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
+        ret
+  __endasm;
+  EA = 1;
+}
+
+
+
+void clock_bits_tms()
+{
+
+    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    data_epbuf = get_next_byte();
+     __asm
+        MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        MOV r0,_mpsse_bits_clock_length
+        0001$:RRC  A
+        CLR  _TCK
+        MOV  _TMS,C
+        SETB _TCK
+        djnz r0,0001$
+        nop
+        CLR  _TCK
+        ret
+  __endasm;
+
+
+}
+
+unsigned char read_bits_write_TMS_JTAG()
+{
+
+    printf("Read TDI, clock out TDO %02x\r\n",get_current_byte());
+    mpsse_bits_clock_length = get_next_byte();
+    data_epbuf = get_next_byte();
+  __asm
+        MOV  A,_data_epbuf
+        mov r0,_mpsse_bits_clock_length
+        0001$:
+        MOV  C,_TDO
+        RRC  A
+        MOV  _TMS,C
+        SETB _TCK
+        CLR  _TCK
+        djnz r0, 0001$
+        MOV  DPL,A
+        ret
+  __endasm;
+
+}
+
+
+void read_write_bytes_JTAG()
+{
+
+        /* The command has been read. The next 2 bytes gives us the
+     * the number of bytes we need to read .
+     */
+    printf("Reading and writing bytes from JTAG %02x\r\n",get_current_byte());
+    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    //decrement_total_byte_count(2);
+    //Initialize to 0 once we enter.
+    while(mpsse_byte_clock_length!=0)
+    {
+
+
+            //mpsse_isr_buffer = 0x00;
+            //mpsse_bit_count  = 0x09;
+            shift_bytes_JTAG();
+            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+            //isr_state  = BUSY;
+            //isr_mode   = RX;
+            //delete_packets_read++;
+            //while(isr_state  == BUSY);
+            //printf("Packets read is %02d\r\n",delete_packets_read);
+            put_ep1in_data();
+    }
+}
+
+
+
+
+
+
+
