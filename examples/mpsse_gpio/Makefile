@@ -1,6 +1,6 @@
 FX2LIBDIR=../../
 BASENAME = ftdi_mpsse
-SOURCES=ftdi_mpsse.c ftdi_conf.c mpsse_utils.c
+SOURCES=ftdi_mpsse.c ftdi_conf.c mpsse_utils.c mpsse_functions.c
 PID=0x1004
 CODE_SIZE = --code-size 0x3000
 XRAM_LOC = --xram-loc 0x3200 

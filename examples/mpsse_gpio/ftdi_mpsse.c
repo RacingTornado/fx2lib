@@ -239,22 +239,24 @@ __interrupt TF1_ISR
     ajmp finish
     cont:
     mov _mpsse_bit_count,r0;
-    clr _PA0 //Clear the TCK pin
+    //clr _PA0 //Clear the TCK pin
     mov a,_isr_mode
     CJNE A, #0x00, rx
     tx:
     mov a, _mpsse_isr_buffer;
     rlc a;
     mov _PA1, c //PA1 is DO(see PINMAPPING docs)
+    clr _PA0
     mov _mpsse_isr_buffer,a;
     sjmp clkh
     rx:
+    clr _PA0
     mul ab
     mul ab
     setb _PA0 //Set SCL
     mul ab
     mov a, _mpsse_isr_buffer;
-    mov c,_PA1 //PA2(connected to PA1 for I2C) is DI(see PINMAPPING docs)
+    mov c,_PA2 //PA2(connected to PA1 for I2C) is DI(see PINMAPPING docs)
     rlc a;
     mov _mpsse_isr_buffer,a;
     sjmp finish

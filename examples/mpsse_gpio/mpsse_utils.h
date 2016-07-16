@@ -26,41 +26,14 @@ Bit 7 : 0
 #define MPSSE_DO_READ   0x20   /* Read TDO/DI */
 #define MPSSE_WRITE_TMS 0x40   /* Write TMS/CS */
 
-/* FTDI MPSSE commands, these are sent from the host as bulk commands*/
-#define SET_BITS_LOW   0x80 /*These set the ADBUS[7-0] */
-/*BYTE DATA*/
-/*BYTE Direction*/
-#define SET_BITS_HIGH   0x82 /*These set the ACBUS[7-0] */
-/*BYTE DATA*/
-/*BYTE Direction*/
-#define GET_BITS_LOW   0x81
-#define GET_BITS_HIGH  0x83
-/*Used for device teseting, internally connects the 2 pins*/
-#define LOOPBACK_START 0x84
-#define LOOPBACK_END   0x85
-#define TCK_DIVISOR    0x86
-/* H Type specific commands */
-#define DIS_DIV_5       0x8a
-#define EN_DIV_5        0x8b
-#define EN_3_PHASE      0x8c
-#define DIS_3_PHASE     0x8d
-#define CLK_BITS        0x8e
-#define CLK_BYTES       0x8f
-#define CLK_WAIT_HIGH   0x94
-#define CLK_WAIT_LOW    0x95
-#define EN_ADAPTIVE     0x96
-#define DIS_ADAPTIVE    0x97
-#define CLK_BYTES_OR_HIGH 0x9c
-#define CLK_BYTES_OR_LOW  0x9d
+
+
 /*FT232H specific commands */
 #define DRIVE_OPEN_COLLECTOR 0x9e
 /* Value Low */
 /* Value HIGH */ /*rate is 12000000/((1+value)*2) */
 #define DIV_VALUE(rate) (rate > 6000000)?0:((6000000/rate -1) > 0xffff)? 0xffff: (6000000/rate -1)
-/* Commands in MPSSE and Host Emulation Mode */
-#define SEND_IMMEDIATE 0x87
-#define WAIT_ON_HIGH   0x88
-#define WAIT_ON_LOW    0x89
+
 /* Commands in Host Emulation Mode */
 #define READ_SHORT     0x90
 /* Address_Low */
@@ -99,9 +72,8 @@ Bit 7 : 0
 #define SIO_RESET_SIO 0
 #define SIO_RESET_PURGE_RX 1
 #define SIO_RESET_PURGE_TX 2
-/* JTAG specific commands */
-#define CLOCK_DATA_TMS_NEG 0x4B
-#define CLOCK_DATA_TMS_WITH_READ 0x6B
+
+
 
 
 BYTE handle_get_configuration();
@@ -236,7 +208,7 @@ enum ftdi_interface
     };
 
 enum mpsse_clocking_commands
-    {
+{
     CLOCK_BYTES_OUT_POS_MSB         = 0x10,
     CLOCK_BYTES_OUT_NEG_MSB         = 0x11,
     CLOCK_BITS_OUT_POS_MSB          = 0x12,
@@ -260,8 +232,45 @@ enum mpsse_clocking_commands
     CLOCK_BYTES_IN_OUT_NORMAL_LSB   = 0x39,
     CLOCK_BYTES_IN_OUT_INVERTED_LSB = 0x3C,
     CLOCK_BITS_IN_OUT_NORMAL_LSB    = 0x3B,
-    CLOCK_BITS_IN_OUT_INVERTED_LSB  = 0x3E
-    };
+    CLOCK_BITS_IN_OUT_INVERTED_LSB  = 0x3E,
+    /* JTAG specific commands */
+    CLOCK_DATA_TMS_POS              = 0x4A,
+    CLOCK_DATA_TMS_NEG              = 0x4B,
+    TMS_READ_POS_POS                = 0x6A,
+    TMS_READ_NEG_POS                = 0x6B,
+    TMS_READ_POS_NEG                = 0x6E,
+    TMS_READ_NEG_NEG                = 0x6F,
+    /* FTDI MPSSE commands, these are sent from the host as bulk commands*/
+    SET_BITS_LOW                    = 0x80 ,/*These set the ADBUS[7-0] */
+    /*BYTE DATA*/
+    /*BYTE Direction*/
+    SET_BITS_HIGH                   = 0x82 ,/*These set the ACBUS[7-0] */
+    /*BYTE DATA*/
+    /*BYTE Direction*/
+    GET_BITS_LOW                    = 0x81,
+    GET_BITS_HIGH                   = 0x83,
+    /*Used for device teseting, internally connects the 2 pins*/
+    LOOPBACK_START                  = 0x84,
+    LOOPBACK_END                    = 0x85,
+    TCK_DIVISOR                     = 0x86,
+    /* Commands in MPSSE and Host Emulation Mode */
+    SEND_IMMEDIATE                  = 0x87,
+    WAIT_ON_HIGH                    = 0x88,
+    WAIT_ON_LOW                     = 0x89,
+    /* H Type specific commands */
+    DIS_DIV_5                       = 0x8a,
+    EN_DIV_5                        = 0x8b,
+    EN_3_PHASE                      = 0x8c,
+    DIS_3_PHASE                     = 0x8d,
+    CLK_BITS                        = 0x8e,
+    CLK_BYTES                       = 0x8f,
+    CLK_WAIT_HIGH                   = 0x94,
+    CLK_WAIT_LOW                    = 0x95,
+    EN_ADAPTIVE                     = 0x96,
+    DIS_ADAPTIVE                    = 0x97,
+    CLK_BYTES_OR_HIGH               = 0x9c,
+    CLK_BYTES_OR_LOW                = 0x9d
+};
 
 /**
  * \brief Called when the FTDI_RESET command is issued.
@@ -467,6 +476,17 @@ void read_write_bits_JTAG();
  * \brief Read data bits from TDO and write data bytes into TDI on TCK.
 **/
 void read_write_bytes_JTAG();
+
+/**
+ * \brief Shift out 1 byte via JTAG.
+**/
+void shift_byte_out_JTAG();
+
+/**
+ * \brief Shift out count number of bits via JTAG.
+**/
+void clock_bits_out_jtag();
+
 
 /**
  * Enum controlling ISR operation.

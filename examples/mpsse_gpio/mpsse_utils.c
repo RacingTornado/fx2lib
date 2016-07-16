@@ -3,6 +3,7 @@
 #include "ftdi_conf.h"
 #include "stdio.h"
 #include "mpsse_utils.h"
+#include "mpsse_functions.h"
 
 __xdata __at(0xE6B8) volatile struct mpsse_control_request control_request;
 __xdata __at(0xF000) volatile struct mpsse_read_write read_write;
@@ -134,8 +135,6 @@ void mpsse_handle_bulk()
 {
     /* Pin mapping docs details how the ports on FX2 are mapped to
        those on FT2232H */
-    unsigned char a;
-    unsigned char b;
     //Points to the endpoint 2 FIFO buffer
     ep2_buffer.DAT = EP2FIFOBUF;
     //Store the total length of bytes received
@@ -145,117 +144,164 @@ void mpsse_handle_bulk()
     while(ep2_buffer.total_length!=0)
     {
         get_next_byte();
-        printf("Current byte is %02x and length is %02d\r\n",get_current_byte(),ep2_buffer.current_index);
+        printf("Current byte is %02x and length is %02d with total length %02dr\n",get_current_byte(),ep2_buffer.current_index,ep2_buffer.total_length);
         switch(get_current_byte())
         {
-        case SET_BITS_LOW:
-            //Look again and verify that this can actually be done
-            a = get_next_byte();
-            b = get_next_byte();
-            IOA = a;
-            OEA = b;
-            OEA = b;
-            //decrement_total_byte_count(3);
-            //printf("Write direction %02x, value %02x length %02d\r\n",a,b, ep2_buffer.total_length);
-            break;
-        case SET_BITS_HIGH:
-            OEB = get_next_byte();
-            IOB = get_next_byte();
-            //decrement_total_byte_count(3);
-            //printf("Write high bytes\r\n");
-            break;
-        case GET_BITS_LOW:
-            //decrement_total_byte_count(1);
-            //printf("Read low bytes\r\n");
-            break;
-        case GET_BITS_HIGH:
-            //decrement_total_byte_count(1);
-            //printf("Read high bytes\r\n");
-            break;
-        case   CLOCK_BYTES_OUT_POS_MSB:
-            clock_obyte_data_pos(0);
+        case CLOCK_BYTES_OUT_POS_MSB:
+            func_CLOCK_BYTES_OUT_POS_MSB();
             break;
         case CLOCK_BYTES_OUT_NEG_MSB:
-            clock_obyte_data_neg(0);
+            func_CLOCK_BYTES_OUT_NEG_MSB();
             break;
         case CLOCK_BITS_OUT_POS_MSB:
-            clock_obits_data_pos(0);
+            func_CLOCK_BITS_OUT_POS_MSB();
             break;
         case CLOCK_BITS_OUT_NEG_MSB:
-            clock_obits_data_neg(0);
+            func_CLOCK_BITS_OUT_NEG_MSB();
             break;
         case CLOCK_BYTES_IN_POS_MSB:
-            clock_ibyte_data_pos(0);
+            func_CLOCK_BYTES_IN_POS_MSB();
             break;
         case CLOCK_BYTES_IN_NEG_MSB:
-            clock_ibyte_data_neg(0);
+            func_CLOCK_BYTES_IN_NEG_MSB();
             break;
         case CLOCK_BITS_IN_POS_MSB:
-            clock_ibits_data_pos(0);
-            printf("Now length is %02x current byte is %02x",get_current_length(),get_current_byte());
+            func_CLOCK_BITS_IN_POS_MSB();
             break;
         case CLOCK_BITS_IN_NEG_MSB:
-            clock_ibits_data_neg(0);
+            func_CLOCK_BITS_IN_NEG_MSB();
             break;
         case CLOCK_BYTES_IN_OUT_NORMAL_MSB:
-            clock_iobyte_data(0,0);
+            func_CLOCK_BYTES_IN_OUT_NORMAL_MSB();
             break;
         case CLOCK_BYTES_IN_OUT_INVERTED_MSB:
-            clock_iobyte_data(1,0);
+            func_CLOCK_BYTES_IN_OUT_INVERTED_MSB();
             break;
         case CLOCK_BITS_IN_OUT_NORMAL_MSB:
-            clock_iobits_data(0,0);
+            func_CLOCK_BITS_IN_OUT_NORMAL_MSB();
             break;
         case CLOCK_BITS_IN_OUT_INVERTED_MSB:
-            clock_iobits_data(1,0);
+            func_CLOCK_BITS_IN_OUT_INVERTED_MSB();
             break;
         case CLOCK_BYTES_OUT_POS_LSB:
-            clock_obyte_data_pos(1);
+            func_CLOCK_BYTES_OUT_POS_LSB();
             break;
         case CLOCK_BYTES_OUT_NEG_LSB:
-            clock_obyte_data_neg(1);
+            func_CLOCK_BYTES_OUT_NEG_LSB();
             break;
         case CLOCK_BITS_OUT_POS_LSB:
-            clock_obits_data_pos(1);
+            func_CLOCK_BITS_OUT_POS_LSB();
             break;
         case CLOCK_BITS_OUT_NEG_LSB:
-            clock_obits_data_neg(1);
+            func_CLOCK_BITS_OUT_NEG_LSB();
             break;
         case CLOCK_BYTES_IN_POS_LSB:
-            clock_ibyte_data_pos(1);
+            func_CLOCK_BYTES_IN_POS_LSB();
             break;
         case CLOCK_BYTES_IN_NEG_LSB:
-            clock_ibyte_data_neg(1);
+            func_CLOCK_BYTES_IN_NEG_LSB();
             break;
         case CLOCK_BITS_IN_POS_LSB:
-            clock_ibits_data_pos(1);
+            func_CLOCK_BITS_IN_POS_LSB();
             break;
         case CLOCK_BITS_IN_NEG_LSB:
-            clock_ibits_data_neg(1);
+            func_CLOCK_BITS_IN_NEG_LSB();
             break;
         case CLOCK_BYTES_IN_OUT_NORMAL_LSB:
-             read_write_bytes_JTAG();
-            //clock_iobyte_data(0,1);
+            func_CLOCK_BYTES_IN_OUT_NORMAL_LSB();
             break;
         case CLOCK_BYTES_IN_OUT_INVERTED_LSB:
-            clock_iobyte_data(1,1);
+            func_CLOCK_BYTES_IN_OUT_INVERTED_LSB();
             break;
         case CLOCK_BITS_IN_OUT_NORMAL_LSB:
-            read_write_bits_JTAG();
-            //clock_iobits_data(0,1);
+            func_CLOCK_BITS_IN_OUT_NORMAL_LSB();
             break;
         case CLOCK_BITS_IN_OUT_INVERTED_LSB:
-            clock_iobits_data(1,1);
+            func_CLOCK_BITS_IN_OUT_INVERTED_LSB();
             break;
-        case SEND_IMMEDIATE:
-            flush_ep1in_data();
+        case CLOCK_DATA_TMS_POS:
+            func_CLOCK_DATA_TMS_POS();
             break;
         case CLOCK_DATA_TMS_NEG:
-            /* The next 2 bytes indicate the number of bits to clock out via TMS*/
-            clock_bits_tms();
+            func_CLOCK_DATA_TMS_NEG();
             break;
-        case CLOCK_DATA_TMS_WITH_READ:
-            read_bits_write_TMS_JTAG();
+        case TMS_READ_POS_POS:
+            func_TMS_READ_POS_POS();
+            break;
+        case TMS_READ_NEG_POS:
+            func_TMS_READ_NEG_POS();
+            break;
+        case TMS_READ_POS_NEG:
+            func_TMS_READ_POS_NEG();
+            break;
+        case TMS_READ_NEG_NEG:
+            func_TMS_READ_NEG_NEG();
+            break;
+        case SET_BITS_LOW:
+            func_SET_BITS_LOW();
+            break;
+        case SET_BITS_HIGH:
+            func_SET_BITS_HIGH();
+            break;
+        case GET_BITS_LOW:
+            func_GET_BITS_LOW();
+            break;
+        case GET_BITS_HIGH:
+            func_GET_BITS_HIGH();
+            break;
+        case LOOPBACK_START:
+            func_LOOPBACK_START();
+            break;
+        case LOOPBACK_END:
+            func_LOOPBACK_END();
+            break;
+        case TCK_DIVISOR:
+            func_TCK_DIVISOR();
+            break;
+        case SEND_IMMEDIATE:
+            func_SEND_IMMEDIATE();
+            break;
+        case WAIT_ON_HIGH:
+            func_WAIT_ON_HIGH();
+            break;
+        case WAIT_ON_LOW:
+            func_WAIT_ON_LOW();
+            break;
+        case DIS_DIV_5:
+            func_DIS_DIV_5();
+            break;
+        case EN_DIV_5:
+            func_EN_DIV_5();
+            break;
+        case EN_3_PHASE:
+            func_EN_3_PHASE();
+            break;
+        case DIS_3_PHASE:
+            func_DIS_3_PHASE();
+            break;
+        case CLK_BITS:
+            func_CLK_BITS();
+            break;
+        case CLK_BYTES:
+            func_CLK_BYTES();
+            break;
+        case CLK_WAIT_HIGH:
+            func_CLK_WAIT_HIGH();
+            break;
+        case CLK_WAIT_LOW:
+            func_CLK_WAIT_LOW();
+            break;
+        case EN_ADAPTIVE:
+            func_EN_ADAPTIVE();
+            break;
+        case DIS_ADAPTIVE:
+            func_DIS_ADAPTIVE();
+            break;
+        case CLK_BYTES_OR_HIGH:
+            func_CLK_BYTES_OR_HIGH();
+            break;
+        case CLK_BYTES_OR_LOW:
+            func_CLK_BYTES_OR_LOW();
             break;
         default:
             //decrement_total_byte_count(1);
@@ -281,11 +327,14 @@ void mpsse_configure_timer()
 
 void clock_obyte_data_pos(__bit dir)
 {
+
+
     /* The command has been read. The next 2 bytes gives us the
      * the number of bytes we need to clock out .
      */
     printf("clock_obyte_data_pos\r\n");
     mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    printf("Length is %d",mpsse_byte_clock_length);
     //decrement_total_byte_count(3);
     //ep2_buffer.total_length = ep2_buffer.total_length - (mpsse_byte_clock_length);
     while(mpsse_byte_clock_length!=0)
@@ -293,12 +342,13 @@ void clock_obyte_data_pos(__bit dir)
         if(isr_state != BUSY)
         {
 
-            mpsse_isr_buffer = get_next_byte();
+            //mpsse_isr_buffer = get_next_byte();
             printf("Clocking out %02x\r\n",mpsse_isr_buffer);
-            mpsse_bit_count  = 0x09;
-            isr_state  = BUSY;
-            isr_mode   = TX;
-            while(isr_state  == BUSY);
+            //mpsse_bit_count  = 0x09;
+            //isr_state  = BUSY;
+            //isr_mode   = TX;
+            //while(isr_state  == BUSY);
+            shift_byte_out_JTAG();
             mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
         }
 
@@ -456,6 +506,7 @@ void decrement_total_byte_count(unsigned char length)
 
 unsigned char get_next_byte()
 {
+    unsigned short counter;
     if(ep2_buffer.current_index == 511 )
     {
         //Rearm the endpoint
@@ -464,6 +515,14 @@ unsigned char get_next_byte()
         SYNCDELAY;
         isr_enter -- ;
         ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
+
+        printf("Got data in get_next_byte() %02x, length is %04x %02x, buffer len %d",EP2FIFOBUF[6], EP2BCL | (EP2BCH <<8),EP1INCS,ep2_buffer.total_length);
+        printf("[ ");
+        for(counter =0 ; counter < ep2_buffer.total_length; counter++)
+        {
+                printf("%02x-%02d, ",EP2FIFOBUF[counter],counter);
+        }
+        printf("]\r\n");
         ep2_buffer.current_index = 65535;
         decrement_total_byte_count(1);
         delete_total_count = delete_total_count +ep2_buffer.total_length;
@@ -553,12 +612,12 @@ __sbit __at 0x80          TCK; /* Port A.0 */
 
 /* JTAG TDI, AS ASDI, PS DATA0 */
 
-__sbit __at 0x82         TDO; /* Port A.1 */
+__sbit __at 0x82         TDO; /* Port A.2 */
 
 
 /* JTAG TMS, AS/PS nCONFIG */
 
-__sbit __at 0x81          TDI; /* Port A.2 */
+__sbit __at 0x81          TDI; /* Port A.1 */
 
 
 /* JTAG TDO, AS/PS CONF_DONE */
@@ -606,6 +665,7 @@ void clock_bits_tms()
 
     mpsse_bits_clock_length = (get_next_byte()) + 1;
     data_epbuf = get_next_byte();
+    printf("4b clocking %02x bits with value %02x\r\n",mpsse_bits_clock_length,data_epbuf);
      __asm
         MOV  A,_data_epbuf                  ;Move the data into the accumulator
         MOV r0,_mpsse_bits_clock_length
@@ -679,6 +739,41 @@ void shift_bytes_JTAG()
   EA = 1;
 }
 
+void shift_byte_out_JTAG()
+{
+    printf("Shifting data in and out for JTAG %02x\r\n",get_current_byte());
+    data_epbuf = get_next_byte();
+    EA = 0;
+  __asm
+        MOV  A,_data_epbuf
+        mov r0,#0x08
+        0001$:
+        RRC  A
+        MOV  _TDI,C
+        SETB _TCK
+        CLR  _TCK
+        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
+  __endasm;
+  EA = 1;
+}
 
+void clock_bits_out_jtag()
+{
+    printf("Function currently unimplemented");
+    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    data_epbuf = get_next_byte();
+    printf("1b clocking %02x bits with value %02x\r\n",mpsse_bits_clock_length,data_epbuf);
+     __asm
+        MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        MOV r0,_mpsse_bits_clock_length
+        0001$:RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        djnz r0,0001$
+        nop
+        CLR  _TCK
+  __endasm;
 
+}
 
