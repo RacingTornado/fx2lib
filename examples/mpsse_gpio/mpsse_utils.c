@@ -731,8 +731,12 @@ void shift_bytes_JTAG()
         MOV  C,_TDO
         RRC  A
         MOV  _TDI,C
+        nop
+        nop
         SETB _TCK
-        CLR  _TCK
+        nop
+        nop
+        CLR _TCK
         djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
         mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
   __endasm;
@@ -744,16 +748,76 @@ void shift_byte_out_JTAG()
     printf("Shifting data in and out for JTAG %02x\r\n",get_current_byte());
     data_epbuf = get_next_byte();
     EA = 0;
+//  __asm
+//        MOV  A,_data_epbuf
+//        mov r0,#0x08
+//        0001$:
+//        RRC  A
+//        MOV  _TDI,C
+//        nop
+//        nop
+//        SETB _TCK
+//        nop
+//        nop
+//        CLR  _TCK
+//        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
+//  __endasm;
+
   __asm
         MOV  A,_data_epbuf
-        mov r0,#0x08
-        0001$:
+        ;; Bit0
         RRC  A
         MOV  _TDI,C
         SETB _TCK
+        ;; Bit1
+        RRC  A
         CLR  _TCK
-        djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit2
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit3
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit4
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit5
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit6
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        ;; Bit7
+        RRC  A
+        CLR  _TCK
+        MOV  _TDI,C
+        SETB _TCK
+        nop
+        clr  _TCK
+        ret
   __endasm;
+
+
+
+
+
+
+
+
+
+
   EA = 1;
 }
 
@@ -775,5 +839,27 @@ void clock_bits_out_jtag()
         CLR  _TCK
   __endasm;
 
+}
+
+
+
+
+
+
+
+void set_break_point()
+{
+    //This function busy waits if PB3 is high. The moment a start bit is detected, it
+    //exits
+    printf("Breakpoint");
+    __asm
+            //Like #define in C. Can easily be used to change the pin
+        .equ _RX_PIN, _PB3
+        clr _EA             //(2 cycles)
+        0001$:
+            jb _RX_PIN,0001$    //Wait for the bit to go low, busy wait until then
+        setb _EA
+    __endasm;
+    printf("Released\r\n");
 }
 

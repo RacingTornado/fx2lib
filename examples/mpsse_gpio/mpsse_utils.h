@@ -487,6 +487,10 @@ void shift_byte_out_JTAG();
 **/
 void clock_bits_out_jtag();
 
+/**
+ * \brief Set a breakpoint using UART.
+**/
+void set_break_point();
 
 /**
  * Enum controlling ISR operation.
@@ -552,6 +556,6 @@ extern unsigned char ep1in_buffer_length;
 void putchar(char c);
 void uart_tx_unsigned(unsigned char c);
 extern unsigned long delete_total_count;
-#define printf(...)
+//#define printf(...)
 
 #endif // MPSSE_UTILS_H

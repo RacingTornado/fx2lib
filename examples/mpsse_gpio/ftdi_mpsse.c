@@ -69,6 +69,7 @@ void main()
     REVCTL=0x00;
     SYNCDELAY;
     isr_enter = 0;
+    set_break_point();
     while(TRUE)
     {
         //Handles device descriptor requests
