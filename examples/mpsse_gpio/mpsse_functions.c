@@ -24,7 +24,8 @@ void func_CLOCK_BYTES_OUT_NEG_MSB()
 void func_CLOCK_BITS_OUT_POS_MSB()
 {
     printf("3.3.3 Clock Data Bits Out on +ve clock edge MSB first (no read);\r\n");
-    clock_obits_data_pos(0);
+    set_breakpoint_2();
+    //clock_obits_data_pos(0);
 
 }
 /* '3.3.4 Clock Data Bits Out on -ve clock edge MSB first (no read)';
@@ -32,76 +33,94 @@ void func_CLOCK_BITS_OUT_POS_MSB()
 void func_CLOCK_BITS_OUT_NEG_MSB()
 {
     printf("3.3.4 Clock Data Bits Out on -ve clock edge MSB first (no read);\r\n");
-    clock_obits_data_neg(0);
+    //clock_obits_data_neg(0);
+    set_breakpoint_2();
 }
 /* '3.3.5 Clock Data Bytes In on +ve clock edge MSB first (no write)';
 */
 void func_CLOCK_BYTES_IN_POS_MSB()
 {
     printf("3.3.5 Clock Data Bytes In on +ve clock edge MSB first (no write);\r\n");
-    clock_ibyte_data_pos(0);
+    //clock_ibyte_data_pos(0);
+        set_breakpoint_2();
+
 }
 /* '3.3.6 Clock Data Bytes In on -ve clock edge MSB first (no write)';
 */
 void func_CLOCK_BYTES_IN_NEG_MSB()
 {
     printf("3.3.6 Clock Data Bytes In on -ve clock edge MSB first (no write);\r\n");
-    clock_ibyte_data_neg(0);
+    //clock_ibyte_data_neg(0);
+        set_breakpoint_2();
+
 }
 /* '3.3.7 Clock Data Bits In on +ve clock edge MSB first (no write)';
 */
 void func_CLOCK_BITS_IN_POS_MSB()
 {
     printf("3.3.7 Clock Data Bits In on +ve clock edge MSB first (no write);\r\n");
-    clock_ibits_data_pos(0);
+        set_breakpoint_2();
+    //clock_ibits_data_pos(0);
 }
 /* '3.3.8 Clock Data Bits In on -ve clock edge MSB first (no write)';
 */
 void func_CLOCK_BITS_IN_NEG_MSB()
 {
     printf("3.3.8 Clock Data Bits In on -ve clock edge MSB first (no write);\r\n");
-    clock_ibits_data_neg(0);
+        set_breakpoint_2();
+    //clock_ibits_data_neg(0);
 }
 /* '3.3.9 Clock Data Bytes In and Out MSB first,edged';
 */
 void func_CLOCK_BYTES_IN_OUT_NORMAL_MSB()
 {
     printf("3.3.9 Clock Data Bytes In and Out MSB first,edged;\r\n");
-    clock_iobyte_data(0,0);
+        set_breakpoint_2();
+
+    //clock_iobyte_data(0,0);
 }
 /* '3.3.9 Clock Data Bytes In and Out MSB first,edged';
 */
 void func_CLOCK_BYTES_IN_OUT_INVERTED_MSB()
 {
     printf("3.3.9 Clock Data Bytes In and Out MSB first,edged;\r\n");
-    clock_iobyte_data(1,0);
+        set_breakpoint_2();
+
+    //clock_iobyte_data(1,0);
 }
 /* '3.3.10 Clock Data bits In and Out MSB first';
 */
 void func_CLOCK_BITS_IN_OUT_NORMAL_MSB()
 {
     printf("3.3.10 Clock Data bits In and Out MSB first;\r\n");
-    clock_iobits_data(0,0);
+        set_breakpoint_2();
+
+    //clock_iobits_data(0,0);
 }
 /* '3.3.10 Clock Data bits In and Out MSB first,edged';
 */
 void func_CLOCK_BITS_IN_OUT_INVERTED_MSB()
 {
     printf("3.3.10 Clock Data bits In and Out MSB first,edged;\r\n");
-    clock_iobits_data(1,0);
+        set_breakpoint_2();
+
+    //clock_iobits_data(1,0);
 }
 /* '3.4.1 Clock Data Bytes Out on +ve clock edge LSB first (no read)';
 */
 void func_CLOCK_BYTES_OUT_POS_LSB()
 {
     printf("3.4.1 Clock Data Bytes Out on +ve clock edge LSB first (no read);\r\n");
-    clock_obyte_data_pos(1);
+        set_breakpoint_2();
+
+    //clock_obyte_data_pos(1);
 }
 /* '3.4.2 Clock Data Bytes Out on -ve clock edge LSB first (no read)';
 */
 void func_CLOCK_BYTES_OUT_NEG_LSB()
 {
     printf("3.4.2 Clock Data Bytes Out on -ve clock edge LSB first (no read);\r\n");
+    set_break_point();
     clock_obyte_data_neg(1);
 }
 /* '3.4.3 Clock Data Bits Out on +ve clock edge LSB first (no read)';
@@ -109,7 +128,9 @@ void func_CLOCK_BYTES_OUT_NEG_LSB()
 void func_CLOCK_BITS_OUT_POS_LSB()
 {
     printf("3.4.3 Clock Data Bits Out on +ve clock edge LSB first (no read);\r\n");
-    clock_obits_data_pos(1);
+    //0x19
+    set_break_point();
+    clock_bits_out_jtag();
 }
 /* '3.4.4 Clock Data Bits Out on -ve clock edge LSB first (no read)';
 */
@@ -117,6 +138,8 @@ void func_CLOCK_BITS_OUT_NEG_LSB()
 {
     printf("3.4.4 Clock Data Bits Out on -ve clock edge LSB first (no read);\r\n");
     //clock_obits_data_neg(1);
+    //0x1b
+    set_break_point();
     clock_bits_out_jtag();
 }
 /* '3.4.5 Clock Data Bytes In on +ve clock edge LSB first (no write)';
@@ -124,28 +147,35 @@ void func_CLOCK_BITS_OUT_NEG_LSB()
 void func_CLOCK_BYTES_IN_POS_LSB()
 {
     printf("3.4.5 Clock Data Bytes In on +ve clock edge LSB first (no write);\r\n");
-    clock_ibyte_data_pos(1);
+        set_breakpoint_2();
+    //clock_ibyte_data_pos(1);
 }
 /* '3.4.6 Clock Data Bytes In on -ve clock edge LSB first (no write)';
 */
 void func_CLOCK_BYTES_IN_NEG_LSB()
 {
     printf("3.4.6 Clock Data Bytes In on -ve clock edge LSB first (no write);\r\n");
-    clock_ibyte_data_neg(1);
+            set_breakpoint_2();
+
+    //clock_ibyte_data_neg(1);
 }
 /* '3.4.7 Clock Data Bits In on +ve clock edge LSB first (no write)';
 */
 void func_CLOCK_BITS_IN_POS_LSB()
 {
     printf("3.4.7 Clock Data Bits In on +ve clock edge LSB first (no write);\r\n");
-    clock_ibits_data_pos(1);
+        set_breakpoint_2();
+
+    //clock_ibits_data_pos(1);
 }
 /* '3.4.8 Clock Data Bits In on -ve clock edge LSB first (no write)';
 */
 void func_CLOCK_BITS_IN_NEG_LSB()
 {
     printf("3.4.8 Clock Data Bits In on -ve clock edge LSB first (no write);\r\n");
-    clock_ibits_data_neg(1);
+        set_breakpoint_2();
+
+    //clock_ibits_data_neg(1);
 }
 /* '3.4.9 Clock Data Bytes In and Out LSB first,edged';
 */
@@ -159,13 +189,14 @@ void func_CLOCK_BYTES_IN_OUT_NORMAL_LSB()
 void func_CLOCK_BYTES_IN_OUT_INVERTED_LSB()
 {
     printf("3.4.9 Clock Data Bytes In and Out LSB first,edged;\r\n");
-    clock_iobyte_data(1,1);
+    read_write_bytes_JTAG();
 }
 /* '3.4.10 Clock Data Bits In and Out LSB first,edged';
 */
 void func_CLOCK_BITS_IN_OUT_NORMAL_LSB()
 {
     printf("3.4.10 Clock Data Bits In and Out LSB first,edged;\r\n");
+            set_break_point();
     read_write_bits_JTAG();
 }
 /* '3.4.10 Clock Data Bits In and Out LSB first,edged';
@@ -173,7 +204,7 @@ void func_CLOCK_BITS_IN_OUT_NORMAL_LSB()
 void func_CLOCK_BITS_IN_OUT_INVERTED_LSB()
 {
     printf("3.4.10 Clock Data Bits In and Out LSB first,edged;\r\n");
-    clock_iobits_data(1,1);
+    read_write_bits_JTAG();
 }
 /* '3.5.1 Clock Data to TMS pin (no read)';
 */
@@ -194,6 +225,7 @@ void func_CLOCK_DATA_TMS_NEG()
 void func_TMS_READ_POS_POS()
 {
     printf("3.5.2 Clock Data to TMS pin with read;\r\n");
+            set_break_point();
     read_bits_write_TMS_JTAG();
 }
 /* '3.5.2 Clock Data to TMS pin with read';

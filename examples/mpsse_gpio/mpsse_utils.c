@@ -356,26 +356,26 @@ void clock_obyte_data_pos(__bit dir)
 }
 
 
-void clock_obits_data_pos(__bit dir)
-{
-    /* The command has been read. The next byte gives use the number of bits
-     * to clock out.
-     */
-    printf("clock_obits_data_pos %02d\r\n",get_current_length());
-    mpsse_bits_clock_length = (get_next_byte()) + 1;
-    //decrement_total_byte_count(3);
-    if(isr_state == IDLE || isr_state == COMPLETE)
-    {
-
-        mpsse_isr_buffer = get_next_byte();
-        printf("Clocking out %02x\r\n",mpsse_isr_buffer);
-        mpsse_bit_count  = mpsse_bits_clock_length + 1;
-        isr_state  = BUSY;
-        isr_mode   = TX;
-        while(isr_state  == BUSY);
-
-    }
-}
+//void clock_obits_data_pos(__bit dir)
+//{
+//    /* The command has been read. The next byte gives use the number of bits
+//     * to clock out.
+//     */
+//    printf("clock_obits_data_pos %02d\r\n",get_current_length());
+//    mpsse_bits_clock_length = (get_next_byte()) + 1;
+//    //decrement_total_byte_count(3);
+//    if(isr_state == IDLE || isr_state == COMPLETE)
+//    {
+//
+//        mpsse_isr_buffer = get_next_byte();
+//        printf("Clocking out %02x\r\n",mpsse_isr_buffer);
+//        mpsse_bit_count  = mpsse_bits_clock_length + 1;
+//        isr_state  = BUSY;
+//        isr_mode   = TX;
+//        while(isr_state  == BUSY);
+//
+//    }
+//}
 
 void clock_obyte_data_neg(__bit dir)
 {
@@ -384,87 +384,87 @@ void clock_obyte_data_neg(__bit dir)
     clock_obyte_data_pos(0);
 }
 
-void clock_obits_data_neg(__bit dir)
-{
-    printf("Function currently unimplemented");
-    //DELETE THIS
-    clock_obits_data_pos(0);
+//void clock_obits_data_neg(__bit dir)
+//{
+//    printf("Function currently unimplemented");
+//    //DELETE THIS
+//    clock_obits_data_pos(0);
+//
+//}
 
-}
+//void clock_ibyte_data_pos(__bit dir)
+//{
+//    /* The command has been read. The next 2 bytes gives us the
+//     * the number of bytes we need to read .
+//     */
+//    printf("clock_ibyte_data_pos %02x\r\n",get_current_byte());
+//    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+//    //decrement_total_byte_count(2);
+//    //Initialize to 0 once we enter.
+//    while(mpsse_byte_clock_length!=0)
+//    {
+//        if(isr_state == IDLE || isr_state == COMPLETE)
+//        {
+//
+//            mpsse_isr_buffer = 0x00;
+//            mpsse_bit_count  = 0x09;
+//            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+//            isr_state  = BUSY;
+//            isr_mode   = RX;
+//            delete_packets_read++;
+//            while(isr_state  == BUSY);
+//            printf("Packets read is %02d\r\n",delete_packets_read);
+//            put_ep1in_data();
+//        }
+//
+//    }
+//}
+//
+//void clock_ibits_data_pos(__bit dir)
+//{
+//    /* The command has been read.Read a single byte to get
+//     * bit length.
+//     */
+//    printf("clock_ibits_data_pos %02x\r\n",get_current_byte());
+//    mpsse_bits_clock_length = (get_next_byte()) + 1;
+//    //decrement_total_byte_count(2);
+//    printf("Length %02x\r\n",get_current_length());
+//    if(isr_state == IDLE || isr_state == COMPLETE)
+//    {
+//        mpsse_isr_buffer = 0x00;
+//        mpsse_bit_count  = mpsse_bits_clock_length+1;
+//        isr_mode   = RX;
+//        isr_state  = BUSY;
+//        while(isr_state  == BUSY);
+//
+//
+//    }
+//}
 
-void clock_ibyte_data_pos(__bit dir)
-{
-    /* The command has been read. The next 2 bytes gives us the
-     * the number of bytes we need to read .
-     */
-    printf("clock_ibyte_data_pos %02x\r\n",get_current_byte());
-    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
-    //decrement_total_byte_count(2);
-    //Initialize to 0 once we enter.
-    while(mpsse_byte_clock_length!=0)
-    {
-        if(isr_state == IDLE || isr_state == COMPLETE)
-        {
-
-            mpsse_isr_buffer = 0x00;
-            mpsse_bit_count  = 0x09;
-            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
-            isr_state  = BUSY;
-            isr_mode   = RX;
-            delete_packets_read++;
-            while(isr_state  == BUSY);
-            printf("Packets read is %02d\r\n",delete_packets_read);
-            put_ep1in_data();
-        }
-
-    }
-}
-
-void clock_ibits_data_pos(__bit dir)
-{
-    /* The command has been read.Read a single byte to get
-     * bit length.
-     */
-    printf("clock_ibits_data_pos %02x\r\n",get_current_byte());
-    mpsse_bits_clock_length = (get_next_byte()) + 1;
-    //decrement_total_byte_count(2);
-    printf("Length %02x\r\n",get_current_length());
-    if(isr_state == IDLE || isr_state == COMPLETE)
-    {
-        mpsse_isr_buffer = 0x00;
-        mpsse_bit_count  = mpsse_bits_clock_length+1;
-        isr_mode   = RX;
-        isr_state  = BUSY;
-        while(isr_state  == BUSY);
-
-
-    }
-}
-
-void clock_ibyte_data_neg(__bit dir)
-{
-    printf("Function currently unimplemented");
-    //DELETE THIS
-    clock_ibyte_data_pos(dir);
-}
-
-void clock_ibits_data_neg(__bit dir)
-{
-    printf("Function currently unimplemented");
-    //DELETE THIS
-    clock_ibits_data_pos(dir);
-}
-
-
-void clock_iobyte_data( __bit polarity,__bit dir)
-{
-    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobyte_data ");
-}
-
-void clock_iobits_data(__bit polarity,__bit dir)
-{
-    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobits_data ");
-}
+//void clock_ibyte_data_neg(__bit dir)
+//{
+//    printf("Function currently unimplemented");
+//    //DELETE THIS
+//    clock_ibyte_data_pos(dir);
+//}
+//
+//void clock_ibits_data_neg(__bit dir)
+//{
+//    printf("Function currently unimplemented");
+//    //DELETE THIS
+//    clock_ibits_data_pos(dir);
+//}
+//
+//
+//void clock_iobyte_data( __bit polarity,__bit dir)
+//{
+//    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobyte_data ");
+//}
+//
+//void clock_iobits_data(__bit polarity,__bit dir)
+//{
+//    printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -clock_iobits_data ");
+//}
 
 void send_endpoint_flush(unsigned char type)
 {
@@ -509,6 +509,7 @@ unsigned char get_next_byte()
     unsigned short counter;
     if(ep2_buffer.current_index == 511 )
     {
+        set_break_point();
         //Rearm the endpoint
         EP2BCL = 0x80; // write once
         //Decrement the isr counter
@@ -663,19 +664,25 @@ void read_write_bits_JTAG()
 void clock_bits_tms()
 {
 
-    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    mpsse_bits_clock_length = (get_next_byte())+1;
     data_epbuf = get_next_byte();
     printf("4b clocking %02x bits with value %02x\r\n",mpsse_bits_clock_length,data_epbuf);
+    if(data_epbuf==0x1b || data_epbuf==0x7f)
+    {
+        set_break_point1();
+    }
      __asm
         MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        rlc a
+        mov _TDI,c
+        mov a,_data_epbuf
         MOV r0,_mpsse_bits_clock_length
         0001$:RRC  A
-        CLR  _TCK
         MOV  _TMS,C
         SETB _TCK
+        clr _TCK
         djnz r0,0001$
         nop
-        CLR  _TCK
   __endasm;
 
 
@@ -686,10 +693,13 @@ unsigned char read_bits_write_TMS_JTAG()
 {
     /* Write and read x bits from JTAG */
     printf("Read TDI, clock out TMS %02x\r\n",get_current_byte());
-    mpsse_bits_clock_length = get_next_byte();
+    mpsse_bits_clock_length = get_next_byte()+1;
     data_epbuf = get_next_byte();
   __asm
-        MOV  A,_data_epbuf
+        MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        rlc a
+        mov _TDI,c
+        mov a,_data_epbuf
         mov r0,_mpsse_bits_clock_length
         0001$:
         MOV  C,_TDO
@@ -727,16 +737,13 @@ void shift_bytes_JTAG()
   __asm
         MOV  A,_data_epbuf
         mov r0,#0x08
+        RRC A
         0001$:
-        MOV  C,_TDO
-        RRC  A
         MOV  _TDI,C
-        nop
-        nop
         SETB _TCK
-        nop
-        nop
+        MOV  C,_TDO
         CLR _TCK
+        RRC A
         djnz r0, 0001$                  ;Stop if 8 bits have been shifted, we have to reload buffers.
         mov _mpsse_isr_buffer,a         ;Move the data into the buffer to be read
   __endasm;
@@ -764,60 +771,15 @@ void shift_byte_out_JTAG()
 //  __endasm;
 
   __asm
-        MOV  A,_data_epbuf
-        ;; Bit0
-        RRC  A
+        MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        MOV r0,#0x08
+        0001$:RRC  A
         MOV  _TDI,C
         SETB _TCK
-        ;; Bit1
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit2
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit3
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit4
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit5
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit6
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
-        ;; Bit7
-        RRC  A
-        CLR  _TCK
-        MOV  _TDI,C
-        SETB _TCK
+        clr _TCK
+        djnz r0,0001$
         nop
-        clr  _TCK
-        ret
   __endasm;
-
-
-
-
-
-
-
-
-
-
   EA = 1;
 }
 
@@ -851,6 +813,7 @@ void set_break_point()
 {
     //This function busy waits if PB3 is high. The moment a start bit is detected, it
     //exits
+    return;
     printf("Breakpoint");
     __asm
             //Like #define in C. Can easily be used to change the pin
@@ -863,3 +826,35 @@ void set_break_point()
     printf("Released\r\n");
 }
 
+void set_break_point1()
+{
+    //This function busy waits if PB3 is high. The moment a start bit is detected, it
+    //exits
+    return;
+    printf("Breakpoint1");
+    __asm
+            //Like #define in C. Can easily be used to change the pin
+        .equ _RX_PIN, _PB3
+        clr _EA             //(2 cycles)
+        0001$:
+            jb _RX_PIN,0001$    //Wait for the bit to go low, busy wait until then
+        setb _EA
+    __endasm;
+    printf("Released1\r\n");
+}
+
+void set_breakpoint_2()
+{
+    //This function busy waits if PB3 is high. The moment a start bit is detected, it
+    //exits
+    printf("Breakpoint1");
+    __asm
+            //Like #define in C. Can easily be used to change the pin
+        .equ _RX_PIN, _PB3
+        clr _EA             //(2 cycles)
+        0001$:
+            jb _RX_PIN,0001$    //Wait for the bit to go low, busy wait until then
+        setb _EA
+    __endasm;
+    printf("Released1\r\n");
+}

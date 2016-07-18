@@ -556,6 +556,6 @@ extern unsigned char ep1in_buffer_length;
 void putchar(char c);
 void uart_tx_unsigned(unsigned char c);
 extern unsigned long delete_total_count;
-//#define printf(...)
+#define printf(...)
 
 #endif // MPSSE_UTILS_H
