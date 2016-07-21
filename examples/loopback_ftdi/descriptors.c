@@ -76,7 +76,6 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
       .bDescriptorType        = USB_DT_DEVICE,
       /*USB Specification Number which device complies too.*/
       .bcdUSB                 = USB_BCD_V20,
-
       /*Class Code (Assigned by USB Org)
        * If equal to Zero, each interface specifies it’s own class code
        * If equal to 0xFF, the class code is vendor specified.*/
@@ -108,19 +107,16 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
       .bLength                = USB_DT_DEVICE_QUALIFIER_SIZE,
       /*Device Qualifier Descriptor Type = 6. */
       .bDescriptorType        = USB_DT_DEVICE_QUALIFIER,
-
       /*USB Specification Release Number in Binary-Coded Decimal (i.e., 2.10 is 210h).
        * This field identifies the release of the USB Specification with which the device
        * and its descriptors are compliant.
        * At least V2.00 is required to use this descriptor.*/
       .bcdUSB                 = USB_BCD_V20,
-
       /*Class code (assigned by the USB-IF).
        * If this field is set to FFh, the device class is vendor specific.*/
       .bDeviceClass           = USB_CLASS_VENDOR_SPEC,
       /*Subclass code (assigned by the USB-IF).*/
       .bDeviceSubClass        = USB_SUBCLASS_VENDOR_SPEC,
-
       /*Protocol code (assigned by the USB-IF).Set to FFh,
        * the device uses a vendor specific protocol on a device basis.*/
       .bDeviceProtocol        = 0xff,
@@ -139,7 +135,6 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
          .bLength             = USB_DT_CONFIG_SIZE,
          /*Configuration Descriptor Type = 2.*/
          .bDescriptorType     = USB_DT_CONFIG,
-
          /*Total length of data returned for this configuration.
           * Includes the combined length of all descriptors
           *(configuration, interface, endpoint, and class or vendor specific)
@@ -151,14 +146,12 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
          .bConfigurationValue = 1,
          /*Index of string descriptor describing this configuration.*/
          .iConfiguration      = 0,
-
          /*Configuration characteristics
           * D7: Reserved (must be set to one for historical reasons)
           * D6: Self-powered
           * D5: Remote Wakeup
           * D4...0: Reserved (reset to zero)*/
          .bmAttributes        = USB_CONFIG_ATT_ONE,
-
          /*Maximum power consumption of the USB device from the
           * bus in this specific configuration when the device is
           * fully operational. Expressed in 2mA units (i.e., 50 = 100mA).*/
@@ -172,7 +165,6 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
          .bDescriptorType     = USB_DT_INTERFACE,
          /*The number of this interface.*/
          .bInterfaceNumber    = 0,
-
          /*Value used to select an alternate setting for the
           * interface identified in the prior field.
           * Allows an interface to change the settings on the fly.*/
@@ -195,7 +187,6 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
             .bLength          = USB_DT_ENDPOINT_SIZE,
             /*Endpoint Descriptor Type = 5.*/
             .bDescriptorType  = USB_DT_ENDPOINT,
-
             /*The address of the endpoint on the USB device described by this descriptor. The address is encoded as follows:
              * Bit 3...0: The endpoint number
              * Bit 6...4: Reserved, reset to zero
@@ -215,7 +206,6 @@ __code __at(0x3e00) struct usb_descriptors code_descriptors =
             .bLength          = USB_DT_ENDPOINT_SIZE,
             /*Endpoint Descriptor Type = 5.*/
             .bDescriptorType  = USB_DT_ENDPOINT,
-
             /*The address of the endpoint on the USB device described by this descriptor. The address is encoded as follows:
              * Bit 3...0: The endpoint number
              * Bit 6...4: Reserved, reset to zero
