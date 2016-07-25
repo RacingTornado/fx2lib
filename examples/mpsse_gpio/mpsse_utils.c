@@ -75,6 +75,7 @@ void mpsse_handle_control()
     case SIO_SET_BITMODE_REQUEST:
     {
         EP0CS |= 0x80;
+        //send_ack();
     }
     break;
     case SIO_READ_PINS_REQUEST:
@@ -96,7 +97,11 @@ void mpsse_handle_control()
     }
     break;
     default:
-        break;
+        {
+            printf("Unhandled control\r\n");
+            EP0CS |= 0x80;
+            break;
+        }
     }
 
 }
@@ -257,6 +262,11 @@ void mpsse_handle_bulk()
             break;
         case TCK_DIVISOR:
             func_TCK_DIVISOR();
+            //This is used to set the divisor. Since we dont implement it, we simply skip
+            //over the 2 other bytes
+            printf("Setting Clock\r\n");
+            get_next_byte();
+            get_next_byte();
             break;
         case SEND_IMMEDIATE:
             func_SEND_IMMEDIATE();
@@ -303,6 +313,30 @@ void mpsse_handle_bulk()
         case CLK_BYTES_OR_LOW:
             func_CLK_BYTES_OR_LOW();
             break;
+        case FPGA_PROG_CLOCK_BYTES_IN_OUT_POS_POS:
+            func_CLOCK_BYTES_IN_OUT_NORMAL_LSB();
+            break;
+
+        case FPGA_PROG_CLOCK_BITS_IN_OUT_POS_POS:
+            read_write_bits_JTAG();
+            break;
+        case FPGA_PROG_CLOCK_BYTES_IN_OUT_NEG_NEG:
+            func_CLOCK_BYTES_IN_OUT_NORMAL_LSB();
+            break;
+        case FPGA_PROG_CLOCK_BITS_IN_OUT_NEG_NEG:
+            read_write_bits_JTAG();
+            break;
+        case CLK_BYTES_IN:
+            clock_bytes_in();
+            break;
+        case CLK_BIT_IN:
+            clock_bits_in();
+            break;
+
+
+
+
+
         default:
             //decrement_total_byte_count(1);
             printf("Command has not been implemented %02x\r\n",get_current_byte());
@@ -549,7 +583,7 @@ void put_ep1in_data()
         EP1INBUF[ep1in_buffer_length] = mpsse_isr_buffer;
         ep1in_buffer_length++;
     }
-    else if(ep1in_buffer_length == 40)
+    else if(ep1in_buffer_length == 20)
     {
         EP1INBC = ep1in_buffer_length;
         //Wait till data has been sent out
@@ -584,6 +618,15 @@ void flush_ep1in_data()
         ep1in_buffer_length = 0;
         printf("Flushing data\r\n");
     }
+}
+
+void send_ack()
+{
+    EP1INBUF[0] = 0x32;
+    EP1INBUF[1] = 0x60;
+    EP1INBC = 2;
+    printf("ACKING\r\n");
+
 }
 
 
@@ -803,10 +846,54 @@ void clock_bits_out_jtag()
 
 }
 
+void clock_bytes_in()
+{
+    printf("Reading TDO bytes from JTAG %02x\r\n",get_current_byte());
+    mpsse_byte_clock_length = (get_next_byte() | (get_next_byte()<<8)) + 1;
+    while(mpsse_byte_clock_length!=0)
+    {
+            shift_byte_in_JTAG();
+            mpsse_byte_clock_length = mpsse_byte_clock_length - 1;
+            put_ep1in_data();
+    }
+}
+
+//Reads exactly 1 byte  from TDO.
+void shift_byte_in_JTAG()
+{
+
+    __asm
+        MOV r0,#0x08
+        0001$:
+        SETB _TCK
+        MOV  C,_TDO
+        RRC A
+        clr _TCK
+        djnz r0,0001$
+        mov _mpsse_isr_buffer,a
+        nop
+  __endasm;
 
 
+}
 
-
+//Clock bits in from TDO.
+void clock_bits_in()
+{
+    mpsse_bits_clock_length = (get_next_byte()) + 1;
+    __asm
+        MOV r0,_mpsse_bits_clock_length
+        0001$:
+        SETB _TCK
+        MOV  C,_TDO
+        RRC A
+        clr _TCK
+        djnz r0,0001$
+        mov _mpsse_isr_buffer,a
+        nop
+  __endasm;
+  put_ep1in_data();
+}
 
 
 void set_break_point()
@@ -847,6 +934,7 @@ void set_breakpoint_2()
 {
     //This function busy waits if PB3 is high. The moment a start bit is detected, it
     //exits
+    return;
     printf("Breakpoint1");
     __asm
             //Like #define in C. Can easily be used to change the pin

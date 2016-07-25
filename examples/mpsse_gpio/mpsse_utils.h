@@ -272,6 +272,23 @@ enum mpsse_clocking_commands
     CLK_BYTES_OR_LOW                = 0x9d
 };
 
+/*For xc3sprog compatibility*/
+enum fpga_prog
+{
+    FPGA_PROG_CLOCK_BYTES_IN_OUT_POS_POS    = 0x38,
+    FPGA_PROG_CLOCK_BYTES_IN_OUT_NEG_POS    = 0x39,
+    FPGA_PROG_CLOCK_BYTES_IN_OUT_NEG_NEG    = 0x3d,
+    FPGA_PROG_CLOCK_BITS_IN_OUT_POS_POS     = 0x3a,
+    FPGA_PROG_CLOCK_BITS_IN_OUT_NEG_POS     = 0x3b,
+    FPGA_PROG_CLOCK_BITS_IN_OUT_POS_NEG     = 0x3e,
+    FPGA_PROG_CLOCK_BITS_IN_OUT_NEG_NEG     = 0x3f,
+    CLK_SET                                 = 0x86,
+    CLK_BYTES_IN                            = 0x2d,
+    CLK_BIT_IN                              = 0x2f
+
+
+};
+
 /**
  * \brief Called when the FTDI_RESET command is issued.
 **/
