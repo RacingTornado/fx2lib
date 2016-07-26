@@ -10,6 +10,7 @@ void func_CLOCK_BYTES_OUT_POS_MSB()
 {
     printf("3.3.1 Clock Data Bytes Out on +ve clock edge MSB first (no read);\r\n");
     clock_obyte_data_pos(0);
+
 }
 /* '3.3.2 Clock Data Bytes Out on -ve clock edge MSB first (no read)';
 */
