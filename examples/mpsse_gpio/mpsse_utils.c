@@ -150,7 +150,6 @@ void mpsse_handle_bulk()
     //Store the total length of bytes received
     ep2_buffer.total_length = EP2BCL | (EP2BCH << 8);
     ep2_buffer.current_index = 65535;
-    uart_tx(0x44);
     printf("Length is %02d\r\n",ep2_buffer.total_length);
     while(ep2_buffer.total_length!=0)
     {
