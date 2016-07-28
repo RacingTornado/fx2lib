@@ -714,12 +714,13 @@ void read_write_bits_JTAG()
   __asm
         MOV  A,_data_epbuf
         mov r0,_mpsse_bits_clock_length
+        RRC  A
         0001$:
         MOV  C,_TDO
-        RRC  A
-        MOV  _TDI,C
         SETB _TCK
+        MOV  _TDI,C
         CLR  _TCK
+        RRC  A
         djnz r0, 0001$
         MOV  _mpsse_isr_buffer,A
   __endasm;
@@ -742,10 +743,11 @@ void clock_bits_tms()
     {
         set_break_point1();
     }
+        //MOV  A,_data_epbuf                  ;Move the data into the accumulator
+        //rlc a
+        //mov _TDI,c
      __asm
-        MOV  A,_data_epbuf                  ;Move the data into the accumulator
-        rlc a
-        mov _TDI,c
+
         mov a,_data_epbuf
         MOV r0,_mpsse_bits_clock_length
         0001$:RRC  A
@@ -864,13 +866,12 @@ void clock_bits_out_jtag()
         MOV  A,_data_epbuf                  ;Move the data into the accumulator
         MOV r0,_mpsse_bits_clock_length
         0001$:RRC  A
-        CLR  _TCK
         MOV  _TDI,C
-        SETB _TCK
+        setb  _TCK
+        clr _TCK
         djnz r0,0001$
         nop
-        CLR  _TCK
-  __endasm;
+    __endasm;
 
 }
 

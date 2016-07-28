@@ -4,6 +4,7 @@
 #include "stdio.h"
 #include "mpsse_utils.h"
 
+unsigned char volatile temper;
 /* '3.3.1 Clock Data Bytes Out on +ve clock edge MSB first (no read)';
 */
 void func_CLOCK_BYTES_OUT_POS_MSB()
@@ -279,6 +280,17 @@ void func_SET_BITS_HIGH()
 void func_GET_BITS_LOW()
 {
    // printf("3.6.3 Read Data bits LowByte;\r\n");
+   //temp = OEA;
+   //OEA = 0x00;
+   EA = 0;
+   __asm
+   mov _mpsse_isr_buffer,_IOA
+   __endasm;
+   EA = 1;
+   //mpsse_isr_buffer = 0x23;
+   put_ep1in_data();
+   //OEA = temp;
+
 }
 /* '3.6.4 Read Data bits HighByte';
 */
