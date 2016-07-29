@@ -282,12 +282,10 @@ void func_GET_BITS_LOW()
    // printf("3.6.3 Read Data bits LowByte;\r\n");
    //temp = OEA;
    //OEA = 0x00;
-   EA = 0;
    __asm
    mov _mpsse_isr_buffer,_IOA
    __endasm;
-   EA = 1;
-   //mpsse_isr_buffer = 0x23;
+   mpsse_isr_buffer = 0x23;
    put_ep1in_data();
    //OEA = temp;
 

@@ -611,7 +611,7 @@ void put_ep1in_data()
         EP1INBUF[ep1in_buffer_length] = mpsse_isr_buffer;
         ep1in_buffer_length++;
     }
-    else if(ep1in_buffer_length == 20)
+    else if(ep1in_buffer_length == 200)
     {
         EP1INBC = ep1in_buffer_length;
         //Wait till data has been sent out
@@ -716,9 +716,9 @@ void read_write_bits_JTAG()
         mov r0,_mpsse_bits_clock_length
         RRC  A
         0001$:
-        MOV  C,_TDO
-        SETB _TCK
         MOV  _TDI,C
+        SETB _TCK
+        MOV  C,_TDO
         CLR  _TCK
         RRC  A
         djnz r0, 0001$
